@@ -6,11 +6,12 @@ clear;
 % Dir.results = 'E:\dmss_OTVV\results';
 % Dir.raw = 'E:\dmss_OTVV\raw';
 
-Dir.ana = 'D:\dmss_OTVV\Ana_dms';
+Dir.ana = 'C:\Users\Peyton\Documents\GitHub\WenWen\DMSS\Ana_dms';
 Dir.beha = 'D:\dmss_OTVV\dmss behv csv files';
 Dir.prepro = 'D:\dmss_OTVV\prepro';
 Dir.results = 'D:\dmss_OTVV\results';
 Dir.raw = 'D:\dmss_OTVV\raw';
+Dir.figs = 'D:\dmss_OTVV\FigsOutput';
 
 subs = table;
 tmp = dir(Dir.beha);

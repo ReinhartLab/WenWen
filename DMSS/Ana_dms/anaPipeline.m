@@ -5,7 +5,7 @@ addpath(genpath('D:\intWM-E\toolbox\eeglab2021.1'))
 addpath('D:\intWM-E\toolbox\fieldtrip-20211209')
 
 %%
-% ppts %set project path, read subject folder, input bad channels for EEG interpolate
+ppts %set project path, read subject folder
 
 % beha_dms
 
@@ -15,10 +15,9 @@ clear
 load('subs.mat');
 
 parfor sn = 1:height(subs)
-%         loadRaw(sn)
-% 
-%     intpChans(sn)
-%      epoTrl(sn)
+    loadRaw(sn)
+    intpChans(sn)
+    epoTrl(sn)
 
     % rmvArtifact % visual inspection
 
@@ -26,8 +25,8 @@ parfor sn = 1:height(subs)
 
     % postICA %
      checkData(sn)% will generate new data set
-
 end
+
 % reEpoch2delay
 %%
 % clear
@@ -39,7 +38,7 @@ end
 %             for IsBL2preDelay = [0 1]
 %                 parfor sn = 1:height(subs)
 %                     singleTF_delay_ft_wavelet(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay)
-% 
+% single_connectivity_delay_ft(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay)
 %                 end
 %             end
 %         end

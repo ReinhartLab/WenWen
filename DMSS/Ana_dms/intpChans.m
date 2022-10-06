@@ -8,7 +8,6 @@ if subs.rawEEG(sn)
     set_name = fullfile(Dir.prepro,[subname,'_rawFiltered.set']);
 
     EEG = pop_loadset('filename',set_name);
-    EEG = pop_select(EEG,'nochannel',{'TVEOG','BVEOG','LHEOG','RHEOG'});
 
     load badChan
     [~,removed_channels] = clean_channels(EEG);
@@ -28,6 +27,7 @@ if subs.rawEEG(sn)
     %% if there is manually identified bad channels
 
     labels = {EEG.chanlocs.labels};
+    [~,EOGchanID] = ismember({'TVEOG','BVEOG','LHEOG','RHEOG'},labels);
 
     if ismember(subname,badChan.name(~cellfun(@isempty,badChan.name)))
         if strcmp(badChan.name{sn},subname)
@@ -42,7 +42,7 @@ if subs.rawEEG(sn)
     end
 
     if ~isempty(bad2interp)
-        bad2interp(ismember(bad2interp,[1 5 25 30]))=[];% don't interpolate EOGs
+        bad2interp(ismember(bad2interp,EOGchanID))=[];% don't interpolate EOGs
         EEG = pop_interp(EEG, bad2interp, 'spherical');
         badChan.union{sn} = bad2interp;
         save badChan badChan

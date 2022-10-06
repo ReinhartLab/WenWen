@@ -1,6 +1,6 @@
 clear;
 load subs.mat
-addpath(genpath('D:\Toolbox\crameri_v1.08'))
+addpath(genpath('D:\intWM-E\toolbox\crameri_v1.08'))
 
 % subs(subs.cleanEEG==0,:) = [];
 
@@ -55,30 +55,32 @@ setStr = {'ss1','ss2','ss4'};
 indStr = {'Accuracy','RT','dprime'};
 groupStr = {'Young','Old'};
 
-% withinDesign = table([1 2 4]','VariableNames',{'ss'});
-% withinDesign.ss = categorical(withinDesign.ss);
-% 
-% spss.rt = array2table(subsBeha(:,:,1),'VariableNames',setStr);
-% rModel =  fitrm(spss.rt,'ss1-ss4~ 1','WithinDesign',withinDesign);
-% rAnova.rt = ranova(rModel,'WithinModel','ss');
-% rt_tbl = multcompare(rModel,'ss');
-% 
-% spss.acc = array2table(subsBeha(:,:,2),'VariableNames',setStr);
-% rModel =  fitrm(spss.acc,'ss1-ss4~ 1','WithinDesign',withinDesign);
-% rAnova.acc = ranova(rModel,'WithinModel','ss');
-% acc_tbl = multcompare(rModel,'ss');
-% 
-% spss.d = array2table(subsBeha(:,:,3),'VariableNames',setStr);
-% rModel =  fitrm(spss.d,'ss1-ss4~ 1','WithinDesign',withinDesign);
-% rAnova.d = ranova(rModel,'WithinModel','ss');
-% d_tbl = multcompare(rModel,'ss');
-
+clear X
+X(:,1) = reshape(subsBeha(:,:,1),size(subsBeha,1)*size(subsBeha,2),1);
+X(:,2) = repmat(subs.group,size(subsBeha,2),1);% between
+X(:,3) = sort(repmat([1;2;3],subN,1));% within
+X(:,4) = repmat([1:subN]',3,1);%subject
+ [SSQs.rt, DFs.rt, MSQs.rt, Fs.rt, Ps.rt]=mixed_between_within_anova(X);
+ 
+ clear X
+X(:,1) = reshape(subsBeha(:,:,2),size(subsBeha,1)*size(subsBeha,2),1);
+X(:,2) = repmat(subs.group,size(subsBeha,2),1);% between
+X(:,3) = sort(repmat([1;2;3],subN,1));% within
+X(:,4) = repmat([1:subN]',3,1);%subject
+ [SSQs.acc, DFs.acc, MSQs.acc, Fs.acc, Ps.acc]=mixed_between_within_anova(X);
+ 
+ clear X
+X(:,1) = reshape(subsBeha(:,:,3),size(subsBeha,1)*size(subsBeha,2),1);
+X(:,2) = repmat(subs.group,size(subsBeha,2),1);% between
+X(:,3) = sort(repmat([1;2;3],subN,1));% within
+X(:,4) = repmat([1:subN]',3,1);%subject
+[SSQs.d, DFs.d, MSQs.d, Fs.d, Ps.d]=mixed_between_within_anova(X);
 
 %%
 myFigBasic
-myColors = crameri('bam',2);% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
+myColors = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
 
-figure;
+figure('Name','Beha','Position',[200 200 1000 650]);
 
 t = 1;
 
@@ -250,3 +252,4 @@ set(lines, 'Color', 'k','linewidth',1.2);
 %         end
 %     end
 % end
+saveas(gcf,fullfile(Dir.figs,'_beha.bmp'))

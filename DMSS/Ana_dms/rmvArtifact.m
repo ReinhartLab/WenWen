@@ -15,7 +15,6 @@ if subs.rawEEG(sn)
 
     %% reject trials by visual inspection, repeat until remove all bad trials
 
-
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET); % Store dataset
     pop_eegplot(EEG,1,1,1);% plot the EEG time series.
     pause

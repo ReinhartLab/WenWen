@@ -14,5 +14,5 @@ set(groot, ...
 'DefaultAxesTickLength', [0.01 0.01]);
  
 % set the tickdirs to go out - need this specific order
-set(groot, 'DefaultAxesTickDir', 'out');
+set(groot, 'DefaultAxesTickDir', 'in');
 set(groot, 'DefaultAxesTickDirMode', 'manual');
