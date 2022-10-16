@@ -24,9 +24,7 @@ if subs.rawEEG(sn)
 
     if isfile(postIterpFile)
         load(postIterpFile)
-        if isfield(badChan2interp,'manual')
-            disp(badChan2interp.manual)
-        end
+        disp(badChan2interp.manual)
     end
     tmp = input('badCHans separated by comma: ','s');
     badChan2interp.manual = strsplit(tmp,',');
@@ -41,6 +39,7 @@ if subs.rawEEG(sn)
     [~,EOGchanID] = ismember({'TVEOG','BVEOG','LHEOG','RHEOG'},labels);
     tmpbad(ismember(tmpbad,EOGchanID))=[];% don't interpolate EOGs
     badChan2interp.interp = tmpbad;
+
 
     EEG = pop_interp(EEG, tmpbad, 'spherical');
     save(postIterpFile,'badChan2interp')

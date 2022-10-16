@@ -15,9 +15,9 @@ clear
 load('subs.mat');
 
 parfor sn = 1:height(subs)
-     loadRaw(sn)
-     intpChans(sn)
-     epoTrl(sn)
+%     loadRaw(sn)
+%     intpChans(sn)
+%     epoTrl(sn)
 
     % rmvArtifact % visual inspection
 
@@ -70,11 +70,7 @@ for IsBL2preDelay = [1 0]
 end
 %%
 
-GndStimERP
 
-GndSSdelay
-GndSSdelaySearchLight
-GndSSdelayFreq
 
 
 

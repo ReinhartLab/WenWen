@@ -252,4 +252,4 @@ set(lines, 'Color', 'k','linewidth',1.2);
 %         end
 %     end
 % end
-saveas(gcf,fullfile(Dir.figs,'_beha.bmp'))
+saveas(gcf,fullfile(Dir.figs,'beha.bmp'))

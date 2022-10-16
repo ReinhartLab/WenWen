@@ -5,7 +5,7 @@ close all
 load('subs.mat');
 load badChan
 %%
-for sn = 2%1:height(subs)
+for sn = 29%1:height(subs)
     if subs.rawEEG(sn)==1
         subname = subs.name{sn};
 

@@ -39,7 +39,7 @@ if subs.rawEEG(sn)
             t = t+1;
             markerStr = ['T' num2str(trialID(t))];
             sEEG.event(end+1) = sEEG.event(index); % Add event to end of event list
-            % Specifying the event latency to be 0.1 sec before the referent event (in real data points)
+            % Specifying the event latency to be 0.1 sec after the referent event (in real data points)
             sEEG.event(end).latency = sEEG.event(index).latency + 0.1*sEEG.srate;
             sEEG.event(end).type = markerStr; % Make the type of the new event
         end
