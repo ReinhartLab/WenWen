@@ -36,14 +36,10 @@ nSamps = dcd.nSamps;
 
 %%
 condStr = {'All','Correct'};
-groupStr = {'Young','Old','O minus Y'};
+groupStr = {'Young','Old','Y minus O'};
+toi = 0:0.4:3.2;% in s
 
-toi = 0:0.5:3;% in s
-tw = 50;%in ms
-toi = toi+[-1;1]*tw/1000 ;
-clear topoIdx
-topoIdx(:,1) = dsearchn(times',toi(1,:)');
-topoIdx(:,2) = dsearchn(times',toi(2,:)');
+N = discretize(times,toi,'IncludedEdge','right');
 
 myFigBasic;
 
@@ -51,41 +47,48 @@ load chanLocs_dms.mat
 [is, loc] = ismember({dcd.neighbours.label},{chanloc.labels});
 chanloc  = chanloc(loc(is));
 
+threshP = 0.001;
+threshPdiff = 0.05;
 for cond = 1:2
-    ftopo= figure('name',['SSdelaySearchLight' txtCell{IsBL2preDelay+1,1}],'Position',[10 10 2000 500]);
+    ftopo= figure('name',['SSdelaySearchLight' txtCell{IsBL2preDelay+1,1}],'Position',[10 10 2000 600]);
 
     for g = 1:2
-        for t = 1:length(toi)
+        for t = 1:length(toi)-1
             subplot(3,length(toi),(g-1)*length(toi)+t)
             hold all;axis square
 
-            dat = squeeze(mean(fem.sl.mn{g}(cond,:,topoIdx(t,1):topoIdx(t,2)),3));
+            dat_mn = squeeze(mean(fem.sl.mn{g}(cond,:,N==t),3));
+            dat_all = squeeze(mean(fem.sl.data{g}(:,cond,:,N==t),4));
+            [~,p] = ttest(dat_all,1/3,'Tail','right');
 
-            topoplot(dat,chanloc);
-            caxis([0.32, 0.38])
+            topoplot(dat_mn,chanloc,'emarker2',{find(p<threshP),'o','k',4},'plotrad',0.53,'electrodes','off' );
+            caxis([0.31, 0.38])
             h = colorbar;
-            set(h,'ytick',[0.32 0.38])
+            set(h,'ytick',[0.33:0.03:0.4])
             %             h.Label.String = 'acc';
             %             h.Limits = [0.3, 0.4];
-            title(sprintf('%s:%s (%.2fs)', groupStr{g},condStr{cond},mean(toi(:,t))));
+            title(sprintf('%s:%s (%.1fs)', groupStr{g},condStr{cond},mean(toi(:,t))),sprintf('p<%.3f',threshP));
         end
     end
     g = 3;% old minus young
-    for t = 1:length(toi)
+    for t = 1:length(toi)-1
 
         subplot(3,length(toi),(g-1)*length(toi)+t)
         hold all;axis square
 
-        tmp1 = mean(fem.sl.mn{1}(cond,:,topoIdx(t,1):topoIdx(t,2)),3);
-        tmp2 = mean(fem.sl.mn{2}(cond,:,topoIdx(t,1):topoIdx(t,2)),3);
-        dat = squeeze(tmp2-tmp1);
+        tmp1 = mean(fem.sl.mn{1}(cond,:,N==t),3);
+        tmp2 = mean(fem.sl.mn{2}(cond,:,N==t),3);
+        dat_mn = squeeze(tmp1-tmp2);
+        dat_all1 = squeeze(mean(fem.sl.data{1}(:,cond,:,N==t),4));
+        dat_all2 = squeeze(mean(fem.sl.data{2}(:,cond,:,N==t),4));
+        [~,p] = ttest2(dat_all1,dat_all2);
 
-        topoplot(dat,chanloc);
+        topoplot(dat_mn,chanloc,'emarker2',{find(p<threshPdiff),'o','k',4},'plotrad',0.53,'electrodes','off');
         caxis([-0.02, 0.02])
 
         h = colorbar;
         set(h,'ytick',[-0.02 0.02])
-        title(sprintf('%s:%s (%.2fs)', groupStr{g},condStr{cond},mean(toi(:,t))));
+        title(sprintf('%s:%s (%.2fs)', groupStr{g},condStr{cond},mean(toi(:,t))),sprintf('p<%.2f',threshPdiff));
     end
 
     saveas(gcf,fullfile(Dir.figs,['SSdelaySearchLight',condStr{cond},txtCell{IsBL2preDelay+1,1},'.bmp']))

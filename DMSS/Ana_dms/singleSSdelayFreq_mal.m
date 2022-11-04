@@ -2,7 +2,7 @@ function singleSSdelayFreq_mal(sn,nIter,nfolds,IsOcci,IsdePhase,IsBL2preDelay,Is
 
 load('subs.mat');
 
-if subs.cleanEEG(sn)==1
+if subs.rawEEG(sn)==1
    
     subname = subs.name{sn};
     set_name = fullfile(Dir.prepro,[subname,'_delay.set']);
