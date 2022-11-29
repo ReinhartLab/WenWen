@@ -1,9 +1,17 @@
-function single_variablity_delay_ft(sn,IsLap,IsdePhase,IsCorretTrials)
-load('subs.mat');
-if subs.rawEEG(sn)==1
+function single_variablity_delay_ft(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
 
-    subname = subs.name{sn};
-    set_name = fullfile(Dir.prepro,[subname,'_delay.set']);
+load('subs.mat');
+subname = subs.name{sn};
+
+txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
+outputFile = fullfile(Dir.results,[subname,'_var_delay_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
+
+if IsOverwrite==0 && isfile(outputFile)
+    return
+end
+
+set_name = fullfile(Dir.prepro,[subname,'_clean.set']);
+if isfile(set_name)
     EEG = pop_loadset('filename',set_name);% baseline corrected to pre-stim
     EEG = pop_select(EEG,'nochannel',{'LHEOG','RHEOG','BVEOG','TVEOG'});
     if IsLap
@@ -33,7 +41,12 @@ if subs.rawEEG(sn)==1
 
     %%
     clear tfDat
-    ss = [1 2 4];% set size
+   if sum(strcmp({EEG.event.type},'S 50'))>=sum(strcmp({EEG.event.type},'50'))
+            stim1 = {'S 11','S 21', 'S 31'};
+        else
+            stim1 = {'11','21','31'};
+   end
+   ss = [1 2 4];% set size
     for cond_i = 1:3
         tmpID = M.ss_num == ss(cond_i);
         if IsCorretTrials ==1
@@ -41,14 +54,8 @@ if subs.rawEEG(sn)==1
         end
         sEEG =  pop_select(EEG,'trial',find(tmpID));
 
-        if sum(strcmp({EEG.event.type},'S 50'))>=sum(strcmp({EEG.event.type},'50'))
-            stim1 = {'S 11','S 21', 'S 31'};
-        else
-            stim1 = {'11','21','31'};
-        end
-
-        bEEG = pop_select(sEEG,'time',[-inf 2.5]);% re-epoch into shorter segments
-        timelimits = [-0.85 3];% pre-stimuli baseline
+        bEEG = pop_select(sEEG,'time',[-inf 2]);% re-epoch into shorter segments
+        timelimits = [-0.88 1.5];% pre-stimuli baseline
         bEEG = pop_epoch(bEEG,stim1,timelimits);
 
         if sEEG.trials~=bEEG.trials
@@ -73,6 +80,7 @@ if subs.rawEEG(sn)==1
         cfg.out = 'pow';
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
         cfg.keeptrials  = 'yes';
+
         eeg = ft_freqanalysis(cfg,eeg);
 
         if IsBL2preDelay==0 %baseline to pre stim
@@ -81,7 +89,7 @@ if subs.rawEEG(sn)==1
         end
 
         cfg = [];
-        cfg.latency = [-0.4 inf];
+        cfg.latency = [-1 inf];
         eeg = ft_selectdata(cfg,eeg);% select time of interest
 
         if IsBL2preDelay
@@ -89,15 +97,15 @@ if subs.rawEEG(sn)==1
             cfg.latency = [-0.4 -0.1];% select baseline as preDelay
             bl = ft_selectdata(cfg,eeg);
 
-            nv = squeeze(log(var(eeg.powspctrm,0,1)./mean(var(bl.powspctrm,0,1),4)));%chan*freq*time
+            nv = squeeze(log(var(eeg.powspctrm,0,1,'omitnan')./mean(var(bl.powspctrm,0,1,'omitnan'),4)));%chan*freq*time
 
         else %baseline to pre stim
 
             cfg = [];
             cfg.latency = [-0.4 -0.1];
-            bl = ft_selectdata(cfg,beeg);% select baseline as preStim
+            bl = ft_selectdata(cfg,beeg);% select baseline as pre trial
 
-            nv = squeeze(log(var(eeg.powspctrm,0,1)./mean(var(bl.powspctrm,0,1),4)));%chan*freq*time
+            nv = squeeze(log(var(eeg.powspctrm,0,1,"omitnan")./mean(var(bl.powspctrm,0,1,"omitnan"),4)));%chan*freq*time
         end
 
         eeg = ft_freqdescriptives([],eeg);% get ft structure;
@@ -106,7 +114,5 @@ if subs.rawEEG(sn)==1
         tfDat{cond_i} = eeg;
     end
     %%
-    txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
-    save(fullfile(Dir.results,[subname,'_var_delay_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']),'tfDat','-v7.3')
-
+    save(outputFile,'tfDat','-v7.3')
 end

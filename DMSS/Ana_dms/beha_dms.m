@@ -2,7 +2,7 @@ clear;
 load subs.mat
 addpath(genpath('D:\intWM-E\toolbox\crameri_v1.08'))
 
-% subs(subs.cleanEEG==0,:) = [];
+subs(subs.rawEEG==0 | subs.exclude ==1,:) = [];
 
 subN = height(subs);
 
@@ -18,7 +18,8 @@ for sub_i = 1:subN
     M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
 
     M(1:end-1,{'button_resp_corr','button_resp_rt'}) = M(2:end,{'button_resp_corr','button_resp_rt'});
-
+    
+  
     M(isnan(M.ss_num),:) = [];
     if sum(isnan(M.button_resp_rt)) >0
         M(isnan(M.button_resp_rt),["button_resp_rt","button_resp_corr"]) = array2table([0 0]);% no response = wrong response
@@ -49,6 +50,19 @@ for sub_i = 1:subN
     subsBeha(sub_i,:,2) = table2array(tmp_sum(:,["mean_button_resp_rt"]));%sub*set*(rt)
 end
 
+subs.s1_rt = subsBeha(:,1,1);
+subs.s2_rt = subsBeha(:,2,1);
+subs.s3_rt = subsBeha(:,3,1);
+
+subs.s1_acc = subsBeha(:,1,2);
+subs.s2_acc = subsBeha(:,2,2);
+subs.s3_acc = subsBeha(:,3,2);
+
+subs.s1_d = subsBeha(:,1,3);
+subs.s2_d = subsBeha(:,2,3);
+subs.s3_d = subsBeha(:,3,3);
+beha = subs;
+save('beha.mat','beha')
 %%
 
 setStr = {'ss1','ss2','ss4'};
@@ -80,11 +94,11 @@ X(:,4) = repmat([1:subN]',3,1);%subject
 myFigBasic
 myColors = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
 
-figure('Name','Beha','Position',[200 200 1000 650]);
+figure('Name','Beha','Position',[200 200 1000 750]);
 
 t = 1;
 
-subplot(2,3,t+3);hold all;axis square
+subplot(2,3,t+3);hold all;axis square;box on
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
@@ -95,9 +109,36 @@ end
 b = bar(mn');
 b(1).FaceColor = myColors(1,:);
 b(2).FaceColor = myColors(2,:);
+for g = 1:2
+    tmpID = subs.group==g;
+    dat= squeeze(subsBeha(tmpID,:,t));
+    scatter(b(g).XEndPoints,dat,10,'k','MarkerFaceColor',myColors(g,:))
+end
 errorbar(vertcat(b.XEndPoints)',mn',se','k.','LineWidth',1)
-set(gca,'YLim',[0.7 1],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)
-legend(groupStr)
+
+set(gca,'YLim',[0.7 1],'YTick',[0.7:0.1:1],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)
+legend(groupStr,'Location','southoutside')
+ytickformat('%,.1f')
+
+%---plot significance
+[~,tmp_val] = ttest2(squeeze(subsBeha(subs.group==1,:,t)),squeeze(subsBeha(subs.group==2,:,t)));
+sigY = [0.98 0.98 0.98];
+tmp_xcord = vertcat(b.XEndPoints)';
+
+for i = 1:length(tmp_val)
+    if tmp_val(i)<.05
+        sigStr = '*';
+        if tmp_val(i)<.01
+            sigStr = '**';
+            if tmp_val(i)<.001
+                sigStr = '***';
+            end
+        end
+        plot(tmp_xcord(i,:),[sigY(i) sigY(i)] ,'color','k','HandleVisibility','off')
+        text(mean(tmp_xcord(i,:)),sigY(i),sigStr,'FontSize',20,'HorizontalAlignment','center')
+    end
+end
+
 
 h4 = subplot(2,3,t);hold all;axis square
 for g = 1:2
@@ -113,36 +154,13 @@ end
 
 set(gca,'xtick',[2 6 10]+1.5*1.5,'XTickLabel',setStr)
 title(indStr{t})
-set(gca,'YLim',[0.6 1.1],'XLim',[2 14.5])
+set(gca,'YLim',[0.5 1],'XLim',[2 14.5])
 ytickformat('%,.1f')
 lines = findobj(h4, 'type', 'line');
 set(lines, 'Color', 'k','linewidth',1.2);
 
-% if rAnova.acc.pValue(3)<.05
-%     tmpA = linspace(1,1.5,3);
-%     tmp_val = rotACC_tbl.pValue([1 2 4]);
-%    
-%     tmp_xcord = {[1 2],[1 3],[2:3]};
-% 
-%     for i = 1:length(tmp_val)
-%         if tmp_val(i)<.05 
-%             sigStr = '*';
-%             if tmp_val(i)<.01
-%                 sigStr = '**';
-%                 if tmp_val(i)<.001
-%                     sigStr = '***';
-%                 end
-%             end
-%             sigY = max(max(dat))*tmpA(i);
-%             plot(tmp_xcord{i}',[sigY sigY] ,'color','k','HandleVisibility','off')
-%             text(mean(tmp_xcord{i}),sigY,sigStr,'FontSize',20,'HorizontalAlignment','center')
-%         end
-%     end
-% end
-
-
 t = 2;
-subplot(2,3,t+3);hold all;axis square
+subplot(2,3,t+3);hold all;axis square;box on
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
@@ -152,9 +170,34 @@ end
 b = bar(mn');
 b(1).FaceColor = myColors(1,:);
 b(2).FaceColor = myColors(2,:);
+for g = 1:2
+    tmpID = subs.group==g;
+    dat= squeeze(subsBeha(tmpID,:,t));
+    scatter(b(g).XEndPoints,dat,10,'k','MarkerFaceColor',myColors(g,:))
+end
 errorbar(vertcat(b.XEndPoints)',mn',se','k.','LineWidth',1)
-set(gca,'YLim',[0.6 1.2],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)
-legend(groupStr)
+set(gca,'YLim',[0.4 1.6],'YTick',[0.4:0.4:3],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)
+legend(groupStr,'Location','southoutside')
+ytickformat('%.1f')
+
+%---plot significance
+[~,tmp_val] = ttest2(squeeze(subsBeha(subs.group==1,:,t)),squeeze(subsBeha(subs.group==2,:,t)));
+sigY = [1.5 1.5 1.5];
+tmp_xcord = vertcat(b.XEndPoints)';
+
+for i = 1:length(tmp_val)
+    if tmp_val(i)<.05
+        sigStr = '*';
+        if tmp_val(i)<.01
+            sigStr = '**';
+            if tmp_val(i)<.001
+                sigStr = '***';
+            end
+        end
+        plot(tmp_xcord(i,:),[sigY(i) sigY(i)] ,'color','k','HandleVisibility','off')
+        text(mean(tmp_xcord(i,:)),sigY(i),sigStr,'FontSize',20,'HorizontalAlignment','center')
+    end
+end
 
 h4=subplot(2,3,t);hold all;axis square
 dat = squeeze(subsBeha(:,:,t));%
@@ -166,7 +209,7 @@ end
 
 h = findobj(gca,'Tag','Box');
 for j=1:length(h)
-    patch(get(h(j),'XData'),get(h(j),'YData'),myColors((j>3)+1,:),'FaceAlpha',.7);
+    patch(get(h(j),'XData'),get(h(j),'YData'),myColors((j<=3)+1,:),'FaceAlpha',.7);
 end
 set(gca,'xtick',[2 6 10]+1.5*1.5,'XTickLabel',setStr,'XLim',[2 14.5])
 title(indStr{t})
@@ -175,32 +218,10 @@ ytickformat('%,.1f')
 lines = findobj(h4, 'type', 'line');
 set(lines, 'Color', 'k','linewidth',1.2);
 
-% if rAnova.rt.pValue(3)<.05
-%     tmpA = linspace(1,1.5,3);
-%     tmp_val = rt_tbl.pValue([1 2 4]);
-%    
-%     tmp_xcord = {[1 2],[1 3],[2:3]};
-% 
-%     for i = 1:length(tmp_val)
-%         if tmp_val(i)<.05 
-%             sigStr = '*';
-%             if tmp_val(i)<.01
-%                 sigStr = '**';
-%                 if tmp_val(i)<.001
-%                     sigStr = '***';
-%                 end
-%             end
-%             sigY = max(max(dat))*tmpA(i);
-%             plot(tmp_xcord{i}',[sigY sigY] ,'color','k','HandleVisibility','off')
-%             text(mean(tmp_xcord{i}),sigY,sigStr,'FontSize',20,'HorizontalAlignment','center')
-%         end
-%     end
-% end
-
 
 t = 3;
 
-subplot(2,3,t+3);hold all;axis square
+subplot(2,3,t+3);hold all;axis square;box on
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
@@ -210,9 +231,34 @@ end
 b = bar(mn');
 b(1).FaceColor = myColors(1,:);
 b(2).FaceColor = myColors(2,:);
+for g = 1:2
+    tmpID = subs.group==g;
+    dat= squeeze(subsBeha(tmpID,:,t));
+    scatter(b(g).XEndPoints,dat,10,'k','MarkerFaceColor',myColors(g,:))
+end
 errorbar(vertcat(b.XEndPoints)',mn',se','k.','LineWidth',1)
-set(gca,'YLim',[1 4],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)
-legend(groupStr)
+set(gca,'YLim',[1 5],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)
+legend(groupStr,'Location','southoutside')
+ytickformat('%.1f')
+
+%---plot significance
+[~,tmp_val] = ttest2(squeeze(subsBeha(subs.group==1,:,t)),squeeze(subsBeha(subs.group==2,:,t)));
+sigY = [4.7 4.7 4.7];
+tmp_xcord = vertcat(b.XEndPoints)';
+
+for i = 1:length(tmp_val)
+    if tmp_val(i)<.05
+        sigStr = '*';
+        if tmp_val(i)<.01
+            sigStr = '**';
+            if tmp_val(i)<.001
+                sigStr = '***';
+            end
+        end
+        plot(tmp_xcord(i,:),[sigY(i) sigY(i)] ,'color','k','HandleVisibility','off')
+        text(mean(tmp_xcord(i,:)),sigY(i),sigStr,'FontSize',20,'HorizontalAlignment','center')
+    end
+end
 
 h4=subplot(2,3,t);hold all;axis square
 for g = 1:2
@@ -223,7 +269,7 @@ end
 
 h = findobj(gca,'Tag','Box');
 for j=1:length(h)
-    patch(get(h(j),'XData'),get(h(j),'YData'),myColors((j>3)+1,:),'FaceAlpha',.7);
+    patch(get(h(j),'XData'),get(h(j),'YData'),myColors((j<=3)+1,:),'FaceAlpha',.7);
 end
 set(gca,'xtick',[2 6 10]+1.5*1.5,'XTickLabel',setStr)
 title(indStr{t})
@@ -231,25 +277,5 @@ set(gca,'YLim',[0 6.5],'XLim',[2 14.5])
 ytickformat('%,.1f')
 lines = findobj(h4, 'type', 'line');
 set(lines, 'Color', 'k','linewidth',1.2);
-% if rAnova.d.pValue(3)<.05
-%     tmpA = linspace(1,1.5,3);
-%     tmp_val = d_tbl.pValue([1 2 4]);
-%    
-%     tmp_xcord = {[1 2],[1 3],[2:3]};
-% 
-%     for i = 1:length(tmp_val)
-%         if tmp_val(i)<.05 
-%             sigStr = '*';
-%             if tmp_val(i)<.01
-%                 sigStr = '**';
-%                 if tmp_val(i)<.001
-%                     sigStr = '***';
-%                 end
-%             end
-%             sigY = max(max(dat))*tmpA(i);
-%             plot(tmp_xcord{i}',[sigY sigY] ,'color','k','HandleVisibility','off')
-%             text(mean(tmp_xcord{i}),sigY,sigStr,'FontSize',20,'HorizontalAlignment','center')
-%         end
-%     end
-% end
+
 saveas(gcf,fullfile(Dir.figs,'beha.bmp'))

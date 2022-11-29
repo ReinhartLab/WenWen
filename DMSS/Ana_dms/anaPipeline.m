@@ -7,43 +7,44 @@ ft_defaults;
 %%
 ppts %set project path, read subject folder
 
-% beha_dms
+beha_dms
 
-badChanInspection % manually reject bad channels
 %%
 clear
 load('subs.mat');
 
-parfor sn = 1:height(subs)
-     loadRaw(sn)
-     intpChans(sn)
-     epoTrl(sn)
+for sn = 10:12%height(subs)
+%     loadRaw(sn)
+% badChanInspection % manually reject bad channels
+
+%     intpChans(sn)% automatic
+%     epoTrl(sn)
 
     % rmvArtifact % visual inspection
 
-%     doICA(sn)
+        doICA(sn)
 
     % postICA %
-     checkData(sn)% will generate new data set
+%     checkData(sn)% will generate new data set
 end
 
-% reEpoch2delay
+checkEEGMarkerBehaMatching
+cleanTrialsCalculator % will add a column in subs
 %%
 clear
 load('subs.mat');
-
+IsOverwrite = 1;
 for IsLap = [1 0]
     for IsdePhase = [1 0]
         for IsCorretTrials = [1 0]
             parfor sn = 1:height(subs)
                 for IsBL2preDelay = [0 1]
 
-                    singleTF_delay_ft_wavelet(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay)
-                    % single_connectivity_delay_ft(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay)
+%                     singleTF_delay_ft_wavelet(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+                    singleTF_response_ft_wavelet(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+  % single_connectivity_delay_ft(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+%                     single_variablity_delay_ft(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
                 end
-
-                single_variablity_delay_ft(sn,IsLap,IsdePhase,IsCorretTrials)
-
             end
         end
     end
@@ -57,17 +58,18 @@ load('subs.mat');
 
 nIter = 50;
 nfolds = 10;
- 
-for IsBL2preDelay = [1 0]
-    for IsOcci = [1 0]
+IsOverwrite = 1;
+for IsOcci = [0 1]
+for IsBL2preDelay = [0 1]
         for IsCorretTrials = [1 0]
             parfor sn = 1:height(subs)
-%                 singleSSdelay_mal(sn,nIter,nfolds,IsOcci,IsBL2preDelay,IsCorretTrials)
-%                 singleSSdelaySearchLight_mal(sn,nIter,nfolds,IsBL2preDelay,IsCorretTrials)
- 
-                for IsdePhase = [1 0]
-                    singleSSdelayFreq_mal(sn,nIter,nfolds,IsOcci,IsdePhase,IsBL2preDelay,IsCorretTrials)
-                end
+              
+%                 singleSSdelay_mal(sn,nIter,nfolds,IsOcci,IsBL2preDelay,IsCorretTrials,IsOverwrite)
+                singleSSdelaySearchLight_mal(sn,nIter,nfolds,IsBL2preDelay,IsCorretTrials,IsOverwrite)
+
+%                 for IsdePhase = [1 0]
+%                     singleSSdelayFreq_mal(sn,nIter,nfolds,IsOcci,IsdePhase,IsBL2preDelay,IsCorretTrials,IsOverwrite)
+%                 end
             end
         end
     end
@@ -75,10 +77,14 @@ end
 %%
 
 GndStimERP
+% GndERPsampleSubj
 
 GndSSdelay
 GndSSdelaySearchLight
 GndSSdelayFreq
 
-
+GndNeuralVar
+GndTF_ft
+GndTF_ft_response
+GndTF_ft_response_singletrial
 

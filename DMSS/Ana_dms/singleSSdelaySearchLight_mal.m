@@ -1,30 +1,19 @@
-function singleSSdelaySearchLight_mal(sn,nIter,nfolds,IsBL2preDelay,IsCorretTrials)
+function singleSSdelaySearchLight_mal(sn,nIter,nfolds,IsBL2preDelay,IsCorretTrials,IsOverwrite)
 
 load('subs.mat');
 load neighbours.mat
+subname = subs.name{sn};
 
-if subs.rawEEG(sn)==1
+txtCell = {'','';'_bl2preDelay','_corrTrials'};
+outputFile = fullfile(Dir.results,[subname,'_ssDelayChan',txtCell{IsBL2preDelay+1,1},txtCell{IsCorretTrials+1,2},'_mal.mat']);
 
-    subname = subs.name{sn};
-    set_name = fullfile(Dir.prepro,[subname,'_delay.set']);
+if isfile(outputFile) && IsOverwrite ==0
+    return
+end
+
+set_name = fullfile(Dir.prepro,[subname,'_clean.set']);
+if isfile(set_name)
     EEG = pop_loadset('filename',set_name);% baseline corrected to pre-stim
-
-    EEG = pop_select(EEG,'time',[-0.2 4],'nochannel', {'TVEOG','LHEOG','RHEOG','BVEOG'});% [-0.2 4] relative to delay
-    if IsBL2preDelay
-        EEG = pop_rmbase(EEG,[-200 0]);
-    end
-
-    %%
-
-    neighbours = neighbours(ismember({neighbours.label},{EEG.chanlocs.labels}));
-
-    for c = 1:length({neighbours.label})
-        curChan = neighbours(c).label;
-        curNB = neighbours(c).neighblabel;
-        [neighbours(c).ismemb,neighbours(c).neighbID]= ismember(curNB,{EEG.chanlocs.labels});
-        neighbours(c).neighbID = neighbours(c).neighbID(neighbours(c).ismemb);
-    end
-
     %% load behavior
 
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
@@ -44,6 +33,34 @@ if subs.rawEEG(sn)==1
         goodTrials = cell2mat(goodTrials);
     end
     M = M(goodTrials,:);
+    %%
+    if IsBL2preDelay
+        EEG = pop_rmbase(EEG,[-200 0]);% in ms
+    else
+        bsWindow = {[-1.4 -1.2],[-2.6 -2.4],[-5 -4.8]};
+        setsize = [1 2 4];
+        for ss = 1:3
+            tmpTrl = find(M.ss_num==setsize(ss));
+            tmpEEG = pop_select(EEG,'trial',tmpTrl);
+
+            tmpEEG = pop_rmbase(tmpEEG,bsWindow{ss}*1000);% pre trial baseline
+            EEG.data(:,:,tmpTrl) = tmpEEG.data;
+        end
+    end
+
+    EEG = pop_select(EEG,'time',[-1 4],'nochannel', {'TVEOG','LHEOG','RHEOG','BVEOG'});% [-0.2 4] relative to delay
+
+    %%
+
+    neighbours = neighbours(ismember({neighbours.label},{EEG.chanlocs.labels}));
+
+    for c = 1:length({neighbours.label})
+        curChan = neighbours(c).label;
+        curNB = neighbours(c).neighblabel;
+        [neighbours(c).ismemb,neighbours(c).neighbID]= ismember(curNB,{EEG.chanlocs.labels});
+        neighbours(c).neighbID = neighbours(c).neighbID(neighbours(c).ismemb);
+    end
+
 
     %% decode
 
@@ -79,8 +96,6 @@ if subs.rawEEG(sn)==1
     dcd.nSamps = nSamp;
     dcd.neighbours = neighbours;
     %%
-
-    txtCell = {'','';'_bl2preDelay','_corrTrials'};
-    save(fullfile(Dir.results,[subname,'_ssDelayChan',txtCell{IsBL2preDelay+1,1},txtCell{IsCorretTrials+1,2},'_mal.mat']),'dcd','-v7.3')
+    save(outputFile,'dcd','-v7.3')
 
 end

@@ -1,11 +1,18 @@
-function singleTF_delay_ft_wavelet(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay)
+function singleTF_delay_ft_wavelet(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
 load('subs.mat');
-if subs.rawEEG(sn)==1
-  
-    subname = subs.name{sn};
-    set_name = fullfile(Dir.prepro,[subname,'_delay.set']);
+subname = subs.name{sn};
+
+txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
+outputFile =fullfile(Dir.results,[subname,'_delay_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
+
+if IsOverwrite==0 && isfile(outputFile)
+    return
+end
+
+set_name = fullfile(Dir.prepro,[subname,'_clean.set']);
+if isfile(set_name)
     EEG = pop_loadset('filename',set_name);% baseline corrected to pre-stim
-EEG = pop_select(EEG,'nochannel',{'LHEOG','RHEOG','BVEOG','TVEOG'});
+    EEG = pop_select(EEG,'nochannel',{'LHEOG','RHEOG','BVEOG','TVEOG'});
     if IsLap
         X = [EEG.chanlocs.X];
         Y = [EEG.chanlocs.Y];
@@ -49,7 +56,7 @@ EEG = pop_select(EEG,'nochannel',{'LHEOG','RHEOG','BVEOG','TVEOG'});
         end
 
         bEEG = pop_select(sEEG,'time',[-inf 2.5]);% re-epoch into shorter segments
-        timelimits = [-0.85 3];% pre-stimuli baseline
+        timelimits = [-0.88 3];% pre-stimuli baseline
         bEEG = pop_epoch(bEEG,stim1,timelimits);
 
         if sEEG.trials~=bEEG.trials
@@ -93,11 +100,10 @@ EEG = pop_select(EEG,'nochannel',{'LHEOG','RHEOG','BVEOG','TVEOG'});
         end
 
         cfg = [];
-        cfg.latency = [-0.4 inf];
+        cfg.latency = [-1 inf];
         tfDat{cond_i} = ft_selectdata(cfg,eeg);
     end
     %%
-    txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
-    save(fullfile(Dir.results,[subname,'_delay_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']),'tfDat','-v7.3')
+    save(outputFile,'tfDat','-v7.3')
 
 end

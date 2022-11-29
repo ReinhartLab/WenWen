@@ -20,7 +20,7 @@ if subs.rawEEG(sn)
     labels = {EEG.chanlocs.labels};
     badChan2interp.badChansAuto = labels(tmpAutoBadID);
 
-    postIterpFile = fullfile(Dir.prepro,'postICAinterpChans',[subname,'_postInterp.mat']);
+    postIterpFile = fullfile(Dir.ana,'postICAinterpChans',[subname,'_postInterp.mat']);
 
     if isfile(postIterpFile)
         load(postIterpFile)
@@ -32,7 +32,7 @@ if subs.rawEEG(sn)
     badChan2interp.manual = strsplit(tmp,',');
 
     if ~isempty(tmp)
-        [~,tmpID] = ismember(badChan2interp.manual,labels);
+        [~,tmpID] = ismember(badChan2interp.manual',labels);
         tmpbad =  unique([tmpAutoBadID tmpID]);
     else
         tmpbad =  tmpAutoBadID;
@@ -42,9 +42,12 @@ if subs.rawEEG(sn)
     tmpbad(ismember(tmpbad,EOGchanID))=[];% don't interpolate EOGs
     badChan2interp.interp = tmpbad;
 
+    disp(labels(tmpbad))
+
     EEG = pop_interp(EEG, tmpbad, 'spherical');
     save(postIterpFile,'badChan2interp')
     %% rejection
+    disp('Removing EOGs before trials rejection')
     sEEG = pop_select(EEG,'time',[-5 5],'nochannel',{'TVEOG','LHEOG','RHEOG','BVEOG'});% remove EOG channels
 
     [~, rejT] = pop_eegthresh( sEEG, 1, 1:sEEG.nbchan, -threshV, threshV, sEEG.xmin, sEEG.xmax,0,0);

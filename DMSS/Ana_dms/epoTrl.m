@@ -20,6 +20,8 @@ if subs.rawEEG(sn)
         markers = {'50'}; % delay onset
     end
 
+%     tmp = ismember({EEG.event.type},'boundary');
+%     EEG.event(tmp) = [];
     timelimits = [-5.7 6];
 
     [sEEG,indices] = pop_epoch(EEG,markers,timelimits);

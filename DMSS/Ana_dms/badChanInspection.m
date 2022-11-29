@@ -3,9 +3,8 @@
 clear
 close all
 load('subs.mat');
-load badChan
 %%
-for sn = 29%1:height(subs)
+for sn = 20%1:height(subs)
     if subs.rawEEG(sn)==1
         subname = subs.name{sn};
 
@@ -17,14 +16,22 @@ for sn = 29%1:height(subs)
 
         pop_eegplot(sEEG,1,1,1);
         %%
-        badChan.name{sn}=subname;
-        disp(badChan.chan{sn})
+        matName = fullfile(Dir.ana,'preBadChans',[subname,'_preInterp.mat']);
+        if isfile(matName)
+            load(matName)
+            if istable(badChan)
+                badChan = table2struct(badChan);
+            end
+            if isfield(badChan,'chan')
+                disp(badChan.chan)
+            end
+        end
+        badChan.name=subname;
         tmp = input('badCHans separated by comma: ','s');
         if ~isempty(tmp)
-            badChan.chan{sn} = strsplit(tmp,',');
+            badChan.chan = strsplit(tmp,',');
         end
-        save badChan badChan
-
+        save(matName,'badChan')
     end
 end
 
