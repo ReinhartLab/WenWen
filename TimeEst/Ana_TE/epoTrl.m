@@ -3,11 +3,21 @@ function epoTrl(sn)
 %%
 load('subs.mat')
 
+if subs.excluded(sn)==1
+    return
+end
+
 subname = subs.name{sn};
-set_name = fullfile(Dir.prepro,[subname,'_pre.set']);
+set_name = fullfile(Dir.prepro,[subname,'_rawFiltered.set']);
+
 EEG = pop_loadset('filename',set_name);
 
-%% time locked to delay onset
+if strcmpi(subname,'S075')
+    EEG.event(2531:2537) = [];
+end
+
+trialN = sum(ismember({EEG.event.type},{'S 10'}));%start of each trial  (should be 600 trials total)
+%% time locked to cue onset
 
 markers = {'S 12'}; % cue onset
 
@@ -17,8 +27,8 @@ markers = {'S 12'}; % cue onset
 timelimits = [-1.2 6];
 
 [sEEG,indices] = pop_epoch(EEG,markers,timelimits);
-trialN = 600;
 rmvd = setdiff(1:trialN,indices);
+
 %% Add new events to a loaded dataset 0.1 second after time-locking event
 trialID = 1:trialN;
 trialID(rmvd) = [];

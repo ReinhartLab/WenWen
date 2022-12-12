@@ -2,12 +2,13 @@ clear
 load('subs.mat');
 close all
 
-sn = 1;%change this
+sn = 3;%change this
+
 %% load the data
 
 subname = subs.name{sn};
 
-set_name = fullfile(Dir.prepro,[subname,'_epo.set']);
+set_name = fullfile(Dir.prepro,[subname,'_pre.set']);
 EEG = pop_loadset('filename',set_name);
 
 pop_eegplot(EEG,1,1,1);% plot the EEG time series.
@@ -25,7 +26,7 @@ save(matname,'rejID')
 %% modified pop_rejkurt to [EEG, locthresh, globthresh, rej,nrej,com]
 
 sEEG = pop_select(EEG,'nochannel',{'TVEOG','LHEOG','RHEOG','BVEOG'});% remove EOG channels
-sEEG = pop_rejepoch(sEEG, rejID,0);
+sEEG = pop_rejepoch(sEEG, rejID,0);% remove inspected trials
 
 threshV = 500;
 [~, rejT] = pop_eegthresh( sEEG, 1, 1:sEEG.nbchan, -threshV, threshV, sEEG.xmin, sEEG.xmax,0,0);

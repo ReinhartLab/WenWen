@@ -14,16 +14,20 @@ EEG = pop_loadset('filename',set_name);
 % Run ICA on dataset 2
 % Apply the resulting ICA weights to dataset 1
 
-%         EEGica = pop_eegfiltnew(EEG,2);
-%         EEGica = pop_runica(EEGica,'icatype','runica','extended',1,'stop', 1E-7,'pca',32);
-%
-%         EEG.icaweights = EEGica.icaweights;
-%         EEG.icaact = EEGica.icaact;
-%         EEG.icachansind = EEGica.icachansind;
-%         EEG.icasphere = EEGica.icasphere;
-%         EEG.icawinv = EEGica.icawinv;
+if sn ==13
 
-EEG = pop_runica(EEG,'icatype','runica','extended',1,'stop', 1E-7);
+    EEGica = pop_eegfiltnew(EEG,2);
+    EEGica = pop_runica(EEGica,'icatype','runica','extended',1,'stop', 1E-7,'pca',50);%
+    EEG.icaweights = EEGica.icaweights;
+    EEG.icaact = EEGica.icaact;
+    EEG.icachansind = EEGica.icachansind;
+    EEG.icasphere = EEGica.icasphere;
+    EEG.icawinv = EEGica.icawinv;
+
+else
+
+    EEG = pop_runica(EEG,'icatype','runica','extended',1,'stop', 1E-7);
+end
 
 %%
 new_name = [subname,'_ICA.set'];

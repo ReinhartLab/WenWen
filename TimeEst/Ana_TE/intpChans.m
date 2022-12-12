@@ -3,43 +3,48 @@ function intpChans(sn)
 %%
 load('subs.mat')
 
+threshV = 8;% for detect bad chans
 subname = subs.name{sn};
-set_name = fullfile(Dir.prepro,[subname,'_rawFiltered.set']);
+
+set_name = fullfile(Dir.prepro,[subname,'_epo.set']);
 EEG = pop_loadset('filename',set_name);
 
-[~,removed_channels] = clean_channels(EEG);
-[~,tmp1] = pop_rejchan(EEG,'elec',1:EEG.nbchan,'threshold',8,'norm','on','measure','kurt');
-[~,tmp2] = pop_rejchan(EEG,'elec',1:EEG.nbchan,'threshold',8,'norm','on','measure','prob');
+[~,tmp1] = pop_rejchan(EEG,'elec',1:EEG.nbchan,'threshold',threshV,'norm','on','measure','kurt');
+[~,tmp2] = pop_rejchan(EEG,'elec',1:EEG.nbchan,'threshold',threshV,'norm','on','measure','prob');
 
-labels = {EEG.chanlocs.labels};
 
-badChan.name = subname;
-badChan.chanID = union(tmp1,[tmp2 find(removed_channels)]);
-badChan.labels = labels(badChan.chanID);
-fprintf('\rbad channels detected: %s\r', badChan.labels{:})
-%% if there is manually identified bad channels
-
-tmp = input('badCHans separated by comma: ','s');
-badChan.manual = strsplit(tmp,',');
-if ~isempty(tmp)
-    [~,tmpID] = ismember(badChan.manual,labels);
-    bad2interp = [badChan.chanID,tmpID];
-else
-    bad2interp = badChan.chanID;
-end
-
-badChanFile = fullfile(Dir.ana,'BadChans',[subname,'badchans.mat']);
+badChanFile = fullfile(Dir.ana,'BadChans',[subname,'_badchans.mat']);
 if isfile(badChanFile)
     load(badChanFile)
     disp(badChan)
 end
+
+labels = {EEG.chanlocs.labels};
+badChan.name = subname;
+tmp_chanID = union(tmp1,tmp2);
+badChan.autoLabels = labels(tmp_chanID);
+fprintf('\rdetected bad channel: %s\r', badChan.autoLabels{:})
+
+%% if there is manually identified bad channels
+pop_eegplot(EEG,1,1,1);
+tmp = input('badCHans separated by comma: ','s');
+badChan.manual = strsplit(tmp,',');
+badChan.manual = cellfun(@(x)erase(x," "),badChan.manual,'UniformOutput',false);% remove space if any
+if ~isempty(tmp)
+    [lia,tmpID] = ismember(badChan.manual,labels);
+    bad2interp = unique([tmp_chanID tmpID(lia)']);
+else
+    bad2interp = tmp_chanID;
+end
+
 %%
 [~,EOGchanID] = ismember({'TVEOG','BVEOG','LHEOG','RHEOG'},labels);
 
 if ~isempty(bad2interp)
     bad2interp(ismember(bad2interp,EOGchanID))=[];% don't interpolate EOGs
+    fprintf('\ninterpolating %s\n',labels{bad2interp});
     EEG = pop_interp(EEG, bad2interp, 'spherical');
-    badChan.bad2interp = bad2interp;
+    badChan.interped = labels(bad2interp);
 end
 
 new_name = [subname,'_pre.set'];

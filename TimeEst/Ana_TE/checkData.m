@@ -10,8 +10,6 @@ subname = subs.name{sn};
 set_name = fullfile(Dir.prepro,[subname,'_postICA.set']);
 EEG = pop_loadset('filename',set_name);
 
-pop_eegplot(EEG,1,1,1);
-
 %% rejection
 sEEG = pop_select(EEG,'time',[-0.5 4],'nochannel',{'TVEOG','LHEOG','RHEOG','BVEOG'});% remove EOG channels
 
