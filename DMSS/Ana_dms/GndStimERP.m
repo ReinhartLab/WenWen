@@ -4,8 +4,8 @@ subs(subs.rawEEG==0 | subs.exclude==1,:) = [];
 
 ssN = [1 2 4];
 
-for IsCorrect = [1 0]
-    for IsBL2preDelay = [0 1]
+for IsCorrect = 1%[1 0]
+    for IsBL2preDelay = 0%[0 1]
 
         for sn = 1:height(subs)
             subname = subs.name{sn};
@@ -71,9 +71,9 @@ for IsCorrect = [1 0]
         end
         txtCell = {'','';'_corrTrials','_bl2preDelay'};
 
-        save(['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.mat'],'subsAll','-v7.3')
+        save(fullfile(Dir.results,['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.mat']),'subsAll','-v7.3')
         %%
-        load(['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.mat'])
+        load(fullfile(Dir.results,['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.mat']))
 
         empty_idx = cellfun(@isempty,subsAll(:,1));
         subsAll(empty_idx,:) = [];
@@ -93,6 +93,11 @@ for IsCorrect = [1 0]
                 grandAvg{gi,ss} = ft_timelockgrandaverage(cfg, subsAll{subs.rawEEG==1&subs.group==gi,ss});
                 grandAvg{gi,ss}.indv = tmp.individual;
             end
+
+            cfg = [];
+            cfg.parameter = 'avg';
+            %             cfg.keepindividual = 'yes';
+            groupAvg{gi} = ft_timelockgrandaverage(cfg, subsAll{subs.rawEEG==1&subs.group==gi,:});
         end
 
         cfg = [];
@@ -180,6 +185,59 @@ for IsCorrect = [1 0]
             title(groupStr{3}, condStr{ss});
         end
         saveas(gcf,fullfile(Dir.figs,['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.bmp']))
+
+        %%
+        figure('Position',[100 100 1000 300]);
+        for gi = 1:2
+            subplot(1,3,gi)
+            cfg = [];
+            cfg.xlim = [0 3];
+            cfg.zlim = [-1 1];
+            cfg.colormap = jet;
+            cfg.highlight          =  'on';
+            cfg.highlightsymbol    = '.';
+            cfg.highlightsize      = 24;
+            cfg.highlightchannel = chans;
+            cfg.comment  = 'auto';
+            cfg.markersize = 3;
+            cfg.marker = 'off';
+            cfg.figure = 'gca';
+
+            cfg.layout = 'easycapM11.mat';
+            ft_topoplotER(cfg,groupAvg{gi});
+
+            h = colorbar;
+            % set(h,'ytick',-5:1:10);
+            h.Label.String = 'Voltage\muV';
+            title(groupStr{gi},'Collapse SS');
+        end
+
+        cfg = [];
+        cfg.parameter = 'avg';
+        groupDiffAvg = ft_timelockgrandaverage(cfg, groupDif{:});
+
+        subplot(1,3,3)
+        cfg = [];
+        cfg.xlim = [0 3];
+        cfg.zlim = [-1 1];
+        cfg.colormap = jet;
+        cfg.highlight          =  'on';
+        cfg.highlightsymbol    = '.';
+        cfg.highlightsize      = 24;
+        cfg.highlightchannel = {'AFz','Fz','FCz'};
+        cfg.comment  = 'auto';
+        cfg.markersize = 3;
+        cfg.marker = 'off';
+        cfg.figure = 'gca';
+
+        cfg.layout = 'easycapM11.mat';
+        ft_topoplotER(cfg,groupDiffAvg);
+
+        h = colorbar;
+        % set(h,'ytick',-5:1:10);
+        h.Label.String = 'Voltage\muV';
+        title(groupStr{3},'Collapse SS');
+        saveas(gcf,fullfile(Dir.figs,['ERP_avg_topo',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.bmp']))
 
         %%
         cfg = [];

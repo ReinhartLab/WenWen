@@ -4,7 +4,7 @@ clear
 close all
 load('subs.mat');
 %%
-for sn = 20%1:height(subs)
+for sn = 21%1:height(subs)
     if subs.rawEEG(sn)==1
         subname = subs.name{sn};
 

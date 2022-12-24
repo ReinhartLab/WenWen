@@ -20,8 +20,8 @@ groupStr = {'Young','Old','Young-Old'};
 condStr = {'ss1','ss2','ss4'};
 condDiffStr = {'S2-S1','S4-S1','S4-S2'};
 
-frontalROI = {'Fz','F1','F2','FCz','FC1','FC2','C1','C2','Cz'};
-frontalROI = {'Fz','F1','F2'};
+frontalROI = {'CPz','CP1','CP2','Pz'};
+% frontalROI = {'Fz','F1','F2','FCz','FC1','FC2'};
 occipROI = {'Pz','POz','Oz'};
 freq.betaFreq = [15 25];% Hz
 freq.alphaFreq = [8 13];% Hz
@@ -34,9 +34,10 @@ for sub_i = 1:subN
     matName = fullfile(Dir.results,[subname,'_resp_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
     if isfile(matName)
         load(matName);
-        for s = 1:3
-            subsAll{sub_i,s} = ft_freqdescriptives([],tfDat{s});
-        end
+               subsAll(sub_i,:) = tfDat;
+%  for s = 1:3
+%             subsAll{sub_i,s} = ft_freqdescriptives([],tfDat{s});
+%         end
     end
 end
 
@@ -91,7 +92,6 @@ for gi = 1:2
         % cfg.colormap = bkr;
         cfg.colormap = jet;
 
-        % cfg.channel = {'all'};
         cfg.channel = frontalROI;
         cfg.figure = 'gca';
         % cfg.maskparameter = 'mask';
@@ -154,7 +154,6 @@ cfg.ylim = [1 40];
 cfg.zlim = [-1 1];
 % cfg.colormap = bkr;
 cfg.colormap = jet;
-% cfg.channel = {'all'};
 cfg.channel = frontalROI;
 cfg.figure = 'gca';
 % cfg.maskparameter = 'mask';
@@ -270,6 +269,18 @@ Xa(:,4) = [[1:sum(subs.group==1) 1:sum(subs.group==1) 1:sum(subs.group==1)],...
 
 [SSQs.betaOccip, DFs.betaOccip, MSQs.betaOccip, Fs.betaOccip, Ps.betaOccip]=mixed_between_within_anova(Xa);
 
+%% linear fit of SS
+clear line_fit
+for gi = 1:2
+    for sub_i = 1:size(dat.betaAvgFrontal{gi},1)
+        line_fit{gi}.params(sub_i,:) = polyfit([1 2 4]',dat.betaAvgFrontal{gi}(sub_i,:)',1);
+    end
+    [~,line_fit{gi}.p,~,line_fit{gi}.Tstat] = ttest(line_fit{gi}.params(:,1));
+
+    X = repmat([1 2 4]',size(dat.betaAvgFrontal{gi},1),1);
+    Y = reshape(dat.betaAvgFrontal{gi}',size(dat.betaAvgFrontal{gi},2)*size(dat.betaAvgFrontal{gi},1),1);
+    line_fit{gi}.avgFit = polyfit(X,Y,1);
+end
 
 %% bar plot
 addpath(genpath('D:\Toolbox\crameri_v1.08'))
@@ -291,7 +302,13 @@ xcord = vertcat(hb(:).XEndPoints)';
 
 plot(xcord(1,:),dat.betaAvgFrontal{1},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
 plot(xcord(2,:),dat.betaAvgFrontal{2},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-errorbar(xcord,mn,se,'k.')
+for gi = 1:2
+    if line_fit{gi}.p<.05
+        errorbar(xcord(gi,:),mn(gi,:),se(gi,:),'r','LineWidth',1.5,'HandleVisibility','off')
+    else
+        errorbar(xcord(gi,:),mn(gi,:),se(gi,:),'k','LineStyle','none','HandleVisibility','off')
+    end
+end
 legend(condStr)
 set(gca,'xtick',[1 2],'XTickLabel',groupStr)
 ytickformat('%.1f')
@@ -308,6 +325,7 @@ if Ps.betaFrontal{1}<.05
     end
     text(1.5,1.3,sigAster,'FontSize',18,'HorizontalAlignment','center')
 end
+
 
 subplot(3,2,6);hold all;axis square
 mn = cellfun(@mean,dat.betaAvgOccip,'UniformOutput',false);
@@ -395,7 +413,7 @@ for gi = 1:2
         g(gi,cond) = gramm('x',X,'y',Y); %Specify the values of the horizontal axis x and the vertical axis y, and create a gramm drawing object
         g(gi,cond).geom_point(); %Draw a scatter plot
         g(gi,cond).stat_glm(); %Draw lines and confidence intervals based on scatter plots
-        g(gi,cond).set_names('x','Beha power(dB)','y','Beha'); %Set the title of the axis
+        g(gi,cond).set_names('x','Beta power(dB)','y','Beha'); %Set the title of the axis
         g(gi,cond).set_color_options('map',myColors(cond,:)); %Set the color of the point
         g(gi,cond).set_title(sprintf('%s: Rho = %.3f, p = %.3f',groupStr{gi},r(cond,cond),pval(cond,cond)));
         g(gi,cond).set_text_options('base_size' ,8,'title_scaling' ,1);%Set the font size, the base font size base_size is set16, the title font size of the axis is set to the base font size1.2Times

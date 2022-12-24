@@ -79,11 +79,8 @@ if isfile(set_name)
         cfg.width = linspace(2,10,length(cfg.foi)); % larger value for more precise f
         cfg.out = 'pow';
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
+        cfg.keeptrials  = 'yes';
         eeg = ft_freqanalysis(cfg,eeg);
-
-        cfg.toi = bEEG.xmin:0.05:bEEG.xmax; % every 50ms
-        beeg = ft_freqanalysis(cfg,beeg);
-
 
         if IsBL2preDelay
             cfg = [];
@@ -93,15 +90,22 @@ if isfile(set_name)
 
         else %baseline to pre stim
 
+            cfg.toi = bEEG.xmin:0.05:bEEG.xmax; % every 50ms
+            beeg = ft_freqanalysis(cfg,beeg);
+
             cfg = [];
             cfg.latency = [-0.4 -0.1];
             bl = ft_selectdata(cfg,beeg);
-            eeg.powspctrm = bsxfun(@(x,y)10*log10(x./y),eeg.powspctrm,mean(bl.powspctrm,3,'omitnan'));% dB = 10*log10(signal/baseline)
+            timedim = find(size(beeg.powspctrm)==length(beeg.time));
+
+            eeg.powspctrm = bsxfun(@(x,y)10*log10(x./y),eeg.powspctrm,mean(bl.powspctrm,timedim,'omitnan'));% dB = 10*log10(signal/baseline)
         end
 
-        cfg = [];
-        cfg.latency = [-1 inf];
-        tfDat{cond_i} = ft_selectdata(cfg,eeg);
+        tfDat{cond_i} = eeg;
+
+        %         cfg = [];
+        %         cfg.latency = [-1 inf];
+        %         tfDat{cond_i} = ft_selectdata(cfg,eeg);
     end
     %%
     save(outputFile,'tfDat','-v7.3')

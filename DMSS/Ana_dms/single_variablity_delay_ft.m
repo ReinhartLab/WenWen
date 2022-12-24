@@ -83,14 +83,14 @@ if isfile(set_name)
 
         eeg = ft_freqanalysis(cfg,eeg);
 
-        if IsBL2preDelay==0 %baseline to pre stim
+        if IsBL2preDelay==0 %baseline to pre trial
             cfg.toi = bEEG.xmin:0.05:bEEG.xmax; % every 50ms
             beeg = ft_freqanalysis(cfg,beeg);
         end
 
-        cfg = [];
-        cfg.latency = [-1 inf];
-        eeg = ft_selectdata(cfg,eeg);% select time of interest
+%         cfg = [];
+%         cfg.latency = [-1 inf];
+%         eeg = ft_selectdata(cfg,eeg);% select time of interest
 
         if IsBL2preDelay
             cfg = [];
@@ -99,7 +99,7 @@ if isfile(set_name)
 
             nv = squeeze(log(var(eeg.powspctrm,0,1,'omitnan')./mean(var(bl.powspctrm,0,1,'omitnan'),4)));%chan*freq*time
 
-        else %baseline to pre stim
+        else %baseline to pre trial
 
             cfg = [];
             cfg.latency = [-0.4 -0.1];

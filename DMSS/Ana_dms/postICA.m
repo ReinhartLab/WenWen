@@ -1,9 +1,8 @@
 clear;
-close all
 
 load('subs.mat');
-for sn = 20%:height(subs)
-%     close all
+for sn = 20 %[20:21]%:height(subs)
+    close all
     if subs.rawEEG(sn)
         subname = subs.name{sn};
 
@@ -12,6 +11,7 @@ for sn = 20%:height(subs)
 
         EEG = pop_iclabel(EEG,'default');
         pop_selectcomps(EEG, [1:min([40 size(EEG.icaweights,1)])]);
+%         pop_selectcomps(EEG, [1:28]);
         pop_eegplot( EEG, 0, 1, 1);
 
         rejICA = fullfile(Dir.ana,'rmvICA',[subname,'_rmvID.mat']);

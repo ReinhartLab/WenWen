@@ -114,13 +114,13 @@ for IsBL2preDelay = [0 1]
 
         xlabel({'Time(0s=maintenance)'});ylabel('\bfAccuracy');
         legend(groupStr,'Location','bestoutside');
-        set(gca,'TickLength',[0 0],'xtick',0:1:3,'xlim',dcd.Dtime,'ytick',0.3:0.05:0.65,'ylim',[0.3 0.5]);
+        set(gca,'TickLength',[0 0],'xtick',[-1 0:1:3],'xlim',dcd.Dtime,'ytick',0.3:0.05:0.65,'ylim',[0.3 0.5]);
         plot(get(gca,'xlim'),[1/3 1/3],'k','HandleVisibility','off')
         plot([-1 -1],get(gca,'ylim'),'k','HandleVisibility','off')
         plot([0 0],get(gca,'ylim'),'k','HandleVisibility','off')
         plot([3 3],get(gca,'ylim'),'k','HandleVisibility','off')
         plot([3.2 3.2],get(gca,'ylim'),'k:','HandleVisibility','off')
-        title(condStr{cond},sprintf('cluster p=%.2f',alpha));
+        title([condStr{cond},txtCell{IsBL2preDelay+1,2}],sprintf('cluster p=%.2f',alpha),'Interpreter','none');
         hold off
     end
     saveas(gcf,fullfile(Dir.figs,['DecodeSS' txtCell{IsOcci+1,1},txtCell{IsBL2preDelay+1,2} '.bmp']))

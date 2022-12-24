@@ -1,4 +1,4 @@
 
-for sn=[10 11 12]
+for sn=[17 18 40]
     doICA(sn)
 end

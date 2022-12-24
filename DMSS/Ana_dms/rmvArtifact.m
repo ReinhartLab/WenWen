@@ -2,7 +2,7 @@ clear
 load('subs.mat');
 close all
 
-sn = 9;%change this 
+sn = 21;%change this 
 %%
 if subs.rawEEG(sn) 
     %% load the data

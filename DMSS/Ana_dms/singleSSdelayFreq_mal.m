@@ -14,7 +14,7 @@ end
 set_name = fullfile(Dir.prepro,[subname,'_clean.set']);
 if isfile(set_name)
     EEG = pop_loadset('filename',set_name);% baseline corrected to pre-stim
-%% load behavior
+    %% load behavior
 
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
     M = readtable(csvFile);
@@ -36,9 +36,9 @@ if isfile(set_name)
     %%
     EEG = pop_select(EEG,'nochannel', {'TVEOG','LHEOG','RHEOG','BVEOG'});
     if IsBL2preDelay
-        EEG = pop_rmbase(EEG,[-200 0]);% in ms
+        EEG = pop_rmbase(EEG,[-400 0]);% in ms
     else
-        bsWindow = {[-1.4 -1.2],[-2.6 -2.4],[-5 -4.8]};
+        bsWindow = {[-1.6 -1.2],[-2.8 -2.4],[-5.2 -4.8]};
         setsize = [1 2 4];
         for ss = 1:3
             tmpTrl = find(M.ss_num==setsize(ss));
@@ -51,7 +51,7 @@ if isfile(set_name)
     if IsOcci
         occiChans = {'P7','P5','P3','P1','Pz','P2','P4','P6','P8','PO7','PO3','POz','PO4','PO8','O1','Oz','O2'};
         EEG = pop_select(EEG,'channel',occiChans);
-    end    
+    end
 
     %% decode
     clear dcd
@@ -96,7 +96,6 @@ if isfile(set_name)
 
         dcd.ACC{fi} = mean(dec_acc,'omitnan');
         dcd.ACC{fi} = dcd.ACC{fi}(timeIdx);
-
     end
 
 
