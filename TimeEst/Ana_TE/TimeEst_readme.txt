@@ -67,7 +67,7 @@ trialwise marker codes:
 
 preprocessed by Wen and Doug:
 	sn = 8,  S067, 350 trials, excluded from analysis
-	sn = 10, SO69, trial 100~400, 500uV, excluded from analysis
+	sn = 10, S069, trial 100~400, 500uV, excluded from analysis
 	sn = 14, S075, raw EEG.event(2531:2537) = [], eeglab 'boundary'
 
 status logs:
@@ -81,16 +81,14 @@ status logs:
 	2022-11-20-doug: postICA for sn=2:24
 	2022-11-21-wen: check ICA for sn= 1 2 4:7 9 11 12 15:24
 	2022-11-23-wen: check ICA for sn= 13 14, rerun preprocess sn=3
-
-to do(wen):
-	postICA revisit sn = 3 13 14
+	2022-12-12-wen: sanity check of all data, sn13 noisy
 
 notes for sn data (preICA):
 	sn=3, first 60 trials are very noisy, the rest is noisy
 	sn=6, very noisy
 	sn=9, a lot of alpha waves; RHEOG & LHEOG broken
 	sn=12, BVEOG broken
-	sn=13, beautiful data
+	sn=13, beautiful data, FCz seems to have opposite pattern.
 	sn=15, removed multiple large distortions in the data; 434 trials left
 	sn=16, very noisy
 	sn=21, frontal channels are very noisy
@@ -99,10 +97,11 @@ notes for sn data (preICA):
 notes for sn data (postICA):
 	sn=3, pretty noisy
 	sn=6, a bit noisy, removed many ICs
-	sn=9, too many trials rejected (0.568 remaining), alpha
+	sn=9, too many trials rejected (0.585 remaining), alpha
 	sn=13, strange topology ICA components
-	sn=15, 0.638 trials remaining
+	sn=15, removed many ICs, 0.66 trials remaining
 	sn=16, a bit noisy (alpha waves)
 	sn=20, a bit noisy
-	sn=21, very noisy + alpha waves (0.698 remaining)
+	sn=21, very noisy + alpha waves
 	sn=22, possibly some eye artifacts left that are characterized as brain
+

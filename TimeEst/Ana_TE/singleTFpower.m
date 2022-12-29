@@ -1,11 +1,11 @@
-function singleConn(sn,IsLap,IsdePhase,IsOverWrite)
+function singleTFpower(sn,IsLap,IsdePhase,IsOverWrite)
 load('subs.mat');
 subname = subs.name{sn};
 if subs.excluded(sn)==1
     return
 end
 txtCell = {'','';'_lap','_dephase'};
-outFile = fullfile(Dir.results,[subname,'_con0.5Hz',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},'.mat']);
+outFile = fullfile(Dir.results,[subname,'_TFpower',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},'.mat']);
 
 if IsOverWrite==0 && isfile(outFile)
     return
@@ -73,14 +73,12 @@ for cond_i = 1:2
         beeg.trial = cellfun(@(x)x-avgTrl.avg,beeg.trial,'UniformOutput',false);
     end
 
-    %% output fourier will give nans for plv (but only for eeg), using powandcsd instead
-
+    %%
     cfg              = [];
-    cfg.output       = 'powandcsd';
-    %         cfg.output       = 'fourier';
+    cfg.output       = 'pow';
     cfg.method       = 'mtmconvol';
     cfg.taper        = 'hanning';
-    cfg.foi          = 1:0.5:40;
+    cfg.foi          = 1:40;
     cfg.t_ftimwin    = ones(length(cfg.foi),1).*0.5;   % length of time window = 0.5 sec
     cfg.pad = 10;% in s
     cfg.toi          = beeg.time{1}(1):0.05:beeg.time{1}(end);  % the time window "slides" from -0.5 to 1.5 in 0.05 sec steps
@@ -93,24 +91,12 @@ for cond_i = 1:2
 
     %%
 
-    cfg           = [];
-    cfg.method    = 'plv';
-    plvFT = ft_connectivityanalysis(cfg, freq_long);
-    plvBS = ft_connectivityanalysis(cfg, freq_base);
-
     cfg = [];
     cfg.latency = [-0.5 1];
-    tfDat{cond_i}.plvFT = ft_selectdata(cfg,plvFT);
+    tfDat{cond_i}.plvFT = ft_selectdata(cfg,freq_long);
 
     cfg.latency = [-0.5 -0.1];
-    tfDat{cond_i}.plvBS = ft_selectdata(cfg,plvBS);
-
-
-    %     cfg           = [];
-    % cfg.parameter = 'plvspctrm';
-    % cfg.zlim      = [0 1];
-    % cfg.channel    = {'FCz','F6'};
-    % ft_connectivityplot(cfg,  tfDat{cond_i}.plvFT);
+    tfDat{cond_i}.plvBS = ft_selectdata(cfg,freq_base);
 
 end
 %%

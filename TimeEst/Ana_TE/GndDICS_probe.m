@@ -258,7 +258,7 @@ for gi = 1:2
         for a = 1:length(viewPara)
             ft_sourceplot(cfg,sourcePlot);
             % [caz,cel] = view
-            view(viewPara{a}(1),viewPara{a}(2))
+            view(viewPara{a})
             c = colorbar;
             c.TickLabels = [-6:2:6];
             c.Label.String = sprintf('FDR corrected t-value(%.3f)',p_alpha);

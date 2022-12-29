@@ -1,8 +1,8 @@
-function checkData(sn)
+function genCleanData(sn)
 threshV = 100;
-locthresh = 8;
-globthresh = 8;
-zthresh = 8;
+locthresh = 10;
+globthresh = 10;
+zthresh = 10;
 
 load('subs.mat');
 

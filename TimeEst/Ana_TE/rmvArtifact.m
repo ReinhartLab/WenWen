@@ -2,7 +2,7 @@ clear
 load('subs.mat');
 close all
 
-sn = 3;%change this
+sn = 13;%change this
 
 %% load the data
 
