@@ -24,7 +24,7 @@ for sub_i = 1:subN
         M(isnan(M.button_resp_rt),["button_resp_rt","button_resp_corr"]) = array2table([0 0]);% no response = wrong response
     end
 
-    ssValue = [1 2 4];
+%     ssValue = [1 2 4];
 %     for ss = 1:3
 % 
 %         nTarget = sum(ismember(M.type,'d') & M.ss_num == ssValue(ss));
@@ -82,12 +82,12 @@ X(:,4) = repmat([1:subN]',3,1);%subject
 %%
 myFigBasic
 myColors = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
-
-figure('Name','Beha','Position',[200 200 600 750]);
+mksize = 6;
+figure('Name','Beha','Position',[200 200 400 400]);
 
 t = 1;
 
-subplot(2,2,t+2);hold all;axis square;box on
+subplot(2,2,t+2);hold all;axis square;
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
@@ -95,24 +95,24 @@ for g = 1:2
     se(g,:) = std(dat)./sqrt(sum(tmpID));    
 end
 
-b = bar(mn');
+b = bar(mn','BarWidth',1);
 b(1).FaceColor = myColors(1,:);
 b(2).FaceColor = myColors(2,:);
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
-    scatter(b(g).XEndPoints,dat,10,'k','MarkerFaceColor',myColors(g,:))
+    scatter(b(g).XEndPoints,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
 end
 errorbar(vertcat(b.XEndPoints)',mn',se','k.','LineWidth',1)
 
-set(gca,'YLim',[0.6 1.2],'YTick',[0.6:0.2:1],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)
+set(gca,'YLim',[0.6 1.09],'YTick',[0.6:0.2:1],'XTickLabel',setStr,'XLim',[0.25 3.75],'XTick',1:3)
 legend(groupStr,'Location','southoutside')
 ytickformat('%,.1f')
-title(indStr{t})
+ylabel(indStr{t})
 
 %---plot significance
 [~,tmp_val] = ttest2(squeeze(subsBeha(subs.group==1,:,t)),squeeze(subsBeha(subs.group==2,:,t)));
-sigY = [1.1 1.1 1.1];
+sigY = [1 1 1]*1.03;
 tmp_xcord = vertcat(b.XEndPoints)';
 
 for i = 1:length(tmp_val)
@@ -134,7 +134,7 @@ h4 = subplot(2,2,t);hold all;axis square
 for g = 1:2
     tmpID = subs.group==g;
     dat = squeeze(subsBeha(tmpID,:,t));%
-    boxplot(dat,'Positions',[2 6 10]+g*1.5,'Whisker',1,'Widths',0.8,'OutlierSize',3,'Symbol','ko')
+    boxplot(dat,'Positions',[2 6 8]+g*1.5,'Whisker',1,'Widths',0.8,'OutlierSize',3,'Symbol','ko')
 end
 
 h = findobj(gca,'Tag','Box');
@@ -143,33 +143,33 @@ for j=1:length(h)
 end
 
 set(gca,'xtick',[2 6 10]+1.5*1.5,'XTickLabel',setStr)
-title(indStr{t})
+ylabel(indStr{t})
 set(gca,'YLim',[0.5 1],'XLim',[2 14.5])
 ytickformat('%,.1f')
 lines = findobj(h4, 'type', 'line');
 set(lines, 'Color', 'k','linewidth',1.2);
 
 t = 2;
-subplot(2,2,t+2);hold all;axis square;box on
+subplot(2,2,t+2);hold all;axis square;
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
     mn(g,:) = mean(dat);
     se(g,:) = std(dat)./sqrt(sum(tmpID));    
 end
-b = bar(mn');
+b = bar(mn','BarWidth',1);
 b(1).FaceColor = myColors(1,:);
 b(2).FaceColor = myColors(2,:);
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
-    scatter(b(g).XEndPoints,dat,10,'k','MarkerFaceColor',myColors(g,:))
+    scatter(b(g).XEndPoints,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
 end
 errorbar(vertcat(b.XEndPoints)',mn',se','k.','LineWidth',1)
 set(gca,'YLim',[0.4 1.6],'YTick',[0.4:0.4:3],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)
 legend(groupStr,'Location','southoutside')
 ytickformat('%.1f')
-title(indStr{t})
+ylabel(indStr{t})
 
 %---plot significance
 [~,tmp_val] = ttest2(squeeze(subsBeha(subs.group==1,:,t)),squeeze(subsBeha(subs.group==2,:,t)));
@@ -203,7 +203,7 @@ for j=1:length(h)
     patch(get(h(j),'XData'),get(h(j),'YData'),myColors((j<=3)+1,:),'FaceAlpha',.7);
 end
 set(gca,'xtick',[2 6 10]+1.5*1.5,'XTickLabel',setStr,'XLim',[2 14.5])
-title(indStr{t})
+ylabel(indStr{t})
 set(gca,'YLim',[0 2])
 ytickformat('%,.1f')
 lines = findobj(h4, 'type', 'line');
@@ -270,4 +270,5 @@ set(lines, 'Color', 'k','linewidth',1.2);
 % lines = findobj(h4, 'type', 'line');
 % set(lines, 'Color', 'k','linewidth',1.2);
 
-saveas(gcf,fullfile(Dir.figs,'beha.bmp'))
+saveas(gcf,fullfile(Dir.figs,'beha.png'))
+saveas(gcf,fullfile(Dir.figs,'beha.pdf'))

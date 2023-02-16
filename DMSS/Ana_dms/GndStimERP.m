@@ -3,9 +3,10 @@ load('subs.mat');
 subs(subs.rawEEG==0 | subs.exclude==1,:) = [];
 
 ssN = [1 2 4];
+txtCell = {'','';'_corrTrials','_bl2preDelay'};
 
-for IsCorrect = 1%[1 0]
-    for IsBL2preDelay = 0%[0 1]
+for IsCorrect = [1 0]
+    for IsBL2preDelay = [0 1]
 
         for sn = 1:height(subs)
             subname = subs.name{sn};
@@ -17,7 +18,8 @@ for IsCorrect = 1%[1 0]
 
                 csvFile = fullfile(Dir.beha,subs.csvFile{sn});
                 M = readtable(csvFile);
-                M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
+                M = M(:,["block_num","ss_num","button_resp_rt","button_resp_corr"]);
+                %                                M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
                 M(1:end-1,{'button_resp_corr','button_resp_rt'}) = M(2:end,{'button_resp_corr','button_resp_rt'});
 
                 M(isnan(M.ss_num),:) = [];
@@ -69,7 +71,6 @@ for IsCorrect = 1%[1 0]
                 end
             end
         end
-        txtCell = {'','';'_corrTrials','_bl2preDelay'};
 
         save(fullfile(Dir.results,['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.mat']),'subsAll','-v7.3')
         %%
@@ -184,7 +185,7 @@ for IsCorrect = 1%[1 0]
             h.Label.Rotation = -90;
             title(groupStr{3}, condStr{ss});
         end
-        saveas(gcf,fullfile(Dir.figs,['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.bmp']))
+        saveas(gcf,fullfile(Dir.figs,['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.png']))
 
         %%
         figure('Position',[100 100 1000 300]);
@@ -237,7 +238,7 @@ for IsCorrect = 1%[1 0]
         % set(h,'ytick',-5:1:10);
         h.Label.String = 'Voltage\muV';
         title(groupStr{3},'Collapse SS');
-        saveas(gcf,fullfile(Dir.figs,['ERP_avg_topo',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.bmp']))
+        saveas(gcf,fullfile(Dir.figs,['ERP_avg_topo',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.png']))
 
         %%
         cfg = [];

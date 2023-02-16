@@ -23,7 +23,7 @@ if isfile(set_name)
     %% load behavior
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
     M = readtable(csvFile);
-    M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
+    M = M(:,["block_num","ss_num","button_resp_rt","button_resp_corr"]);
     M(1:end-1,{'button_resp_corr','button_resp_rt'}) = M(2:end,{'button_resp_corr','button_resp_rt'});
 
     M(isnan(M.ss_num),:) = [];
@@ -41,7 +41,7 @@ if isfile(set_name)
 
     %%
     if sum(strcmp({EEG.event.type},'S 50'))>=sum(strcmp({EEG.event.type},'50'))
-        stim1 = {'S 11','S 21', 'S 31'};
+        stim1 = {'S 11','S 21','S 31'};
         keyMarker = {'S 60'};
     else
         stim1 = {'11','21','31'};
@@ -51,6 +51,7 @@ if isfile(set_name)
     clear tfDat
     ss = [1 2 4];% set size
     for cond_i = 1:3
+
         tmpID = M.ss_num == ss(cond_i);
         if IsCorretTrials ==1
             tmpID = M.ss_num == ss(cond_i) & M.button_resp_corr ==1;
@@ -59,18 +60,16 @@ if isfile(set_name)
 
         bEEG = pop_select(sEEG,'time',[-inf 2.5]);% re-epoch into shorter segments
         timelimits = [-0.88 1.5];% pre-stimuli baseline
-        bEEG = pop_epoch(bEEG,stim1,timelimits);
-
-        if sEEG.trials~=bEEG.trials
-            error('trials missing')
-        end
+        [bEEG,indices] = pop_epoch(bEEG,stim1,timelimits);
+        rmv = setdiff(1:sEEG.trials,indices);
+        sEEG = pop_select(sEEG,'notrial',rmv);
 
         sEEG =  pop_select(sEEG,'time',[-0.5 inf]);% shorten segment
         origTrials = 1:sEEG.trials;
-        [sEEG,indx] = pop_epoch(sEEG,keyMarker,[-3 1]);% re-epoch to reponse
+        [sEEG,indx] = pop_epoch(sEEG,keyMarker,[-2 1]);% re-epoch to reponse
         rmvd = setdiff(origTrials,indx);% get removed epochs
 
-        bEEG = pop_select(bEEG,'notrial',rmvd);% remove from baselin data
+        bEEG = pop_select(bEEG,'notrial',rmvd);% remove from baseline data
         if sEEG.trials~=bEEG.trials% check trials N
             error('trials missing')
         end
@@ -93,6 +92,8 @@ if isfile(set_name)
         cfg.out = 'pow';
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
 %         cfg.keeptrials  = 'yes';
+        cfg.padding      = 30;
+
         eeg = ft_freqanalysis(cfg,eeg);
 
         cfg.toi = bEEG.xmin:0.05:bEEG.xmax; % every 50ms

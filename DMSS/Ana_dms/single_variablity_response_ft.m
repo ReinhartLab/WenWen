@@ -23,7 +23,7 @@ if isfile(set_name)
     %% load behavior
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
     M = readtable(csvFile);
-    M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
+    M = M(:,["block_num","ss_num","button_resp_rt","button_resp_corr"]);
     M(1:end-1,{'button_resp_corr','button_resp_rt'}) = M(2:end,{'button_resp_corr','button_resp_rt'});
 
     M(isnan(M.ss_num),:) = [];
@@ -59,12 +59,10 @@ if isfile(set_name)
 
         bEEG = pop_select(sEEG,'time',[-inf 2.5]);% re-epoch into shorter segments
         timelimits = [-0.88 1.5];% pre-stimuli baseline
-        bEEG = pop_epoch(bEEG,stim1,timelimits);
-
-        if sEEG.trials~=bEEG.trials
-            error('trials missing')
-        end
-
+        [bEEG,indices] = pop_epoch(bEEG,stim1,timelimits);
+        rmv = setdiff(1:sEEG.trials,indices);
+        sEEG = pop_select(sEEG,'notrial',rmv);
+       
         sEEG =  pop_select(sEEG,'time',[-0.5 inf]);% shorten segment
         origTrials = 1:sEEG.trials;
         [sEEG,indx] = pop_epoch(sEEG,keyMarker,[-3 1]);% re-epoch to reponse
@@ -93,6 +91,7 @@ if isfile(set_name)
         cfg.out = 'pow';
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
         cfg.keeptrials  = 'yes';
+        cfg.pad = 20;
         eeg = ft_freqanalysis(cfg,eeg);
 
         if IsBL2preDelay==0 %baseline to pre trial
@@ -105,16 +104,15 @@ if isfile(set_name)
             cfg.latency       = [-0.4 -0.1];% pre-response -0.4~-0.1s as baseline
             bl = ft_selectdata(cfg,eeg);
 
-            nv = squeeze(log(var(eeg.powspctrm,0,1,'omitnan')./mean(var(bl.powspctrm,0,1,'omitnan'),4)));%chan*freq*time
-
         else %baseline to pre trial
 
             cfg = [];
             cfg.latency = [-0.4 -0.1];
             bl = ft_selectdata(cfg,beeg);
-
-            nv = squeeze(log(var(eeg.powspctrm,0,1,"omitnan")./mean(var(bl.powspctrm,0,1,"omitnan"),4)));%chan*freq*time
         end
+
+        timedim = find(size(eeg.powspctrm)==length(eeg.time));
+        nv = squeeze(log(var(eeg.powspctrm,0,1,"omitnan")./mean(var(bl.powspctrm,0,1,"omitnan"),timedim)));%chan*freq*time
 
         eeg = ft_freqdescriptives([],eeg);% get ft structure;
         eeg.powspctrm = nv;

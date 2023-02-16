@@ -18,7 +18,7 @@ if isfile(set_name)
 
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
     M = readtable(csvFile);
-    M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
+    M = M(:,["block_num","ss_num","button_resp_rt","button_resp_corr"]);
     M(1:end-1,{'button_resp_corr','button_resp_rt'}) = M(2:end,{'button_resp_corr','button_resp_rt'});
 
     M(isnan(M.ss_num),:) = [];

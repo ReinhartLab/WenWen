@@ -15,8 +15,8 @@ condStr = {'ss1','ss2','ss4'};
 chanROI = {'Fz','F1','F2','FCz','FC1','FC2'};
 SSepochwindow = {[-1.6,4.5],[-2.8,4.5],[-5.2,4.5]};
 clear PlotSubj
-PlotSubj.name = subs.name;
-% PlotSubj.name = {'dmss06'};
+% PlotSubj.name = subs.name;
+PlotSubj.name = {'DMSS031'};
 
 [~,PlotSubj.ID] = ismember(PlotSubj.name,subs.name);
 PlotSubj.group = subs.groupStr(PlotSubj.ID);
@@ -56,10 +56,10 @@ for sn= 1:length(PlotSubj.ID)
                 caxis([0 15])
                 title([subname, PlotSubj.group{sn},' ',condStr{cond_i}],[chanROI{:}])
 
-                if ~isfolder(fullfile(Dir.figs,subname))
-                    mkdir(fullfile(Dir.figs,subname))
+                if ~isfolder(fullfile(Dir.figs,'SingleTrial',subname))
+                    mkdir(fullfile(Dir.figs,'SingleTrial',subname))
                 end
-                saveas(gca,fullfile(Dir.figs,subname,[subname,condStr{cond_i},'_',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},num2str(ti),'.png']))
+                saveas(gca,fullfile(Dir.figs,'SingleTrial',subname,[subname,condStr{cond_i},'_',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},num2str(ti),'.png']))
             end
         end
     end

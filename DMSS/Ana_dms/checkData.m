@@ -2,13 +2,16 @@ function checkData(sn)
 threshV = 100;
 locthresh = 8;
 globthresh = 8;
-zthresh = 8;
+zthresh = 8;% dmss03 12, others 8
 
 load('subs.mat');
 
 if subs.rawEEG(sn)
 
     subname = subs.name{sn};
+    if ismember(subname,{'dmss03'})
+        zthresh = 12;
+    end
     set_name = fullfile(Dir.prepro,[subname,'_postICA.set']);
     EEG = pop_loadset('filename',set_name);
 
@@ -28,7 +31,9 @@ if subs.rawEEG(sn)
             disp(badChan2interp.manual)
         end
     end
-    tmp = input('badCHans separated by comma: ','s');
+%     tmp = input('badCHans separated by comma: ','s');
+        tmp = num2str([]);
+
     badChan2interp.manual = strsplit(tmp,',');
 
     if ~isempty(tmp)

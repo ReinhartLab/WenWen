@@ -48,13 +48,13 @@ DMSS041: way too noisy, but nothing we can do on our end at postICA / enough tri
 DMSS046: noisy, with some more trials that need to be rejected, but there is not enough trials left / may need to discard this sn
 2022-11-21-wen: postICA rechecked, clean set generated, lots of IC rejected
 
-DMSS050: opposite response instructions were given.
+DMSS050: opposite response instructions were given. flipped behav accuracy but not EEG marker codes
 2022-11-21-wen: postICA, clean set generated
 
-DMSS051: opposite response instructions were given.
+DMSS051: opposite response instructions were given.flipped behav accuracy but not EEG marker codes
 2022-11-21-wen: postICA, clean set generated, 0.64 remaining
 
-DMSS052: opposite response instructions were given.
+DMSS052: opposite response instructions were given.flipped behav accuracy but not EEG marker codes
 2022-11-21-wen: postICA, clean set generated
 
 DMSS053: beha data were in two files
@@ -80,6 +80,7 @@ DMSS059: 20 blocks, many IC rejected
 
 DMSS061:DMSS061 behavior data  is recovered from EEG marker codes. 26 blocks
 2022-12-24-wen: doICA
+2022-12-25-wen:checkData
 
 
 ------------------------Young ------------------------------
@@ -93,7 +94,7 @@ dmss02: pretty clean / one component characterized as 100% brain has some eye ar
 
 
 dmss03: pretty clean, but still some more trials that need to be rejected, but there is no room / may need to discard this sn
-2022-11-19-wen: postICA rechecked, clean set generated
+2022-11-19-wen: postICA rechecked, clean set generated, checkData zthresh = 12 (while others were 8)
 
 
 dmss06: clean, but with a strange heartbeat-like rhythm, caught by component 2 / component 2 was characterized as 85% brain / a boat-load of trials left
