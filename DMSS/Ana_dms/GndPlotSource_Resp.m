@@ -63,7 +63,7 @@ for gi = 1:2 % separate two groups
     cfg.method              = 'montecarlo';
     cfg.parameter           = 'powspctrm';
     cfg.correctm            = 'cluster';
-    cfg.numrandomization    = 1000;
+    cfg.numrandomization    = 10000;
     cfg.alpha               = threshP.ttest; % alpha level of the permutation test
     cfg.clusteralpha        = threshP.cluster; % alpha level of the sample-specific test statistic that will be used for thresholding
     cfg.computecritval      = 'yes';
@@ -91,11 +91,6 @@ for gi = 1:2 % separate two groups
     %         statint             = ft_sourceinterpolate(cfg, stat, mri);
     statint             = ft_sourceinterpolate(cfg, subsAll{1}, mri);
 
-    %     p_alpha = 0.05;
-    % %     tvalue = norminv(1-p_alpha);
-    %     tvalue = finv(1-p_alpha,2,78);
-    %     statint.mask        = abs(statint.stat)>tvalue;
-
     cfg.parameter       = 'mask';
     maskint             = ft_sourceinterpolate(cfg, subsAll{1},mri);
     statint.mask        = maskint.mask;
@@ -110,10 +105,10 @@ for gi = 1:2 % separate two groups
     cfg.maskparameter   = 'mask';
     cfg.funcolormap = 'hot';
     %     cfg.funcolorlim = [threshP.tvalue 6];
-    cfg.funcolorlim = [2 6];
+    cfg.funcolorlim = [0 8];
     ft_sourceplot(cfg, statint);
     title(groupStr{gi},[num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2))]);
-    print(fullfile(Dir.figs,['Resp_source_Slice_',groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2)),txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']),'-dpng','-r300');
+    print(fullfile(Dir.figs,['Resp_source_Slice_',groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2)),txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']),'-dpng','-r450');
 
     %%
 
@@ -126,7 +121,7 @@ for gi = 1:2 % separate two groups
     cfg.camlight       = 'no';
     cfg.colormap = 'hot';
     %     cfg.funcolorlim = [threshP.tvalue 6];
-    cfg.funcolorlim = [2 6];
+    cfg.funcolorlim = [0 8];
     cfg.surfinflated   = 'surface_white_both.mat';
     %         cfg.surfinflated   = 'surface_pial_both.mat';
 
@@ -149,13 +144,16 @@ for gi = 1:2 % separate two groups
         set(gca,'FontSize',14);
         c = colorbar;
         c.Label.Rotation = -90;
-        c.Label.Position =  c.Label.Position+[1 0 0];
+        c.Label.Position =  c.Label.Position+[1.5 0 0];
         % c.TickLabels = [-6:2:6];
-        c.Label.String = sprintf('Cluster permuated p<%.3f&%.3f',threshP.ttest,threshP.cluster);
-        title(groupStr{gi},[num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2))]);
-        print(fullfile(Dir.figs,['Resp_source_int_3D_',groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2)),'_',num2str(a),txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']),'-dpng','-r300');
-    end
+        c.Label.String = 'T-value of cluster based permutation';
+        c.FontSize = 16;
 
+        %         c.Label.String = sprintf('Cluster permuated p<%.3f&%.3f',threshP.ttest,threshP.cluster);
+        title([groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2))]);
+        saveas(gcf,fullfile(Dir.figs,['Resp_source_int_3D_',groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2)),'_',num2str(a),txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']));
+        print(gcf,fullfile(Dir.figs,['Resp_source_int_3D_',groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2)),'_',num2str(a),txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']),'-dpdf','-r600');
+    end
 end
 
 %  cmap = colormap("jet");

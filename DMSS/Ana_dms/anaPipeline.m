@@ -54,6 +54,10 @@ for IsCorretTrials = [1 0] % using correct or all trials for analysis
                     singleTF_response_ft_wavelet(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
                     single_variablity_response_ft(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
 
+                    iterN = 100;
+                    singleTF_response_ft_wavelet_EqualTrialSS(sn,iterN,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+                    single_variablity_response_ft_EqualTrialSS(sn,iterN,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+
                     single_variablity_response_ft_oddeven(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
 
                     iterN = 200;
@@ -63,13 +67,14 @@ for IsCorretTrials = [1 0] % using correct or all trials for analysis
                     %                     singleTF_delay_burst_ft(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
                     %                     singleTF_delay_ITPC_ft_wavelet(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
 
-                    single_power_delay_ft_trialCorrelation_Nsampled(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)% to do
+                    single_power_delay_ft_trialCorrelation(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)% to do
                     for Nsamps = [6:2:12]% size of trial cluster
                         single_variablity_delay_ft_trialCorrelation_Nsampled(sn,Nsamps,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+                        single_variablity_response_ft_trialCorrelation_Nsampled(sn,Nsamps,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
                     end
 
-                    single_power_response_ft_Nplus1Correlation_Nsampled(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)% to do
-                    for Nsamps = [12:4:30]% size of trial cluster, odd even alternated
+                    single_power_response_ft_Nplus1Correlation(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)% to do
+                    for Nsamps = [16:4:40]% size of trial cluster, odd even alternated
                         single_variablity_response_ft_Nplus1Correlation_Nsampled(sn,Nsamps,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
                     end
                 end
@@ -110,26 +115,36 @@ GndSSdelay
 GndSSdelaySearchLight
 GndSSdelayFreq
 
-GndNeuralVar
+GndNeuralVar_delay % delay
+PlotSubj_NeuralVar_delay
+
 GndNeuralVar_encoding
 GndNeuralVar_response
+PlotSubj_NeuralVar_response
+GndNeuralVar_response_equalTrialSS
 GndNeuralVar_responseOddEven
 GndNeuralVar_responseCorVSwrong % iterN = 200
-GndNeuralVar_response_Nsampled
-GndNeuralVar_delay_Nsampled_correctTrialsRT % using correct trials, behavioral index = RT since ACC would be one
-GndNeuralVar_delay_Nsampled_allTrials % include error trials
+GndNeuralVar_response_Nsampled_nnRT % nn correlation, beta of uncertainty
+
+GndNeuralVar_response_Nsampled_Nplus1 % n+1 correlation
+GndNeuralVar_response_Nsampled_Nplus1_perm % n+1 correlation, using permutation ttest
+GndNeuralVar_response_Nsampled_Nplus1_regress % glme
+GndNeuralVar_delay_Nsampled_correctTrialsRT % n-n correlation, using correct trials, behavioral index = RT since ACC =1
+GndNeuralVar_delay_Nsampled_correctTrialsRT_perm % n-n correlation, permutation ttest
+GndNeuralVar_delay_Nsampled_allTrials % n-n correlation, include error trials
 
 GndTF_ft
 GndTF_ft_preDelayBL % IsBL2preDelay =1, different Ylim
 GndTF_encoding
 GndTF_ft_response
+GndTF_ft_response_equalTrialSS
+
 GndTF_responseCorVSwrong 
-GndTF_response_Nsampled
-GndTF_delay_Nsampled
+GndTF_response_trialwise
+GndTF_delay_trialwiseRTcorrelation
 
 GndTF_ITPC_ft
 GndPlotSingleTrialBurst
 
 GndPlotSource
 GndPlotSource_Resp
-

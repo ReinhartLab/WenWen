@@ -83,7 +83,7 @@ X(:,4) = repmat([1:subN]',3,1);%subject
 myFigBasic
 myColors = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
 mksize = 6;
-figure('Name','Beha','Position',[200 200 400 400]);
+figure('Name','Beha','Position',[200 200 800 800]);
 
 t = 1;
 
@@ -101,18 +101,19 @@ b(2).FaceColor = myColors(2,:);
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
-    scatter(b(g).XEndPoints,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
+%     scatter(b(g).XEndPoints,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
 end
 errorbar(vertcat(b.XEndPoints)',mn',se','k.','LineWidth',1)
+set(gca,'YLim',[0.7 1],'YTick',[0.6:0.1:1],'XTickLabel',setStr,'XLim',[0.25 3.75],'XTick',1:3)
 
-set(gca,'YLim',[0.6 1.09],'YTick',[0.6:0.2:1],'XTickLabel',setStr,'XLim',[0.25 3.75],'XTick',1:3)
+% set(gca,'YLim',[0.6 1],'YTick',[0.6:0.2:1],'XTickLabel',setStr,'XLim',[0.25 3.75],'XTick',1:3)
 legend(groupStr,'Location','southoutside')
 ytickformat('%,.1f')
 ylabel(indStr{t})
 
 %---plot significance
 [~,tmp_val] = ttest2(squeeze(subsBeha(subs.group==1,:,t)),squeeze(subsBeha(subs.group==2,:,t)));
-sigY = [1 1 1]*1.03;
+sigY = [1 1 1]*0.98;
 tmp_xcord = vertcat(b.XEndPoints)';
 
 for i = 1:length(tmp_val)
@@ -134,7 +135,7 @@ h4 = subplot(2,2,t);hold all;axis square
 for g = 1:2
     tmpID = subs.group==g;
     dat = squeeze(subsBeha(tmpID,:,t));%
-    boxplot(dat,'Positions',[2 6 8]+g*1.5,'Whisker',1,'Widths',0.8,'OutlierSize',3,'Symbol','ko')
+    boxplot(dat,'Positions',[2 6 10]+g*1.5,'Whisker',1,'Widths',0.8,'OutlierSize',3,'Symbol','ko')
 end
 
 h = findobj(gca,'Tag','Box');
@@ -163,7 +164,7 @@ b(2).FaceColor = myColors(2,:);
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
-    scatter(b(g).XEndPoints,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
+%     scatter(b(g).XEndPoints,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
 end
 errorbar(vertcat(b.XEndPoints)',mn',se','k.','LineWidth',1)
 set(gca,'YLim',[0.4 1.6],'YTick',[0.4:0.4:3],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)

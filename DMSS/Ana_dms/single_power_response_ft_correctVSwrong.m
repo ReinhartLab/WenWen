@@ -2,7 +2,6 @@ function single_power_response_ft_correctVSwrong(sn,IsLap,IsdePhase,IsCorretTria
 % IsBL2preDelay: use pre-trial interval or pre response as baseline; better named as IsBL2preResp
 rng shuffle
 IsCorretTrials = 0;% must be 0, use all trials
-IsBL2preDelay = 1;% baseline to pre-response;
 load('subs.mat');
 subname = subs.name{sn};
 
@@ -44,8 +43,10 @@ if isfile(set_name)
 
     %%
     if sum(strcmp({EEG.event.type},'S 50'))>=sum(strcmp({EEG.event.type},'50'))
+        stim1 = {'S 11','S 21', 'S 31'};
         keyMarker = {'S 60'};
     else
+        stim1 = {'11','21','31'};
         keyMarker = {'60'};
     end
 
@@ -56,57 +57,43 @@ if isfile(set_name)
         condTrials = M(tmpID,:);
 
         sEEG =  pop_select(EEG,'trial',tmpID);
+
+        bEEG = pop_select(sEEG,'time',[-inf 2.5]);% re-epoch into shorter segments
+        timelimits = [-0.88 1.5];% pre-stimuli baseline
+        [bEEG,indices] = pop_epoch(bEEG,stim1,timelimits);
+        rmv = setdiff(1:sEEG.trials,indices);
+        sEEG = pop_select(sEEG,'notrial',rmv);
+        condTrials(rmv,:) = [];
+
         sEEG =  pop_select(sEEG,'time',[-0.5 inf]);% shorten segment
         origTrials = 1:sEEG.trials;
-        [sEEG,indx] = pop_epoch(sEEG,keyMarker,[-3 1]);% re-epoch to reponse
+        [sEEG,indx] = pop_epoch(sEEG,keyMarker,[-2 1]);% re-epoch to reponse
         rmvd = setdiff(origTrials,indx);% get removed epochs
         condTrials(rmvd,:) = [];
 
+        bEEG = pop_select(bEEG,'notrial',rmvd);% remove from baselin data
+        if sEEG.trials~=bEEG.trials% check trials N
+            error('trials missing')
+        end
+
         %%
         eeg = eeglab2fieldtrip(sEEG,'preprocessing','none');
+        beeg = eeglab2fieldtrip(bEEG,'preprocessing','none');
 
         if IsdePhase
             avgTrl = ft_timelockanalysis([], eeg);
             eeg.trial = cellfun(@(x)x-avgTrl.avg,eeg.trial,'UniformOutput',false);
+
+            avgTrl = ft_timelockanalysis([], beeg);
+            beeg.trial = cellfun(@(x)x-avgTrl.avg,beeg.trial,'UniformOutput',false);
         end
 
         wrongTrlN = sum(condTrials.button_resp_corr == 0);
         correctTrlN = sum(condTrials.button_resp_corr == 1);
         wrongID = find(condTrials.button_resp_corr ==0);
         correctID = find(condTrials.button_resp_corr ==1);
-
+        %%
         c =1; % correct trials should be more than incorrect trials, therefore subsampling correct trials
-        clear pow
-
-        for iter_i = 1:iterN
-            tmpID = correctID(randperm(correctTrlN,wrongTrlN));
-
-            cfg = [];
-            cfg.method = 'wavelet';
-            cfg.foi = 1:40;
-            cfg.width = linspace(2,10,length(cfg.foi)); % larger value for more precise f
-            cfg.out = 'pow';
-            cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
-            cfg.pad = 20;
-            cfg.trials = tmpID;
-            tmp_eeg = ft_freqanalysis(cfg,eeg);
-
-            cfg = [];
-            cfg.latency = [-0.5 inf];
-            tmp_eeg = ft_selectdata(cfg,tmp_eeg);
-
-            cfg = [];
-            cfg.baseline       = [-0.4 -0.1];% pre-response -0.4~-0.1s as baseline
-            cfg.baselinetype = 'db';
-            tmp_eeg = ft_freqbaseline(cfg,tmp_eeg);
-
-            pow(iter_i,:,:,:) = tmp_eeg.powspctrm;
-        end
-        tfDat{cond_i,c} = ft_freqdescriptives([],tmp_eeg);% get ft structure;
-        tfDat{cond_i,c}.powspctrm = squeeze(mean(pow));
-
-        c = 2;%incorrect
-        tmpID = wrongID;
 
         cfg = [];
         cfg.method = 'wavelet';
@@ -115,20 +102,84 @@ if isfile(set_name)
         cfg.out = 'pow';
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
         cfg.pad = 20;
-        cfg.trials = tmpID;
+        cfg.keeptrials  = 'yes';% dB normalization based on trial averaged baseline
+        cfg.trials = correctID;
         tmp_eeg = ft_freqanalysis(cfg,eeg);
+
+        if IsBL2preDelay==0 %baseline to pre trial
+            cfg.toi = bEEG.xmin:0.05:bEEG.xmax; % every 50ms
+            cfg.keeptrials  = 'no';% dB normalization based on trial averaged baseline
+            tmp_beeg = ft_freqanalysis(cfg,beeg);
+        end
+
+        if IsBL2preDelay
+            cfg = [];
+            cfg.baseline     = [-0.4 -0.1];% pre-response -0.4~-0.1s as baseline
+            cfg.baselinetype = 'db';
+            tmp_eeg = ft_freqbaseline(cfg,tmp_eeg);
+        else
+            cfg = [];
+            cfg.latency = [-0.4 -0.1];
+            bl = ft_selectdata(cfg,tmp_beeg);
+
+            timedim = find(size(bl.powspctrm)==length(bl.time));
+            clear avgBL
+            avgBL(1,:,:) = mean(bl.powspctrm,timedim);% add trial dimension
+
+            tmp_eeg.powspctrm = 10*log10(bsxfun(@rdivide,tmp_eeg.powspctrm,avgBL)); %  db = 10*log10(signal/baseline);
+        end
+
+        clear pow
+
+        for iter_i = 1:iterN
+            tmpID = randperm(correctTrlN,wrongTrlN);
+
+            cfg = [];
+            cfg.trials = tmpID;
+            tmp = ft_freqdescriptives(cfg,tmp_eeg);
+
+            pow(iter_i,:,:,:) = tmp.powspctrm;
+        end
+        tfDat{cond_i,c} = ft_freqdescriptives([],tmp_eeg);% get ft structure;
+        tfDat{cond_i,c}.powspctrm = squeeze(mean(pow));
+        %%
+        c = 2;%incorrect
+
+        cfg = [];
+        cfg.method = 'wavelet';
+        cfg.foi = 1:40;
+        cfg.width = linspace(2,10,length(cfg.foi)); % larger value for more precise f
+        cfg.out = 'pow';
+        cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
+        cfg.pad = 20;
+        cfg.trials = wrongID;
+        tmp_eeg = ft_freqanalysis(cfg,eeg);
+
+        if IsBL2preDelay==0 %baseline to pre trial
+            cfg.toi = bEEG.xmin:0.05:bEEG.xmax; % every 50ms
+            tmp_beeg = ft_freqanalysis(cfg,beeg);
+        end
 
         cfg = [];
         cfg.latency = [-0.5 inf];
         tmp_eeg = ft_selectdata(cfg,tmp_eeg);
 
-        cfg = [];
-        cfg.baseline       = [-0.4 -0.1];% pre-response -0.4~-0.1s as baseline
-        cfg.baselinetype = 'db';
-        tmp_eeg = ft_freqbaseline(cfg,tmp_eeg);
+        if IsBL2preDelay
+            cfg = [];
+            cfg.baseline       = [-0.4 -0.1];% pre-response -0.4~-0.1s as baseline
+            cfg.baselinetype = 'db';
+            tmp_eeg = ft_freqbaseline(cfg,tmp_eeg);
+        else
+            cfg = [];
+            cfg.latency = [-0.4 -0.1];
+            bl = ft_selectdata(cfg,tmp_beeg);
+
+            timedim = find(size(bl.powspctrm)==length(bl.time));
+            tmp_eeg.powspctrm = 10*log10(bsxfun(@rdivide,tmp_eeg.powspctrm,mean(bl.powspctrm,timedim))); %  db = 10*log10(signal/baseline);
+        end
 
         tfDat{cond_i,c} = ft_freqdescriptives([],tmp_eeg);% get ft structure;
 
     end
-save(outputFile,'tfDat','-v7.3')
+    save(outputFile,'tfDat','-v7.3')
 end

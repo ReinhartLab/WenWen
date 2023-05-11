@@ -1,10 +1,10 @@
-function single_variablity_response_ft_Nplus1Correlation_Nsampled(sn,Nsamps,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+function single_variablity_response_ft_trialCorrelation_Nsampled(sn,Nsamps,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
 % IsBL2preDelay: use pre-trial interval or pre response as baseline; better named as IsBL2preResp
 load('subs.mat');
 subname = subs.name{sn};
 
 txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
-outputFile =fullfile(Dir.results,[subname,'_resp_ft_var_NsampledAT',num2str(Nsamps),txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
+outputFile =fullfile(Dir.results,[subname,'_resp_ft_var_nnCorr_NsampledAT',num2str(Nsamps),txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
 if IsOverwrite==0 && isfile(outputFile)
     return
 end
@@ -67,7 +67,7 @@ if isfile(set_name)
 
         sEEG =  pop_select(sEEG,'time',[-0.5 inf]);% shorten segment
         origTrials = 1:sEEG.trials;
-        [sEEG,indx] = pop_epoch(sEEG,keyMarker,[-3 0.8]);% re-epoch to reponse
+        [sEEG,indx] = pop_epoch(sEEG,keyMarker,[-3 1]);% re-epoch to reponse
         rmvd = setdiff(origTrials,indx);% get removed epochs
         condTrials(rmvd) = [];
 
@@ -111,31 +111,17 @@ if isfile(set_name)
 
             cfg = [];
             cfg.latency = [-0.4 -0.1];
-            bl = ft_selectdata(cfg,beeg);            
+            bl = ft_selectdata(cfg,beeg);
         end
 
         timedim = find(size(eeg.powspctrm)==length(eeg.time));
 
-        Nsamps = min([sEEG.trials-20,Nsamps]);% in case no enough trials to sample from
-    
-        for b = 1:sEEG.trials-Nsamps-1% moving the trial cluster one by one but skip the last two to avoid error of N+1
-            % selecting trials with a gap of 2 to avoid overlapping between
-            % var and beha: var 1 3 5, beha 2 4 6; var 2 4 6, beha 3 5 7;
-            % since set sizes are randomized within a block, after grouping
-            % trials based on its current load, there won't be much overlap
-            % in trials when calculating var and beha
-            %             if b~=ceil(sEEG.trials/Nsamps)
-            %                 tmpTrl = condTrials(1+(b-1)*Nsamps:2:b*Nsamps);% for beha
-            %                 tmpID = 1+(b-1)*Nsamps:2:b*Nsamps;% for nv
-            %             else
-            %                 tmpTrl = condTrials(1+(b-1)*Nsamps:2:end-1); % last bin, avoid N+1 error by exlcuding the last trial
-            %                 tmpID = 1+(b-1)*Nsamps:2:sEEG.trials-1;
-            %             end
+        for b = 1:sEEG.trials-Nsamps% moving the trial cluster one by one
 
-            tmpID = b-1+(1:2:Nsamps);% for nv
+            tmpID = b-1+(1:Nsamps);% for nv
             tmpTrl = condTrials(tmpID);% for beha
 
-            PostTrlBeha{cond_i}{b} = M(tmpTrl+1,:);
+            TrlBeha{cond_i}{b} = M(tmpTrl,:);
 
             nv = squeeze(log(var(eeg.powspctrm(tmpID,:,:,:),0,1,"omitnan")./mean(var(bl.powspctrm(tmpID,:,:,:),0,1,"omitnan"),timedim)));%chan*freq*time
 
@@ -148,5 +134,5 @@ if isfile(set_name)
         end
     end
     %%
-    save(outputFile,'tfDat','PostTrlBeha','-v7.3')
+    save(outputFile,'tfDat','TrlBeha','-v7.3')
 end

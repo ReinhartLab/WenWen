@@ -28,10 +28,9 @@ freq.betaFreq = [15 25];% Hz
 freq.alphaFreq = [8 13];% Hz
 
 timeROI.Delay = [0 3];% in s
-% timeROI.Pre = [-0.4 0];% in s
 
 %%
-for Nsamps = [6:2:12]
+for Nsamps = 12%[6:2:12]
     clear subsAll
     for sub_i = 1:subN
         subname = subs.name{sub_i};
@@ -45,9 +44,6 @@ for Nsamps = [6:2:12]
 
             freqID.alpha = dsearchn(tfDat{1}{1}.freq',freq.alphaFreq');
             freqID.alpha = freqID.alpha(1):freqID.alpha(2);
-
-%             timeID.all = dsearchn(tfDat{1}{1}.time',timeROI.Delay');
-%             timeID.all = timeID.all(1):timeID.all(2);
 
             timeID.Post = dsearchn(tfDat{1}{1}.time',timeROI.Delay');
             timeID.Post = timeID.Post(1):timeID.Post(2);
@@ -133,42 +129,6 @@ for Nsamps = [6:2:12]
     end
     saveas(gca,fullfile(Dir.figs,['DelayBetaVarianceFrontalRT_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
 
-    %     %% OccipBetaRT
-    %
-    %     figure('Name','OccipBetaRT','position',[500 500 900 900]);
-    %     for gi = 1:2
-    %         tmpsubs = find(subs.group == gi);
-    %         [~,p,~,stats] = ttest(subsAll.betaOccipRTcorr(tmpsubs,:));
-    %         for cond_i = 1:3
-    %             subplot(3,3,(gi-1)*3+cond_i);hold all;axis square
-    %             for s = 1:length(tmpsubs)
-    %                 plot(dat{tmpsubs(s)}.betaAvgOccip(:,cond_i),dat{tmpsubs(s)}.behaRT(:,cond_i),'.')
-    %             end
-    %             title(groupStr{gi},[condStr{cond_i},' sampN=' num2str(Nsamps)])
-    %             xlabel(['BetaVariance(' [occipROI{:}] ')'])
-    %             ylabel('Beha(RT)')
-    %             set(gca,'ylim',[0 1.5])
-    %             text(0.95,0.85,sprintf('mean Rho = %.3f\nt=%.3f\np=%.3f\nd=%.3f',mean(subsAll.betaOccipRTcorr(tmpsubs,cond_i)),stats.tstat(cond_i),p(cond_i),computeCohen_d(subsAll.betaOccipRTcorr(tmpsubs,cond_i),zeros(length(tmpsubs),1),'paired')),'sc','HorizontalAlignment','Right')
-    %         end
-    %     end
-    %
-    %     gi =3;% both groups
-    %     tmpsubs = 1:height(subs);
-    %     [~,p,~,stats] = ttest(subsAll.betaOccipRTcorr(tmpsubs,:));
-    %     for cond_i = 1:3
-    %         subplot(3,3,(gi-1)*3+cond_i);hold all;axis square
-    %         for s = 1:length(tmpsubs)
-    %             plot(dat{tmpsubs(s)}.betaAvgOccip(:,cond_i),dat{tmpsubs(s)}.behaRT(:,cond_i),'.')
-    %             lsline
-    %         end
-    %         title(groupStr{gi},[condStr{cond_i},' sampN=' num2str(Nsamps)])
-    %         xlabel(['BetaVariance(' [occipROI{:}] ')'])
-    %         ylabel('Beha(RT)')
-    %         set(gca,'ylim',[0 1.5])
-    %
-    %                text(0.95,0.85,sprintf('mean Rho = %.3f\nt=%.3f\np=%.3f\nd=%.3f',mean(subsAll.betaOccipRTcorr(tmpsubs,cond_i)),stats.tstat(cond_i),p(cond_i),computeCohen_d(subsAll.betaOccipRTcorr(tmpsubs,cond_i),zeros(length(tmpsubs),1),'paired')),'sc','HorizontalAlignment','Right')
-    %     end
-    %     saveas(gca,fullfile(Dir.figs,['DelayBetaVarianceOccipRT_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
 
     %% correlation topography beta
 
@@ -178,8 +138,8 @@ for Nsamps = [6:2:12]
     [is, loc] = ismember(tfDat{1}{1}.label,{chanloc.labels});
     chanloc  = chanloc(loc(is));
     threshP = 0.001;
-    mkSize = 8;
-    myColors = hot;
+    mkSize = 3;
+    myColors = jet;
 
     %     myColors = crameri('bam',256);
     %     myColors = myColors(256/2:256,:);
@@ -190,17 +150,17 @@ for Nsamps = [6:2:12]
         for gi = 1:2
             tmpsubs = find(subs.group == gi);
             [~,p,~,stats] = ttest(squeeze(subsAll.betaChansCorrRT(tmpsubs,:,cond_i)));
-            sigChanN.betaChansCorrRT(gi,cond_i) = sum((p<threshP & stats.tstat>0));% for bar plot
+            sigChanN.betaChansCorrRT(gi,cond_i) = sum(p<threshP & stats.tstat<0);% for bar plot
 
             subplot(3,3,(gi-1)*3+cond_i);hold all;
 
-            topoplot(stats.tstat,chanloc,'emarker2',{find(p<threshP),'p','k',mkSize},'plotrad',0.53,'electrodes','off','colormap',myColors );
-            caxis([-10, 0])
+            topoplot(stats.tstat,chanloc,'emarker2',{find(p<threshP),'o','k',mkSize},'plotrad',0.53,'electrodes','off','colormap',myColors );
+            caxis([-12, 12])
             h = colorbar;
             h.Label.String = sprintf('T-value(p<%.3f)',threshP);
             h.Label.Rotation = -90;
             h.Label.Position = h.Label.Position + [1 0 0];
-            title([groupStr{gi},condStr{cond_i}],['corr RT TrlCluster=',num2str(Nsamps)]);
+            title([groupStr{gi},condStr{cond_i}],['Var@RT TrlCluster=',num2str(Nsamps)]);
         end
 
         gi =3;% both
@@ -208,8 +168,8 @@ for Nsamps = [6:2:12]
         [~,p,~,stats] = ttest(squeeze(subsAll.betaChansCorrRT(tmpsubs,:,cond_i)));
         subplot(3,3,(gi-1)*3+cond_i);hold all;
 
-        topoplot(stats.tstat,chanloc,'emarker2',{find(p<threshP),'p','k',mkSize},'plotrad',0.53,'electrodes','off','colormap',myColors  );
-        caxis([-10, 0])
+        topoplot(stats.tstat,chanloc,'emarker2',{find(p<threshP),'o','k',mkSize},'plotrad',0.53,'electrodes','off','colormap',myColors  );
+        caxis([-12, 12])
         h = colorbar;
         h.Label.String = sprintf('T-value(p<%.3f)',threshP);
         h.Label.Rotation = -90;
@@ -221,141 +181,6 @@ for Nsamps = [6:2:12]
     end
 
     saveas(gcf,fullfile(Dir.figs,['DelayBetaVarianceTopo_SampledAT',num2str(Nsamps),'_threshP',num2str(threshP),'_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
-
-    %     %% FrontalAlphaRT
-    %
-    %     figure('Name','FrontalAlphaRT','position',[500 500 900 900]);
-    %     for gi = 1:2
-    %         tmpsubs = find(subs.group == gi);
-    %         [~,p,~,stats] = ttest(subsAll.alphaFrontalRTcorr(tmpsubs,:));
-    %         for cond_i = 1:3
-    %             subplot(3,3,(gi-1)*3+cond_i);hold all;axis square
-    %             for s = 1:length(tmpsubs)
-    %                 plot(dat{tmpsubs(s)}.alphaAvgFrontal(:,cond_i),dat{tmpsubs(s)}.behaRT(:,cond_i),'.')
-    % %                 lsline
-    %             end
-    %             title(groupStr{gi},[condStr{cond_i},' sampN=' num2str(Nsamps)])
-    %             xlabel(['AlphaVariance(' [frontalROI{:}] ')'])
-    %             ylabel('Beha(RT)')
-    %             set(gca,'ylim',[0 1.5])
-    %
-    %             text(0.95,0.85,sprintf('mean Rho = %.3f\nt=%.3f\np=%.3f',mean(subsAll.alphaFrontalRTcorr(tmpsubs,cond_i)),stats.tstat(cond_i),p(cond_i)),'sc','HorizontalAlignment','Right')
-    %         end
-    %     end
-    %
-    %     gi =3;% both groups
-    %     tmpsubs = 1:height(subs);
-    %     [~,p,~,stats] = ttest(subsAll.alphaFrontalRTcorr(tmpsubs,:));
-    %     for cond_i = 1:3
-    %         subplot(3,3,(gi-1)*3+cond_i);hold all;axis square
-    %         for s = 1:length(tmpsubs)
-    %             plot(dat{tmpsubs(s)}.alphaAvgFrontal(:,cond_i),dat{tmpsubs(s)}.behaRT(:,cond_i),'.')
-    %             lsline
-    %         end
-    %         title(groupStr{gi},[condStr{cond_i},' sampN=' num2str(Nsamps)])
-    %         xlabel(['AlphaVariance(' [frontalROI{:}] ')'])
-    %         ylabel('Beha(RT)')
-    %         set(gca,'ylim',[0 1.5])
-    %
-    %         text(0.95,0.85,sprintf('mean Rho = %.3f\nt=%.3f\np=%.3f',mean(subsAll.alphaFrontalRTcorr(tmpsubs,cond_i)),stats.tstat(cond_i),p(cond_i)),'sc','HorizontalAlignment','Right')
-    %     end
-    %     saveas(gca,fullfile(Dir.figs,['DelayAlphaVarianceFrontalRT_SampledAT',num2str(Nsamps),num2str(freq.alphaFreq(1)),'~',num2str(freq.alphaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
-    %
-    %
-    %     %% OccipAlphaRT
-    %
-    %     figure('Name','OccipAlphaRT','position',[500 500 900 900]);
-    %     for gi = 1:2
-    %         tmpsubs = find(subs.group == gi);
-    %         [~,p,~,stats] = ttest(subsAll.alphaOccipRTcorr(tmpsubs,:));
-    %         for cond_i = 1:3
-    %             subplot(3,3,(gi-1)*3+cond_i);hold all;axis square
-    %             for s = 1:length(tmpsubs)
-    %                 plot(dat{tmpsubs(s)}.alphaAvgOccip(:,cond_i),dat{tmpsubs(s)}.behaRT(:,cond_i),'.')
-    % %                 lsline
-    %             end
-    %             title(groupStr{gi},[condStr{cond_i},' sampN=' num2str(Nsamps)])
-    %             xlabel(['AlphaVariance(' [occipROI{:}] ')'])
-    %             ylabel('Beha(RT)')
-    %             set(gca,'ylim',[0 1.5])
-    %             text(0.95,0.85,sprintf('mean Rho = %.3f\nt=%.3f\np=%.3f',mean(subsAll.alphaOccipRTcorr(tmpsubs,cond_i)),stats.tstat(cond_i),p(cond_i)),'sc','HorizontalAlignment','Right')
-    %         end
-    %     end
-    %
-    %     gi =3;% both groups
-    %     tmpsubs = 1:height(subs);
-    %     [~,p,~,stats] = ttest(subsAll.alphaOccipRTcorr(tmpsubs,:));
-    %     for cond_i = 1:3
-    %         subplot(3,3,(gi-1)*3+cond_i);hold all;axis square
-    %         for s = 1:length(tmpsubs)
-    %             plot(dat{tmpsubs(s)}.alphaAvgOccip(:,cond_i),dat{tmpsubs(s)}.behaRT(:,cond_i),'.')
-    %             lsline
-    %         end
-    %         title(groupStr{gi},[condStr{cond_i},' sampN=' num2str(Nsamps)])
-    %         xlabel(['AlphaVariance(' [occipROI{:}] ')'])
-    %         ylabel('Beha(RT)')
-    %         set(gca,'ylim',[0 1.5])
-    %
-    %         text(0.95,0.85,sprintf('mean Rho = %.3f\nt=%.3f\np=%.3f',mean(subsAll.alphaOccipRTcorr(tmpsubs,cond_i)),stats.tstat(cond_i),p(cond_i)),'sc','HorizontalAlignment','Right')
-    %     end
-    %     saveas(gca,fullfile(Dir.figs,['DelayAlphaVarianceOccipRT_SampledAT',num2str(Nsamps),num2str(freq.alphaFreq(1)),'~',num2str(freq.alphaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
-    %     %% alpha topo
-    %     figure('Name','DelayVar beha corr topo','Position',[100 20 800 1500]);
-    %
-    %     for cond_i = 1:3
-    %         for gi = 1:2
-    %             tmpsubs = find(subs.group == gi);
-    %             [~,p,~,stats] = ttest(squeeze(subsAll.alphaChansCorrRT(tmpsubs,:,cond_i)));
-    %             subplot(6,3,(gi-1)*3+cond_i);hold all;
-    %
-    %             topoplot(stats.tstat,chanloc,'emarker2',{find(p<threshP),'p','k',mkSize},'plotrad',0.53,'electrodes','off' );
-    %             caxis([-10, 0])
-    %             h = colorbar;
-    %             h.Label.String = sprintf('T-value(p<%.3f)',threshP);
-    %             h.Label.Rotation = -90;
-    %             h.Label.Position = h.Label.Position + [1 0 0];
-    %             title([groupStr{gi},condStr{cond_i}],['RT TrlCluster=',num2str(Nsamps)]);
-    %
-    %             [~,p,~,stats] = ttest(squeeze(subsAll.alphaChansCorrRT(tmpsubs,:,cond_i)));
-    %
-    %             subplot(6,3,(gi-1)*3+cond_i+9);hold all;
-    %
-    %             topoplot(stats.tstat,chanloc,'emarker2',{find(p<threshP),'p','k',mkSize},'plotrad',0.53,'electrodes','off' );
-    %             caxis([-10, 0])
-    %             h = colorbar;
-    %             h.Label.String = sprintf('T-value(p<%.3f)',threshP);
-    %             h.Label.Rotation = -90;
-    %             h.Label.Position = h.Label.Position + [1 0 0];
-    %             title([groupStr{gi},condStr{cond_i}],['N+1corrRT TrlCluster=',num2str(Nsamps)]);
-    %         end
-    %
-    %         gi =3;% both
-    %         tmpsubs = 1:height(subs);
-    %         [~,p,~,stats] = ttest(squeeze(subsAll.alphaChansCorrRT(tmpsubs,:,cond_i)));
-    %         subplot(6,3,(gi-1)*3+cond_i);hold all;
-    %
-    %         topoplot(stats.tstat,chanloc,'emarker2',{find(p<threshP),'p','k',mkSize},'plotrad',0.53,'electrodes','off' );
-    %         caxis([-10, 0])
-    %         h = colorbar;
-    %         h.Label.String = sprintf('T-value(p<%.3f)',threshP);
-    %         h.Label.Rotation = -90;
-    %         h.Label.Position = h.Label.Position + [1 0 0];
-    %         title([groupStr{gi},condStr{cond_i}],['N+1corrRT TrlCluster=',num2str(Nsamps)]);
-    %
-    %         [~,p,~,stats] = ttest(squeeze(subsAll.alphaChansCorrRT(tmpsubs,:,cond_i)));
-    %
-    %         subplot(6,3,(gi-1)*3+cond_i+9);hold all;
-    %
-    %         topoplot(stats.tstat,chanloc,'emarker2',{find(p<threshP),'p','k',mkSize},'plotrad',0.53,'electrodes','off' );
-    %         caxis([-10, 0])
-    %         h = colorbar;
-    %         h.Label.String = sprintf('T-value(p<%.3f)',threshP);
-    %         h.Label.Rotation = -90;
-    %         h.Label.Position = h.Label.Position + [1 0 0];
-    %         title([groupStr{gi},condStr{cond_i}],['RT TrlCluster=',num2str(Nsamps)]);
-    %     end
-    %
-    %     saveas(gcf,fullfile(Dir.figs,['DelayAlphaVarianceTopo_SampledAT',num2str(Nsamps),'_threshP',num2str(threshP),'_',num2str(freq.alphaFreq(1)),'~',num2str(freq.alphaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
 
     %% bar plot of number of significant chans
     myFigBasic;
@@ -371,7 +196,7 @@ for Nsamps = [6:2:12]
     set(gca,'xlim',[0.5 2.5],'XTick',[1 2],'XTickLabel',groupStr)
     ylabel(['Number of channels',newline,'(p<',num2str(threshP),')'],'HorizontalAlignment','center')
     legend(condStr)
-    title(['TrialCluster=',num2str(Nsamps)])
+    title(['TrialCluster=',num2str(Nsamps)],[frontalROI{:}])
 
     % histogram of correlation Rho
     myColors = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
@@ -394,30 +219,15 @@ for Nsamps = [6:2:12]
         end
         legend(groupStr)
         ylabel('Proportion')
-        title('Rho distribution',condStr{cond_i})
+        xlabel('Spearman Rho value')
+        title('Var @ RT',condStr{cond_i})
         set(gca,'ylim',[0 0.5],'xlim',[-0.8 0.5])
     end
     saveas(gca,fullfile(Dir.figs,['DelayBetaVarianceRTchanN_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
     fig.PaperOrientation = 'landscape';
     print(fig,fullfile(Dir.figs,['DelayBetaVarianceRTchanN_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']),'-dpdf','-r300','-bestfit')
 
-    %% scatterhistogram
-    %     figure('Position',[300 300 1500 800]);
-    %     for cond_i = 1:3
-    %         subplot(2,3,cond_i)
-    %         s = scatterhistogram(subsAll.behaRT(:,cond_i),subsAll.betaFrontalRTcorr(:,cond_i),'GroupData',subs.groupStr,'HistogramDisplayStyle','bar','NumBins',6);
-    %         s.NumBins = 6;
-    %         ylabel('Rho')
-    %         xlabel(sprintf('RT of load %d',cond_i))
-    %
-    %         subplot(2,3,cond_i+3)
-    %         s = scatterhistogram(mean(subsAll.behaRT,2),subsAll.betaFrontalRTcorr(:,cond_i),'GroupData',subs.groupStr,'HistogramDisplayStyle','bar','NumBins',6);
-    %         s.NumBins = 6;
-    %         ylabel('Rho')
-    %         xlabel('averaged RT across ss')
-    %     end
-    %     saveas(gca,fullfile(Dir.figs,['DelayBetaVarianceRhoScatterHist_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
-
+   
     %% split young and old based on their correlatoin coefficients
    myColors = hot(256);
    cond_i = 3;
@@ -437,7 +247,7 @@ for Nsamps = [6:2:12]
         h.Label.String = sprintf('T-value(p<%.3f)',threshP);
         h.Label.Rotation = -90;
         h.Label.Position = h.Label.Position + [1 0 0];
-        title([groupStr{gi},condStr{cond_i},'-highRT'],sprintf('corr RT TrlCluster=%d, subjN=%d',Nsamps,sum(tmp_upper)));
+        title([groupStr{gi},condStr{cond_i},'-highRT'],sprintf('Var@RT TrlCluster=%d, subjN=%d',Nsamps,sum(tmp_upper)));
 
         subplot(2,2,(gi-1)*2+2)
         [~,p,~,stats] = ttest(squeeze(subsAll.betaChansCorrRT(tmpsubs(~tmp_upper),:,cond_i)));

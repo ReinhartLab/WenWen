@@ -11,7 +11,7 @@ addpath(genpath('D:\intWM-E\toolbox\gramm-master'))
 addpath(genpath('D:\intWM-E\toolbox\crameri_v1.08'))
 
 IsCorretTrials = 1;
-IsBL2preDelay = 1;
+IsBL2preDelay = 1;%enforced
 IsLap = 1;
 IsdePhase=1;
 
@@ -20,7 +20,7 @@ groupStr = {'Young','Old','Young-Old'};
 condStr = {'ss1','ss2','ss4'};
 condDiffStr = {'S2-S1','S4-S1','S4-S2'};
 
-frontalROI = {'Fz','F1','F2','FCz','FC1','FC2'};
+frontalROI = {'Fz','F1','F2','AFz','FCz'};
 % frontalROI = {'Fz','F1','F2',};
 occipROI = {'POz','Oz'};
 freq.betaFreq = [15 25];% Hz

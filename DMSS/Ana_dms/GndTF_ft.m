@@ -11,7 +11,7 @@ addpath(genpath('D:\intWM-E\toolbox\gramm-master'))
 addpath(genpath('D:\intWM-E\toolbox\crameri_v1.08'))
 
 IsCorretTrials = 1;
-IsBL2preDelay = 0;
+IsBL2preDelay = 0;%enforced
 IsLap = 1;
 IsdePhase=1;
 

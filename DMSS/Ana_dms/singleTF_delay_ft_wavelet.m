@@ -41,7 +41,7 @@ if isfile(set_name)
     %%
     clear tfDat
     ss = [1 2 4];% set size
-SStime = {[-1.6 -1.3],[-2.8 -2.5],[-5.2 -4.9]};% pretrials baseline for different SS
+    SStime = {[-1.6 -1.3],[-2.8 -2.5],[-5.2 -4.9]};% pretrials baseline for different SS
 
     for cond_i = 1:3
         tmpID = M.ss_num == ss(cond_i);
@@ -78,7 +78,7 @@ SStime = {[-1.6 -1.3],[-2.8 -2.5],[-5.2 -4.9]};% pretrials baseline for differen
             cfg = [];
             cfg.latency = SStime{cond_i};
             bl = ft_selectdata(cfg,eeg);
-            
+
             timedim = find(size(eeg.powspctrm)==length(eeg.time));
 
             eeg.powspctrm = bsxfun(@(x,y)10*log10(x./y),eeg.powspctrm,mean(bl.powspctrm,timedim,'omitnan'));% dB = 10*log10(signal/baseline)
@@ -89,5 +89,4 @@ SStime = {[-1.6 -1.3],[-2.8 -2.5],[-5.2 -4.9]};% pretrials baseline for differen
     end
     %%
     save(outputFile,'tfDat','-v7.3')
-
 end

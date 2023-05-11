@@ -1,17 +1,17 @@
-function single_variablity_response_ft_Nplus1Correlation_Nsampled(sn,Nsamps,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
-% IsBL2preDelay: use pre-trial interval or pre response as baseline; better named as IsBL2preResp
+function single_power_delay_ft_trialCorrelation(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+
 load('subs.mat');
 subname = subs.name{sn};
 
 txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
-outputFile =fullfile(Dir.results,[subname,'_resp_ft_var_NsampledAT',num2str(Nsamps),txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
+outputFile =fullfile(Dir.results,[subname,'_delay_ft_pow_trialwise',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
 if IsOverwrite==0 && isfile(outputFile)
     return
 end
 
 set_name = fullfile(Dir.prepro,[subname,'_clean.set']);
 if isfile(set_name)
-    EEG = pop_loadset('filename',set_name);% baseline corrected to pre-stim
+    EEG = pop_loadset('filename',set_name);% baseline corrected to pre-trial
     EEG = pop_select(EEG,'nochannel',{'LHEOG','RHEOG','BVEOG','TVEOG'});
     if IsLap
         X = [EEG.chanlocs.X];
@@ -42,10 +42,8 @@ if isfile(set_name)
     %%
     if sum(strcmp({EEG.event.type},'S 50'))>=sum(strcmp({EEG.event.type},'50'))
         stim1 = {'S 11','S 21', 'S 31'};
-        keyMarker = {'S 60'};
     else
         stim1 = {'11','21','31'};
-        keyMarker = {'60'};
     end
 
     clear tfDat
@@ -58,24 +56,14 @@ if isfile(set_name)
         condTrials = find(tmpID);
         sEEG =  pop_select(EEG,'trial',condTrials);
 
-        bEEG = pop_select(sEEG,'time',[-inf 2.5]);% re-epoch into shorter segments
+        bEEG = pop_select(sEEG,'time',[-inf 2]);% re-epoch into shorter segments
         timelimits = [-0.88 1.5];% pre-stimuli baseline
         [bEEG,indices] = pop_epoch(bEEG,stim1,timelimits);
+
         rmv = setdiff(1:sEEG.trials,indices);
         sEEG = pop_select(sEEG,'notrial',rmv);
         condTrials(rmv) = [];
-
-        sEEG =  pop_select(sEEG,'time',[-0.5 inf]);% shorten segment
-        origTrials = 1:sEEG.trials;
-        [sEEG,indx] = pop_epoch(sEEG,keyMarker,[-3 0.8]);% re-epoch to reponse
-        rmvd = setdiff(origTrials,indx);% get removed epochs
-        condTrials(rmvd) = [];
-
-        bEEG = pop_select(bEEG,'notrial',rmvd);% remove from baselin data
-        if sEEG.trials~=bEEG.trials% check trials N
-            error('trials missing')
-        end
-
+        %%
         eeg = eeglab2fieldtrip(sEEG,'preprocessing','none');
         beeg = eeglab2fieldtrip(bEEG,'preprocessing','none');
 
@@ -99,54 +87,35 @@ if isfile(set_name)
 
         if IsBL2preDelay==0 %baseline to pre trial
             cfg.toi = bEEG.xmin:0.05:bEEG.xmax; % every 50ms
+            cfg.keeptrials  = 'no';% dB normalization based on trial averaged baseline
             beeg = ft_freqanalysis(cfg,beeg);
         end
 
         if IsBL2preDelay
             cfg = [];
-            cfg.latency       = [-0.4 -0.1];% pre-response -0.4~-0.1s as baseline
-            bl = ft_selectdata(cfg,eeg);
+            cfg.baseline     = [-0.4 -0.1];% pre-response -0.4~-0.1s as baseline
+            cfg.baselinetype = 'db';
+            eeg = ft_freqbaseline(cfg,eeg);
 
         else %baseline to pre trial
 
             cfg = [];
             cfg.latency = [-0.4 -0.1];
-            bl = ft_selectdata(cfg,beeg);            
+            bl = ft_selectdata(cfg,beeg);
+
+            timedim = find(size(bl.powspctrm)==length(bl.time));
+            clear avgBL
+            avgBL(1,:,:) = mean(bl.powspctrm,timedim);% add trial dimension
+
+            tmp_pow = 10*log10(bsxfun(@rdivide,eeg.powspctrm,avgBL)); %  db = 10*log10(signal/baseline);
+
+            eeg.powspctrm = tmp_pow;
         end
 
-        timedim = find(size(eeg.powspctrm)==length(eeg.time));
-
-        Nsamps = min([sEEG.trials-20,Nsamps]);% in case no enough trials to sample from
-    
-        for b = 1:sEEG.trials-Nsamps-1% moving the trial cluster one by one but skip the last two to avoid error of N+1
-            % selecting trials with a gap of 2 to avoid overlapping between
-            % var and beha: var 1 3 5, beha 2 4 6; var 2 4 6, beha 3 5 7;
-            % since set sizes are randomized within a block, after grouping
-            % trials based on its current load, there won't be much overlap
-            % in trials when calculating var and beha
-            %             if b~=ceil(sEEG.trials/Nsamps)
-            %                 tmpTrl = condTrials(1+(b-1)*Nsamps:2:b*Nsamps);% for beha
-            %                 tmpID = 1+(b-1)*Nsamps:2:b*Nsamps;% for nv
-            %             else
-            %                 tmpTrl = condTrials(1+(b-1)*Nsamps:2:end-1); % last bin, avoid N+1 error by exlcuding the last trial
-            %                 tmpID = 1+(b-1)*Nsamps:2:sEEG.trials-1;
-            %             end
-
-            tmpID = b-1+(1:2:Nsamps);% for nv
-            tmpTrl = condTrials(tmpID);% for beha
-
-            PostTrlBeha{cond_i}{b} = M(tmpTrl+1,:);
-
-            nv = squeeze(log(var(eeg.powspctrm(tmpID,:,:,:),0,1,"omitnan")./mean(var(bl.powspctrm(tmpID,:,:,:),0,1,"omitnan"),timedim)));%chan*freq*time
-
-            tmp_eeg = ft_freqdescriptives([],eeg);% get ft structure;
-            tmp_eeg.powspctrm = nv;
-
-            cfg = [];
-            cfg.latency = [-1 inf];
-            tfDat{cond_i}{b} = ft_selectdata(cfg,tmp_eeg);
-        end
+        cfg = [];
+        cfg.latency = [-0.5 3.5];
+        tfDat{cond_i} = ft_selectdata(cfg,eeg);
+        TrlBeha{cond_i} = M(condTrials,:);
     end
-    %%
-    save(outputFile,'tfDat','PostTrlBeha','-v7.3')
+    save(outputFile,'tfDat','TrlBeha','-v7.3')
 end

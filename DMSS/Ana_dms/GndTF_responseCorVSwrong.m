@@ -20,11 +20,8 @@ txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
 groupStr = {'Young','Old','Young-Old'};
 condStr = {'Correct','Wrong','Correct-Wrong'};
 
-% frontalROI = {'Fz','F1','F2'};
-% frontalROI = {'Fz','F1','F2','FCz','FC1','FC2'};
-frontalROI = {'CPz','CP1','CP2','Pz','Cz'};
-% frontalROI = {'POz','Oz'};
-occipROI = {'POz','Oz'};
+frontalROI = {'Fz','F1','F2','FCz','AFz'};
+CPchanROI = {'Cz','CP1','CP2','CPz','Pz'};
 freq.betaFreq = [15 25];% Hz
 freq.alphaFreq = [8 13];% Hz
 
@@ -33,7 +30,6 @@ timeROI.Post = [0 0.5];% in s
 timeROI.Pre = [-0.4 0];% in s
 
 iterN = 200;
-
 %%
 subsAll = cell(subN,2);
 for sub_i = 1:subN
@@ -198,24 +194,24 @@ timeID.Pre = timeID.Pre(1):timeID.Pre(2);
 
 clear chanID
 [log1,chanID.frontal] = ismember(frontalROI,gndTF{1}.label);
-[log2,chanID.occip] = ismember(occipROI,gndTF{1}.label);
+[log2,chanID.cp] = ismember(CPchanROI,gndTF{1}.label);
 
 clear dat
 
 for gi = 1:2
     for c = 1:2
         dat.betaAvgFrontal{gi}(:,c) = squeeze(mean(mean(mean(gndTF{gi,c}.indv(:,chanID.frontal(log1),freqID.beta,timeID.Post),2,"omitnan"),3,"omitnan"),4,"omitnan"));
-        dat.betaAvgOccip{gi}(:,c) = squeeze(mean(mean(mean(gndTF{gi,c}.indv(:,chanID.occip(log2),freqID.beta,timeID.Post),2,"omitnan"),3,"omitnan"),4,"omitnan"));
+        dat.betaAvgCP{gi}(:,c) = squeeze(mean(mean(mean(gndTF{gi,c}.indv(:,chanID.cp(log2),freqID.beta,timeID.Post),2,"omitnan"),3,"omitnan"),4,"omitnan"));
         dat.betaAvgFrontalPre{gi}(:,c) = squeeze(mean(mean(mean(gndTF{gi,c}.indv(:,chanID.frontal(log1),freqID.beta,timeID.Pre),2,"omitnan"),3,"omitnan"),4,"omitnan"));
 
-        dat.betaCurveOccip{gi}(:,c,:) = squeeze(mean(mean(gndTF{gi,c}.indv(:,chanID.occip(log2),freqID.beta,timeID.all),2,"omitnan"),3,"omitnan"));
+        dat.betaCurveCP{gi}(:,c,:) = squeeze(mean(mean(gndTF{gi,c}.indv(:,chanID.cp(log2),freqID.beta,timeID.all),2,"omitnan"),3,"omitnan"));
         dat.betaCurveFrontal{gi}(:,c,:) = squeeze(mean(mean(gndTF{gi,c}.indv(:,chanID.frontal(log1),freqID.beta,timeID.all),2,"omitnan"),3,"omitnan"));
 
         dat.alphaAvgFrontal{gi}(:,c) = squeeze(mean(mean(mean(gndTF{gi,c}.indv(:,chanID.frontal(log1),freqID.alpha,timeID.Post),2,"omitnan"),3,"omitnan"),4,"omitnan"));
-        dat.alphaAvgOccip{gi}(:,c) = squeeze(mean(mean(mean(gndTF{gi,c}.indv(:,chanID.occip(log2),freqID.alpha,timeID.Post),2,"omitnan"),3,"omitnan"),4,"omitnan"));
+        dat.alphaAvgCP{gi}(:,c) = squeeze(mean(mean(mean(gndTF{gi,c}.indv(:,chanID.cp(log2),freqID.alpha,timeID.Post),2,"omitnan"),3,"omitnan"),4,"omitnan"));
         dat.alphaAvgFrontalPre{gi}(:,c) = squeeze(mean(mean(mean(gndTF{gi,c}.indv(:,chanID.frontal(log1),freqID.alpha,timeID.Pre),2,"omitnan"),3,"omitnan"),4,"omitnan"));
 
-        dat.alphaCurveOccip{gi}(:,c,:) = squeeze(mean(mean(gndTF{gi,c}.indv(:,chanID.occip(log2),freqID.alpha,timeID.all),2,"omitnan"),3,"omitnan"));
+        dat.alphaCurveCP{gi}(:,c,:) = squeeze(mean(mean(gndTF{gi,c}.indv(:,chanID.cp(log2),freqID.alpha,timeID.all),2,"omitnan"),3,"omitnan"));
         dat.alphaCurveFrontal{gi}(:,c,:) = squeeze(mean(mean(gndTF{gi,c}.indv(:,chanID.frontal(log1),freqID.alpha,timeID.all),2,"omitnan"),3,"omitnan"));
     end
 end
@@ -235,14 +231,13 @@ T.corr = [dat.betaAvgFrontal{2}(:,1);dat.betaAvgFrontal{1}(:,1)];
 T.wrong = [dat.betaAvgFrontal{2}(:,2);dat.betaAvgFrontal{1}(:,2)];
 writetable(T,fullfile(Dir.ana,'TableOutput',['RespBetaVar_CorrVSwrong',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
 
-
 Xa(:,1) = [reshape(dat.betaAvgFrontalPre{1},size(dat.betaAvgFrontalPre{1},1)*size(dat.betaAvgFrontalPre{1},2),1);...
     reshape(dat.betaAvgFrontalPre{2},size(dat.betaAvgFrontalPre{2},1)*size(dat.betaAvgFrontalPre{2},2),1)];
 [SSQs.betaFrontalPre, DFs.betaFrontalPre, MSQs.betaFrontalPre, Fs.betaFrontalPre, Ps.betaFrontalPre]=mixed_between_within_anova(Xa);
 
-Xa(:,1) = [reshape(dat.betaAvgOccip{1},size(dat.betaAvgOccip{1},1)*size(dat.betaAvgOccip{1},2),1);...
-    reshape(dat.betaAvgOccip{2},size(dat.betaAvgOccip{2},1)*size(dat.betaAvgOccip{2},2),1)];
-[SSQs.betaOccip, DFs.betaOccip, MSQs.betaOccip, Fs.betaOccip, Ps.betaOccip]=mixed_between_within_anova(Xa);
+Xa(:,1) = [reshape(dat.betaAvgCP{1},size(dat.betaAvgCP{1},1)*size(dat.betaAvgCP{1},2),1);...
+    reshape(dat.betaAvgCP{2},size(dat.betaAvgCP{2},1)*size(dat.betaAvgCP{2},2),1)];
+[SSQs.betaCP, DFs.betaCP, MSQs.betaCP, Fs.betaCP, Ps.betaCP]=mixed_between_within_anova(Xa);
 
 Xa(:,1) = [reshape(dat.alphaAvgFrontal{1},size(dat.alphaAvgFrontal{1},1)*size(dat.alphaAvgFrontal{1},2),1);...
     reshape(dat.alphaAvgFrontal{2},size(dat.alphaAvgFrontal{2},1)*size(dat.alphaAvgFrontal{2},2),1)];
@@ -252,11 +247,10 @@ Xa(:,1) = [reshape(dat.alphaAvgFrontalPre{1},size(dat.alphaAvgFrontalPre{1},1)*s
     reshape(dat.alphaAvgFrontalPre{2},size(dat.alphaAvgFrontalPre{2},1)*size(dat.alphaAvgFrontalPre{2},2),1)];
 [SSQs.alphaFrontalPre, DFs.alphaFrontalPre, MSQs.alphaFrontalPre, Fs.alphaFrontalPre, Ps.alphaFrontalPre]=mixed_between_within_anova(Xa);
 
-
 %% bar & time series -beta
 addpath(genpath('D:\Toolbox\crameri_v1.08'))
 myColors = crameri('bamako',2);% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
-fig =figure('Position',[100 100 800 650]);
+fig =figure('Position',[100 100 900 650]);
 
 subplot(2,2,3);hold all;axis square
 mn = cellfun(@mean,dat.betaAvgFrontal,'UniformOutput',false);
@@ -278,7 +272,7 @@ legend(condStr,'Location','southoutside')
 set(gca,'xtick',[1 2],'XTickLabel',groupStr)
 ytickformat('%.1f')
 ylabel('Power(dB)')
-title(sprintf('%s beta\nPost(%.1f~%.1fs)',[frontalROI{:}],timeROI.Post(1),timeROI.Post(2)))
+title(sprintf('%s\nbeta(%.1f~%.1fs)',[frontalROI{:}],timeROI.Post(1),timeROI.Post(2)))
 
 % plot significance
 if Ps.betaFrontal{3}<.05
@@ -297,13 +291,13 @@ if Ps.betaFrontal{3}<.05
 end
 
 subplot(2,2,4);hold all;axis square
-mn = cellfun(@mean,dat.betaAvgOccip,'UniformOutput',false);
+mn = cellfun(@mean,dat.betaAvgCP,'UniformOutput',false);
 mn = vertcat(mn{:});
-tmp_std = cellfun(@std,dat.betaAvgOccip,'UniformOutput',false);
+tmp_std = cellfun(@std,dat.betaAvgCP,'UniformOutput',false);
 se = vertcat(tmp_std{:})./[sqrt(sum(subs.group==1)) sqrt(sum(subs.group==2))]';
 
-plot(xcord(1,:),dat.betaAvgOccip{1},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-plot(xcord(2,:),dat.betaAvgOccip{2},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
+plot(xcord(1,:),dat.betaAvgCP{1},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
+plot(xcord(2,:),dat.betaAvgCP{2},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
 hb = bar(mn,'FaceAlpha',0.8);
 hb(1).FaceColor = myColors(1,:);
 hb(2).FaceColor = myColors(2,:);
@@ -313,11 +307,11 @@ legend(condStr,'Location','southoutside')
 set(gca,'xtick',[1 2],'XTickLabel',groupStr)
 ytickformat('%.1f')
 ylabel('Power(dB)')
-title(sprintf('%s beta(%.1f~%.1fs)',[occipROI{:}],timeROI.Post(1),timeROI.Post(2)))
+title(sprintf('%s\nbeta(%.1f~%.1fs)',[CPchanROI{:}],timeROI.Post(1),timeROI.Post(2)))
 
 times = gndTF{1}.time(timeID.all);
 for gi = 1:2
-    subplot(2,8,gi*2+4);hold all
+    subplot(2,4,gi+2);hold all;
     for c = 1:2
         mn = squeeze(mean(dat.betaCurveFrontal{gi}(:,c,:)));
         se = squeeze(std(dat.betaCurveFrontal{gi}(:,c,:),0,1)./sqrt(sum(subs.group==gi)));
@@ -330,14 +324,14 @@ for gi = 1:2
     ylabel('Power(dB)');
     xlabel('Time(0s=response)')
     title(groupStr{gi},sprintf('%s %d~%dHz',[frontalROI{:}],freq.betaFreq(1),freq.betaFreq(2)))
-    set(gca,'XLim',timeROI.all,'XTick',[timeROI.all(1) 0 timeROI.all(2)],'YLim',[-0.5 2.5],'YAxisLocation','right')
+    set(gca,'XLim',timeROI.all,'XTick',[timeROI.all(1) 0 timeROI.all(2)],'YLim',[-0.5 2.5])
     plot(get(gca,'XLim'),[0 0],'k','HandleVisibility','off')
     plot([0 0],get(gca,'YLim'),'k--','HandleVisibility','off')
 
     subplot(2,4,gi);hold all;
     for c = 1:2
-        mn = squeeze(mean(dat.betaCurveOccip{gi}(:,c,:)));
-        se = squeeze(std(dat.betaCurveOccip{gi}(:,c,:),0,1)./sqrt(sum(subs.group==gi)));
+        mn = squeeze(mean(dat.betaCurveCP{gi}(:,c,:)));
+        se = squeeze(std(dat.betaCurveCP{gi}(:,c,:),0,1)./sqrt(sum(subs.group==gi)));
         shadedErrorBar(times,mn,se,{'color',myColors(c,:)})
     end
 
@@ -345,9 +339,9 @@ for gi = 1:2
     ytickformat('%.1f')
     ylabel('Power(dB)');
     xlabel('Time(0s=response)')
-    title(groupStr{gi},sprintf('Occip %d~%dHz',freq.betaFreq(1),freq.betaFreq(2)))
-    %     set(gca,'XLim',timeROI.all,'XTick',[timeROI.all(1) 0 timeROI.all(2)],'YLim',[-1.2 1.2])
-    set(gca,'XLim',timeROI.all,'XTick',[timeROI.all(1) 0 timeROI.all(2)])
+    title(groupStr{gi},sprintf('%s %d~%dHz',[CPchanROI{:}],freq.betaFreq(1),freq.betaFreq(2)))
+    set(gca,'XLim',timeROI.all,'XTick',[timeROI.all(1) 0 timeROI.all(2)],'YLim',[-0.5 2.5])
+    %     set(gca,'XLim',timeROI.all,'XTick',[timeROI.all(1) 0 timeROI.all(2)])
     plot(get(gca,'XLim'),[0 0],'k--','HandleVisibility','off')
     plot([0 0],get(gca,'YLim'),'k','HandleVisibility','off')
 end
@@ -356,76 +350,3 @@ saveas(gca,fullfile(Dir.figs,['RespBetaPower_CorrVSwrong_',num2str(freq.betaFreq
 % fig.PaperOrientation = 'landscape';
 print(fig,fullfile(Dir.figs,['RespBetaPower_CorrVSwrong_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']),'-dpdf','-r300')
 
-%% resp topography
-
-% myFigBasic;
-%
-% load chanLocs_dms.mat
-% [is, loc] = ismember(gndTF{1}.label,{chanloc.labels});
-% chanloc  = chanloc(loc(is));
-% threshP = 0.05;
-% mkSize = 1;
-% myColors = jet;
-%
-% % myColors = crameri('vik',256);
-% % myColors = myColors(256/2:256,:);
-%
-% figure('Name','Ftest chans','Position',[100 200 800 300]);
-% threshP = 0.001;
-% mkSize = 3;
-% groupLimit = {[0,90],[0 30]};
-% for gi = 1:2
-%     clear X
-%     for c = 1:length(gndTF{1}.label)
-%
-%         load1 = squeeze(mean(mean(gndTF{gi,1}.indv(:,c,freqID.beta,timeID.Pre),3),4));%subN
-%         load2 = squeeze(mean(mean(gndTF{gi,2}.indv(:,c,freqID.beta,timeID.Post),3),4));%subN
-%
-%         X(:,1) = [load1;load2];
-%         X(:,2) = sort(repmat([1 2]',sum(subs.group==gi),1));
-%         X(:,3) = repmat([1:sum(subs.group==gi)]',2,1);
-%
-%         [Ftest.F(gi,c),Ftest.p(gi,c)] = RMAOV1(X);
-%     end
-%     subplot(1,3,gi);hold all
-%
-%     topoplot(Ftest.F(gi,:),chanloc,'emarker2',{find(Ftest.p(gi,:)<threshP),'o','k',mkSize},'plotrad',0.53,'electrodes','off');
-%     caxis(groupLimit{gi})
-%     h = colorbar;
-%     h.Label.String = sprintf('Ftest(p<%.3f)',threshP);
-%     h.Label.Rotation = -90;
-%     h.Label.Position = h.Label.Position + [1 0 0];
-%     title(sprintf('%s:%.1f~%.1fs', groupStr{gi},timeROI.bins{t}(1),timeROI.bins{t}(2)),['N=' num2str(sum(subs.group==gi))]);
-%
-% end
-%
-% clear X
-% for c = 1:length(gndTF{1}.label)
-%
-%     load1 = squeeze(mean(mean(gndTF{1,1}.indv(:,c,freqID.beta,timeID.Pre),3),4));%subN
-%     tmp = squeeze(mean(mean(gndTF{2,1}.indv(:,c,freqID.beta,timeID.Pre),3),4));%subN
-%     load1 = [load1;tmp];
-%
-%     load2 = squeeze(mean(mean(gndTF{1,2}.indv(:,c,freqID.beta,timeID.Post),3),4));%subN
-%     tmp = squeeze(mean(mean(gndTF{2,2}.indv(:,c,freqID.beta,timeID.Post),3),4));%subN
-%     load2 = [load2;tmp];
-%
-%     X(:,1) = [load1;load2];
-%     X(:,2) = sort(repmat([1 2]',subN,1));
-%     X(:,3) = repmat([1:subN]',2,1);
-%
-%     [Ftest.F(gi,c),Ftest.p(gi,c)] = RMAOV1(X);
-% end
-%
-% subplot(1,3,3);hold all
-% topoplot(Ftest.F(gi,:),chanloc,'emarker2',{find(Ftest.p(gi,:)<threshP),'o','k',mkSize},'plotrad',0.53,'electrodes','off','colormap',myColors);
-% caxis([0, 25])
-% h = colorbar;
-% %             set(h,'ytick',[0.33:0.03:0.4])
-% h.Label.String = sprintf('Ftest (p<%.3f)',threshP);
-% h.Label.Rotation = -90;
-% h.Label.Position = h.Label.Position + [1 0 0];
-% title(sprintf('All:%.1f~%.1fs', timeROI.bins{t}(1),timeROI.bins{t}(2)));
-%
-% saveas(gcf,fullfile(Dir.figs,['RespPowerTopoTtest_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
-%

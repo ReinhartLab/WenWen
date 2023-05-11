@@ -91,7 +91,6 @@ if isfile(set_name)
         cfg.width = linspace(2,10,length(cfg.foi)); % larger value for more precise f
         cfg.out = 'pow';
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
-%         cfg.keeptrials  = 'yes';
         cfg.padding      = 30;
 
         eeg = ft_freqanalysis(cfg,eeg);
@@ -110,8 +109,9 @@ if isfile(set_name)
             cfg = [];
             cfg.latency = [-0.4 -0.1];
             bl = ft_selectdata(cfg,beeg);
-            timedim = find(size(beeg.powspctrm)==length(beeg.time));
-            eeg.powspctrm = bsxfun(@(x,y)10*log10(x./y),eeg.powspctrm,mean(bl.powspctrm,timedim,'omitnan'));% dB = 10*log10(signal/baseline)
+
+            timedim = find(size(bl.powspctrm)==length(bl.time));
+            eeg.powspctrm = 10*log10(bsxfun(@rdivide,eeg.powspctrm,mean(bl.powspctrm,timedim,'omitnan'))); %  db = 10*log10(signal/baseline);
         end
 
         cfg = [];

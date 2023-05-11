@@ -26,10 +26,10 @@ occipROI = {'POz','Oz'};
 freq.betaFreq = [15 25];% Hz
 freq.alphaFreq = [8 13];% Hz
 
-% timeROI.all = [-0.4 0.5];% in s, for curve plotting
-timeROI.all = [-0.4 0.95];% in s, for curve plotting
-% timeROI.Post = [0 0.5];% in s
-timeROI.Post = [0 0.95];% in s
+timeROI.all = [-0.4 0.5];% in s, for curve plotting
+% timeROI.all = [-0.4 0.95];% in s, for curve plotting
+timeROI.Post = [0 0.5];% in s
+% timeROI.Post = [0 0.95];% in s
 timeROI.Pre = [-0.4 0];% in s
 %%
 subsAll = cell(subN,3);
@@ -37,7 +37,7 @@ subsAll = cell(subN,3);
 for sub_i = 1:subN
     subname = subs.name{sub_i};
 
-    matName = fullfile(Dir.results,[subname,'_resp_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
+    matName = fullfile(Dir.results,[subname,'_resp_ft_equalizedTrials',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
     if isfile(matName)
         load(matName);
         subsAll(sub_i,:) = tfDat;
@@ -138,7 +138,7 @@ for gi = 1:2
         colorbar     
 
     end
-    saveas(gcf,fullfile(Dir.figs,['Resp_power_',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4}, '.png']))
+    saveas(gcf,fullfile(Dir.figs,['Resp_power_equal_',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4}, '.png']))
 end
 
 %%  time frequency of group average
@@ -187,7 +187,7 @@ for cond_i = 1:3
     title(condStr{cond_i},groupStr{3});colorbar
 end
 
-saveas(gcf,fullfile(Dir.figs,['Resp_power_GroupAvg_',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4}, '.png']))
+saveas(gcf,fullfile(Dir.figs,['Resp_power_equal_GroupAvg_',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4}, '.png']))
 
 %%
 
@@ -436,7 +436,7 @@ for gi = 1:2
     plot(get(gca,'XLim'),[0 0],'k--','HandleVisibility','off')
     plot([0 0],get(gca,'YLim'),'k','HandleVisibility','off')
 end
-saveas(gca,fullfile(Dir.figs,['RespBetaPower_',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
+saveas(gca,fullfile(Dir.figs,['RespBetaPower_equal_',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
 %%
 load beha.mat
 wanted = ismember(beha.name,subs.name);
@@ -486,8 +486,8 @@ for idx = 1:2
     g(2).axe_property('XLim',[-1 3]);
     figure('Position',[100 100 500 260]);
     g.draw();
-      saveas(gcf,fullfile(Dir.figs,['RespBetaPowerBehavCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
-    saveas(gcf,fullfile(Dir.figs,['RespBetaPowerBehavCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']))
+      saveas(gcf,fullfile(Dir.figs,['RespBetaPowerBehavCorr_equal_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+    saveas(gcf,fullfile(Dir.figs,['RespBetaPowerBehavCorr_equal_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']))
 end
 
 %% resp topography
@@ -568,7 +568,7 @@ for t = 1:length(timeROI.bins) % loop time roi
     h.Label.Position = h.Label.Position + [1 0 0];
     title(sprintf('Load-dependent clear-out\nAll:%.1f~%.1fs', timeROI.bins{t}(1),timeROI.bins{t}(2)));
 end
-saveas(gcf,fullfile(Dir.figs,['RespPowTopoLoadDependent_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+saveas(gcf,fullfile(Dir.figs,['RespPowTopoLoadDependent_equal_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
 %% to check why there's no correlation overall for young
 Nplus1 = load(fullfile(Dir.results,['RespBetaPow',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']),'subsAll');
 
@@ -603,7 +603,7 @@ xlabel('Clear out');ylabel('ACC')
      cb.Ticks = [0 1];
      cb.TickLabels = {'Low','High'};
 end
-saveas(gcf,fullfile(Dir.figs,['RespNeuPowCorrLabeled_',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+saveas(gcf,fullfile(Dir.figs,['RespNeuPowCorrLabeled_equal_',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
 
 %%
 figure('Name','Ftest chans','Position',[100 200 800 300]);
@@ -663,7 +663,7 @@ h.Label.Rotation = -90;
 h.Label.Position = h.Label.Position + [1 0 0];
 title(sprintf('All:%.1f~%.1fs', timeROI.bins{t}(1),timeROI.bins{t}(2)));
 
-saveas(gcf,fullfile(Dir.figs,['RespPowTopoTtest_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+saveas(gcf,fullfile(Dir.figs,['RespPowTopoTtest_equal_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
 
 %% split young and old based on their acc
 
@@ -704,4 +704,4 @@ for gi = 1:2
         title(sprintf('%s:%.1f~%.1fs', groupStr{gi},timeROI.bins{t}(1),timeROI.bins{t}(2)),[splitStr{b},' N=' num2str(sum(tmp_upper))]);
     end
 end
-saveas(gcf,fullfile(Dir.figs,['RespPowTopoTtestSplitACC_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+saveas(gcf,fullfile(Dir.figs,['RespPowTopoTtestSplitACC_equal_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))

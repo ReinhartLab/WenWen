@@ -20,8 +20,8 @@ txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
 groupStr = {'Young','Old','Both'};
 condStr = {'ss1','ss2','ss4'};
 
-frontalROI = {'CPz','CP1','CP2','Pz','Cz'};
-% frontalROI = {'FCz','Fz','F1','F2','AFz'};
+% frontalROI = {'CPz','CP1','CP2','Pz','Cz'};
+frontalROI = {'FCz','Fz','F1','F2','AFz'};
 
 occipROI = {'POz','Oz'};
 freq.betaFreq = [15 25];% Hz
@@ -30,7 +30,7 @@ freq.alphaFreq = [8 13];% Hz
 timeROI.Delay = [0 3];% in s
 
 %%
-for Nsamps = [6:2:12]
+for Nsamps = 12%[6:2:12]
     clear subsAll
     for sub_i = 1:subN
         subname = subs.name{sub_i};
@@ -442,7 +442,7 @@ for Nsamps = [6:2:12]
     set(gca,'xlim',[0.5 2.5],'XTick',[1 2],'XTickLabel',groupStr)
     ylabel(['Number of channels',newline,'(p<',num2str(threshP),')'],'HorizontalAlignment','center')
     legend(condStr)
-    title('corr with ACC',['TrialCluster=',num2str(Nsamps)])
+    title(sprintf('corr with ACC\nTrialCluster=%d',Nsamps),[frontalROI{:}])
 
     % histogram of correlation Rho
     myColors = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
@@ -465,7 +465,8 @@ for Nsamps = [6:2:12]
         end
         legend(groupStr)
         ylabel('Proportion')
-        title('Rho distribution',condStr{cond_i})
+        xlabel('Spearman Rho value')
+        title('Var @ ACC',condStr{cond_i})
         set(gca,'ylim',[0 0.5],'xlim',[-0.6 0.6])
     end
     saveas(gca,fullfile(Dir.figs,['DelayBetaVarianceACCchanN_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Delay(1)),'~',num2str(timeROI.Delay(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))

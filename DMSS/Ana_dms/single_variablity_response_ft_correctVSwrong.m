@@ -53,7 +53,7 @@ if isfile(set_name)
 
     clear tfDat
     ss = [1 2 4];% set size
-    for cond_i = 3%1:3 % examine load 4 only, some subjs don't have error clean trials in ss1 condition 
+    for cond_i = 3%1:3 % examine load 4 only, some subjs don't have error clean trials in ss1 condition
         tmpID = find(M.ss_num == ss(cond_i));
         condTrials = M(tmpID,:);
 
@@ -76,7 +76,7 @@ if isfile(set_name)
         if sEEG.trials~=bEEG.trials% check trials N
             error('trials missing')
         end
-%%
+        %%
         eeg = eeglab2fieldtrip(sEEG,'preprocessing','none');
         beeg = eeglab2fieldtrip(bEEG,'preprocessing','none');
 

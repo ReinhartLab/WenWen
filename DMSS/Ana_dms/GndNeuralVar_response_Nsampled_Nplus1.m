@@ -32,7 +32,7 @@ timeROI.Post = [0 0.5];% in s
 timeROI.Pre = [-0.4 0];% in s
 
 %%
-for Nsamps = 12:4:30
+for Nsamps = 28%12:4:30
     clear subsAll
     for sub_i = 1:subN
         subname = subs.name{sub_i};
@@ -182,7 +182,7 @@ for Nsamps = 12:4:30
         ylabel('Beha(ACC)')
         set(gca,'ylim',[0 1.5])
 
-               text(0.95,0.85,sprintf('mean Rho = %.3f\nt=%.3f\np=%.3f\nd=%.3f',mean(subsAll.betaOccipACCcorr(tmpsubs,cond_i)),stats.tstat(cond_i),p(cond_i),computeCohen_d(subsAll.betaOccipACCcorr(tmpsubs,cond_i),zeros(length(tmpsubs),1),'paired')),'sc','HorizontalAlignment','Right')
+        text(0.95,0.85,sprintf('mean Rho = %.3f\nt=%.3f\np=%.3f\nd=%.3f',mean(subsAll.betaOccipACCcorr(tmpsubs,cond_i)),stats.tstat(cond_i),p(cond_i),computeCohen_d(subsAll.betaOccipACCcorr(tmpsubs,cond_i),zeros(length(tmpsubs),1),'paired')),'sc','HorizontalAlignment','Right')
     end
     saveas(gca,fullfile(Dir.figs,['RespBetaVarianceOccipACC_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
 
@@ -258,6 +258,50 @@ for Nsamps = 12:4:30
 
     saveas(gcf,fullfile(Dir.figs,['RespBetaVarianceTopo_SampledAT',num2str(Nsamps),'_threshP',num2str(threshP),'_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
 
+%% 2*3 mixed ANOVA on correlation coefficients
+
+clear xFs xPs
+for c = 1:size(subsAll.betaChansCorrACC,2)
+    tmpdat = squeeze(subsAll.betaChansCorrACC(:,c,:)); % sub*chan*load
+    tmpdat = reshape(tmpdat,size(tmpdat,1)*size(tmpdat,2),1);% [sub*load]*1
+
+    clear X
+    X(:,1) = tmpdat;
+    X(:,2) = flipud(repmat(subs.group,3,1));
+    X(:,[4 3]) = fullfact([subN 3]);
+
+    [~, ~, ~, xFs{c}, xPs{c}]=mixed_between_within_anova(X);
+end
+
+clear xFsMat
+for c = 1:size(subsAll.betaChansCorrACC,2)
+    xFsMat.inter(c) = xFs{c}{4};
+    xFsMat.load(c) = xFs{c}{3};
+
+    xFsMat.inter_p(c) = xPs{c}{4};
+    xFsMat.load_p(c) = xPs{c}{3};
+end
+figure;
+for i = 1:2
+    subplot(1,2,i);
+    if i ==1
+        tmpdat = xFsMat.inter;
+        tmp_p = xFsMat.inter_p;
+        title('Interaction effect',['N+1 corr ACC TrlCluster=',num2str(Nsamps)]);
+    else
+        tmpdat = xFsMat.load;
+        tmp_p = xFsMat.load_p;
+        title('Load effect effect',['N+1 corr ACC TrlCluster=',num2str(Nsamps)]);
+    end
+    topoplot(tmpdat,chanloc,'emarker2',{find(tmp_p<0.05),'p','k',mkSize},'plotrad',0.53,'electrodes','off' );
+    caxis([0, 5])
+    h = colorbar;
+    h.Label.String = sprintf('T-value(p<%.3f)',0.05);
+    h.Label.Rotation = -90;
+    h.Label.Position = h.Label.Position + [1 0 0];
+end
+    saveas(gcf,fullfile(Dir.figs,['RespBetaVarianceTopoANOVA_SampledAT',num2str(Nsamps),'_threshP',num2str(threshP),'_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+
     %% FrontalAlphaACC
 
     figure('Name','FrontalAlphaACC','position',[500 500 900 900]);
@@ -268,7 +312,7 @@ for Nsamps = 12:4:30
             subplot(3,3,(gi-1)*3+cond_i);hold all;axis square
             for s = 1:length(tmpsubs)
                 plot(dat{tmpsubs(s)}.alphaAvgFrontal(:,cond_i),dat{tmpsubs(s)}.behaACC(:,cond_i),'.')
-%                 lsline
+                %                 lsline
             end
             title(groupStr{gi},[condStr{cond_i},' sampN=' num2str(Nsamps)])
             xlabel(['AlphaVariance(' [frontalROI{:}] ')'])
@@ -308,7 +352,7 @@ for Nsamps = 12:4:30
             subplot(3,3,(gi-1)*3+cond_i);hold all;axis square
             for s = 1:length(tmpsubs)
                 plot(dat{tmpsubs(s)}.alphaAvgOccip(:,cond_i),dat{tmpsubs(s)}.behaACC(:,cond_i),'.')
-%                 lsline
+                %                 lsline
             end
             title(groupStr{gi},[condStr{cond_i},' sampN=' num2str(Nsamps)])
             xlabel(['AlphaVariance(' [occipROI{:}] ')'])
@@ -407,7 +451,7 @@ for Nsamps = 12:4:30
     set(gca,'xlim',[0.5 2.5],'XTick',[1 2],'XTickLabel',groupStr)
     ylabel(['Number of channels',newline,'(p<',num2str(threshP),')'],'HorizontalAlignment','center')
     legend(condStr)
-    title('N+1corrACC',['TrialCluster=',num2str(Nsamps)])
+    title('Var@N+1 ACC',['TrialCluster=',num2str(Nsamps)])
 
     % histogram of N+1 correlation Rho
     myColors = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
@@ -425,12 +469,13 @@ for Nsamps = 12:4:30
             h.FaceColor = myColors(gi,:);
             h.FaceAlpha = 0.9;
             plot([mean(subsAll.betaFrontalACCcorr(tmpsubs,cond_i)) mean(subsAll.betaFrontalACCcorr(tmpsubs,cond_i))],[0 1],'color',myColors(gi,:),'LineWidth',2,'HandleVisibility','off')
-            text(2.2-1.1*gi,0.9,sprintf('Rho = %.3f\nt=%.3f\np=%.3f\nd=%.3f',mean(subsAll.betaFrontalACCcorr(tmpsubs,cond_i)),stats.tstat,p,computeCohen_d(subsAll.betaFrontalACCcorr(tmpsubs,cond_i),zeros(length(tmpsubs),1),'paired')),...
+            text(2.2-1.1*gi,0.8,sprintf('Rho = %.3f\nt=%.3f\np=%.3f\nd=%.3f',mean(subsAll.betaFrontalACCcorr(tmpsubs,cond_i)),stats.tstat,p,computeCohen_d(subsAll.betaFrontalACCcorr(tmpsubs,cond_i),zeros(length(tmpsubs),1),'paired')),...
                 'sc','color',myColors(gi,:),'HorizontalAlignment',grougAligStr{gi})
         end
-        legend(groupStr)
+        legend(groupStr,'Location','southeastoutside')
         ylabel('Proportion')
-        title('N+1 Rho distribution',condStr{cond_i})
+        xlabel('Spearman Rho value')
+        title([frontalROI{:}],condStr{cond_i})
         set(gca,'ylim',[0 0.5],'xlim',[-0.6 0.6])
     end
     saveas(gca,fullfile(Dir.figs,['RespBetaVarianceACCchanN_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
@@ -438,21 +483,21 @@ for Nsamps = 12:4:30
     print(fig,fullfile(Dir.figs,['RespBetaVarianceACCchanN_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']),'-dpdf','-r300','-bestfit')
 
     %% scatterhistogram
-%     figure('Position',[300 300 1500 800]);
-%     for cond_i = 1:3
-%         subplot(2,3,cond_i)
-%         s = scatterhistogram(subsAll.behaACC(:,cond_i),subsAll.betaFrontalACCcorr(:,cond_i),'GroupData',subs.groupStr,'HistogramDisplayStyle','bar','NumBins',6);
-%         s.NumBins = 6;
-%         ylabel('N+1 Rho')
-%         xlabel(sprintf('ACC of load %d',cond_i))
-% 
-%         subplot(2,3,cond_i+3)
-%         s = scatterhistogram(mean(subsAll.behaACC,2),subsAll.betaFrontalACCcorr(:,cond_i),'GroupData',subs.groupStr,'HistogramDisplayStyle','bar','NumBins',6);
-%         s.NumBins = 6;
-%         ylabel('N+1 Rho')
-%         xlabel('averaged ACC across ss')
-%     end
-%     saveas(gca,fullfile(Dir.figs,['RespBetaVarianceRhoScatterHist_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
+    %     figure('Position',[300 300 1500 800]);
+    %     for cond_i = 1:3
+    %         subplot(2,3,cond_i)
+    %         s = scatterhistogram(subsAll.behaACC(:,cond_i),subsAll.betaFrontalACCcorr(:,cond_i),'GroupData',subs.groupStr,'HistogramDisplayStyle','bar','NumBins',6);
+    %         s.NumBins = 6;
+    %         ylabel('N+1 Rho')
+    %         xlabel(sprintf('ACC of load %d',cond_i))
+    %
+    %         subplot(2,3,cond_i+3)
+    %         s = scatterhistogram(mean(subsAll.behaACC,2),subsAll.betaFrontalACCcorr(:,cond_i),'GroupData',subs.groupStr,'HistogramDisplayStyle','bar','NumBins',6);
+    %         s.NumBins = 6;
+    %         ylabel('N+1 Rho')
+    %         xlabel('averaged ACC across ss')
+    %     end
+    %     saveas(gca,fullfile(Dir.figs,['RespBetaVarianceRhoScatterHist_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
 
     %% split young and old based on their N+1 correlatoin coefficients
     cond_i = 3;

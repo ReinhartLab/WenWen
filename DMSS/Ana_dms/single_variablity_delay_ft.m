@@ -99,8 +99,10 @@ if isfile(set_name)
             cfg.latency = [-0.4 -0.1];
             bl = ft_selectdata(cfg,beeg);% select baseline as pre trial
         end
+
         timedim = find(size(eeg.powspctrm)==length(eeg.time));
         nv = squeeze(log(var(eeg.powspctrm,0,1,"omitnan")./mean(var(bl.powspctrm,0,1,"omitnan"),timedim)));%chan*freq*time
+        % nv = log(var(pow_s)/var(pow_bl))
 
         eeg = ft_freqdescriptives([],eeg);% get ft structure;
         eeg.powspctrm = nv;
