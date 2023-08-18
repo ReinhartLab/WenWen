@@ -1,4 +1,4 @@
-%function [pval, t_orig, crit_t, est_alpha, seed_state]=mult_comp_perm_t2(data1,data2,n_perm,tail,alpha_level,mu,t_stat,reports,seed_state)
+%function [pval, t_orig, df, crit_t, est_alpha, seed_state]=mult_comp_perm_t2(data1,data2,n_perm,tail,alpha_level,mu,t_stat,reports,seed_state)
 %
 % mult_comp_perm_t2-Independent sample permutation test based on a
 % t-statistic.  This function can perform the test on one variable or 
@@ -140,7 +140,7 @@
 % Aaron Newman for the fix.
 %
 %
-function [pval, t_orig, crit_t, est_alpha, seed_state]=mult_comp_perm_t2(data1,data2,n_perm,tail,alpha_level,mu,t_stat,reports,seed_state)
+function [pval, t_orig, df, crit_t, est_alpha, seed_state]=mult_comp_perm_t2(data1,data2,n_perm,tail,alpha_level,mu,t_stat,reports,seed_state)
 if nargin<2,
     error('You need to provide two sets of data.');
 end

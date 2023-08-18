@@ -9,6 +9,7 @@ load('subs.mat');
 if subs.rawEEG(sn)
 
     subname = subs.name{sn};
+
     if ismember(subname,{'dmss03'})
         zthresh = 12;
     end

@@ -25,11 +25,17 @@ frontalROI = {'CPz','CP1','CP2','Pz','Cz'};%centroparietal cluster
 
 occipROI = {'POz','Oz'};
 freq.betaFreq = [15 25];% Hz
-freq.alphaFreq = [8 13];% Hz
+freq.alphaFreq = [8 12];% Hz
 
-timeROI.all = [-0.4 0.5];% in s, for curve plotting
-timeROI.Post = [0 0.5];% in s
+% freq.betaFreq = [1 3];% Hz
+% freq.betaFreq = [4 7];% Hz
+% freq.betaFreq = [28 40];% Hz
+% freq.betaFreq = [30 40];% Hz
+
+% timeROI.Post = [0 0.5];% in s
+timeROI.Post = [0.1 0.6];% in s
 timeROI.Pre = [-0.4 0];% in s
+timeROI.all = [timeROI.Pre(1) timeROI.Post(2)];% in s, for curve plotting
 
 % timeROI.all = [-0.4 1];% in s, for curve plotting
 % timeROI.Post = [0 1];% in s
@@ -256,6 +262,12 @@ Xa(:,4) = [[1:sum(subs.group==1) 1:sum(subs.group==1) 1:sum(subs.group==1)],...
     [1:sum(subs.group==2) 1:sum(subs.group==2) 1:sum(subs.group==2)]+sum(subs.group==1)]';
 [SSQs.betaFrontal, DFs.betaFrontal, MSQs.betaFrontal, Fs.betaFrontal, Ps.betaFrontal]=mixed_between_within_anova(Xa);
 
+T = subs(:,{'name','group','groupStr'});
+T.load1 = [dat.betaAvgFrontal{2}(:,1);dat.betaAvgFrontal{1}(:,1)];
+T.load2 = [dat.betaAvgFrontal{2}(:,2);dat.betaAvgFrontal{1}(:,2)];
+T.load3 = [dat.betaAvgFrontal{2}(:,3);dat.betaAvgFrontal{1}(:,3)];
+writetable(T,fullfile(Dir.ana,'TableOutput',['RespBetaVariance_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
+
 Xa(:,1) = [reshape(dat.betaAvgFrontalPre{1},size(dat.betaAvgFrontalPre{1},1)*size(dat.betaAvgFrontalPre{1},2),1);...
     reshape(dat.betaAvgFrontalPre{2},size(dat.betaAvgFrontalPre{2},1)*size(dat.betaAvgFrontalPre{2},2),1)];
 [SSQs.betaFrontalPre, DFs.betaFrontalPre, MSQs.betaFrontalPre, Fs.betaFrontalPre, Ps.betaFrontalPre]=mixed_between_within_anova(Xa);
@@ -397,7 +409,6 @@ if Ps.betaFrontalPre{3}<.05
     end
 end
 
-
 myColors = crameri('batlowW',5);
 
 times = gndTF{1}.time(timeID.all);
@@ -495,7 +506,6 @@ for i = 1:2
     h.Label.Position = h.Label.Position + [1 0 0];
 end
 saveas(gcf,fullfile(Dir.figs,['RespBetaVarianceTimeFreqFinteraction_',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
-
 
 %% bar & time series -alpha
 fig =figure('Position',[100 100 800 650]);
@@ -600,9 +610,7 @@ if Ps.alphaFrontalPre{3}<.05
     end
 end
 
-
 myColors = crameri('batlowW',5);
-
 times = gndTF{1}.time(timeID.all);
 for gi = 1:2
     subplot(2,8,gi*2+4);hold all
@@ -640,9 +648,6 @@ for gi = 1:2
 end
 
 saveas(gca,fullfile(Dir.figs,['RespAlphaVariance_',num2str(freq.alphaFreq(1)),'~',num2str(freq.alphaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
-% fig.PaperOrientation = 'landscape';
-% print(fig,fullfile(Dir.figs,['RespAlphaVariance_',num2str(freq.alphaFreq(1)),'~',num2str(freq.alphaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']),'-dpdf','-r300')
-
 
 %% correlation
 load beha.mat
@@ -702,9 +707,7 @@ for idx = 2%1:2
     figure('Position',[100 100 500 260]);
     g.draw();
     saveas(gcf,fullfile(Dir.figs,['RespNeuVarCorr_',behaStr{idx},num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
-    saveas(gcf,fullfile(Dir.figs,['RespNeuVarCorr_',behaStr{idx},num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']))
 end
-
 
 myFigBasic;
 
@@ -717,8 +720,7 @@ myColors = jet;
 % myColors = crameri('vik',256);
 % myColors = myColors(256/2:256,:);
 
-
-%% glme regression model: acc = age-group + setsize + beta variability +var*ss+var*group
+%% glme regression model: acc = age-group*beta variability
 tmp = vertcat(dat.betaAvgFrontal{:});
 betaArray = [tmp(:,1);tmp(:,2);tmp(:,3)];
 groupArray = flipud([subs.group;subs.group;subs.group]);
@@ -730,18 +732,36 @@ accArray = [tmp(:,1);tmp(:,2);tmp(:,3)];
 tbl = table(accArray,betaArray, subArray, loadArray,groupArray,'VariableNames',{'beha','var','subj','ss','group'});
 tbl.subj = categorical(tbl.subj);
 tbl.group = categorical(tbl.group);
+tbl.ss = categorical(tbl.ss);
 X = [betaArray,loadArray,groupArray];
 y = accArray;
 
-glme = fitglme(tbl,'beha ~ 1+var*ss+var*group');
-
+glme = fitglme(tbl,'beha ~ var*group+(1|ss)');
 t = dataset2table(glme.anova);
-myReg.frontal.glme.pVarBeta = t.pValue(5);
-myReg.frontal.glme.pVarGroup = t.pValue(6);
+t.fomula{1} = char(glme.Formula); 
+writetable(t,fullfile(Dir.ana,'TableOutput',['RespBetaVarglme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+    'FileType','spreadsheet','Sheet',[frontalROI{:},'_anova'])
 
 t = dataset2table(glme.Coefficients);
-myReg.frontal.glme.FVarBeta = t.Estimate(2);
-myReg.frontal.glme.FVarBeta = t.Estimate(4);
+writetable(t,fullfile(Dir.ana,'TableOutput',['RespBetaVarglme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+    'FileType','spreadsheet','Sheet',[frontalROI{:},'_Coefficients'])
+
+% tbl(double(tbl.subj)==35,:)=[]; % remove the outlier for frontal beta
+% glme = fitglme(tbl,'beha ~ var*group+(1|ss)');
+% t = dataset2table(glme.anova);
+
+full_model = fitglme(tbl,'beha ~ var*group+(1|ss)');
+reduced_model = fitglme(tbl,'beha ~ var+group+(1|ss)');
+bayes_factor = exp(full_model.LogLikelihood- reduced_model.LogLikelihood);
+
+% t.fomula{1} = char(glme.Formula); 
+% writetable(t,fullfile(Dir.ana,'TableOutput',['RespBetaVarglme_wo_outlier',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+%     'FileType','spreadsheet','Sheet',[frontalROI{:},'_anova'])
+% 
+% t = dataset2table(glme.Coefficients);
+% writetable(t,fullfile(Dir.ana,'TableOutput',['RespBetaVarglme_wo_outlier',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+%     'FileType','spreadsheet','Sheet',[frontalROI{:},'_Coefficients'])
+
 %%
 addpath(genpath('D:\Toolbox\crameri_v1.08'))
 myColors = crameri('bamako',5);% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
@@ -779,14 +799,25 @@ for idx = 2%1:2
         Y = reshape(dat.beha{gi},size(dat.beha{gi},1)*size(dat.beha{gi},2),1);
         X(:,1) = sort(repmat([1 2 4]',size(dat.betaAvgFrontal{gi},1),1));
         X(:,2) = reshape(dat.betaAvgFrontal{gi},size(dat.betaAvgFrontal{gi},1)*size(dat.betaAvgFrontal{gi},2),1);
-        %         mdl_124 =  stepwiseglm(X,Y,'linear','Distribution','normal','Criterion','bic','Lower','linear');
+%         mdl_124_s =  stepwiseglm(X,Y,'linear','Distribution','normal','Criterion','bic');
         mdl_124 =  fitglm(X,Y);
+        mdl_124_0 = fitglm(X(:,1),Y);
+
+        T = subs(subs.group ==gi,{'name','group','groupStr'});
+        T = [T;T;T];% repeat three times.
+        T.respVar = X(:,2);T.ss = X(:,1);T.beha = Y;
+        writetable(T,fullfile(Dir.ana,'TableOutput',['RespBetaVariance_Regress_',groupStr{gi},behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
+        myTbl{gi} = T;
+        T.group = categorical(T.group);
 
         clear X Y
         Y = reshape(dat.beha{gi}(:,[2 3]),size(dat.beha{gi},1)*2,1);
         X(:,1) = sort(repmat([2 4]',size(dat.betaAvgFrontal{gi},1),1));
         X(:,2) = reshape(dat.betaAvgFrontal{gi}(:,[2 3]),size(dat.betaAvgFrontal{gi},1)*2,1);
+%         mdl_24_s =  stepwiseglm(X,Y,'linear','Distribution','normal','Criterion','bic');
         mdl_24 =  fitglm(X,Y);
+        mdl_24_0 = fitglm(X(:,1),Y);
+        
         if gi == 2
             clear X Y
             Y = reshape(dat.beha{gi},size(dat.beha{gi},1)*size(dat.beha{gi},2),1);
@@ -795,6 +826,8 @@ for idx = 2%1:2
             X([15 36 57],:) = [];
             Y([15 36 57],:) = [];
             mdl_124_wo =  fitglm(X,Y);
+            mdl_124_wo_0 =  fitglm(X(:,1),Y);
+
             clear X Y
             Y = reshape(dat.beha{gi}(:,[2 3]),size(dat.beha{gi},1)*2,1);
             X(:,1) = sort(repmat([2 4]',size(dat.betaAvgFrontal{gi},1),1));
@@ -802,6 +835,7 @@ for idx = 2%1:2
             X([15 36],:) = [];
             Y([15 36],:) = [];
             mdl_24_wo =  fitglm(X,Y);
+            mdl_24_wo_0 =  fitglm(X(:,1),Y);
         end
         %%
         cond = 4;
@@ -815,16 +849,21 @@ for idx = 2%1:2
         %         g(gi,cond).set_color_options('chroma',3); %Set the color of the point
         g(gi,cond).set_color_options('map',myColors(1:3,:)/60,'n_color',3,'n_lightness',1,'lightness',60,'legend','merge'); %Set the color of the point
 
-%             g(gi,cond).set_title(sprintf('%s StepwiseRegress\n[1,2,4],B= %.3f, p = %.3f\nwo outlier: B= %.3f, p = %.3f\n[2,4],B = %.3f, p = %.3f\nwo outlier: B= %.3f, p = %.3f\n',groupStr{gi},mdl_124.Coefficients.Estimate(3),mdl_124_wo.Coefficients.pValue(3),mdl_124_wo.Coefficients.Estimate(3),mdl_124.Coefficients.pValue(3),mdl_24.Coefficients.Estimate(3),mdl_24.Coefficients.pValue(3),mdl_24_wo.Coefficients.Estimate(3),mdl_24_wo.Coefficients.pValue(3)));
+%         g(gi,cond).set_title(sprintf('%s\n[1,2,4]wo,B= %.3f, p = %.3f, Rsq= %.3f\n[2,4]wo,B = %.3f, p = %.3f, Rsq= %.3f',groupStr{gi},mdl_124_wo.Coefficients.Estimate(3),mdl_124_wo.Coefficients.pValue(3),mdl_124_wo.Rsquared.Ordinary-mdl_124_wo_0.Rsquared.Ordinary,mdl_24_wo.Coefficients.Estimate(3),mdl_24_wo.Coefficients.pValue(3),mdl_24_wo.Rsquared.Ordinary-mdl_24_wo_0.Rsquared.Ordinary));
 
-            g(gi,cond).set_title(sprintf('%s StepwiseRegress\n[1,2,4],B= %.3f, p = %.3f\n[2,4],B = %.3f, p = %.3f',groupStr{gi},mdl_124.Coefficients.Estimate(3),mdl_124.Coefficients.pValue(3),mdl_24.Coefficients.Estimate(3),mdl_24.Coefficients.pValue(3)));
-        
+        g(gi,cond).set_title(sprintf('%s\n[1,2,4],B= %.3f, p = %.3f, Rsq= %.3f\n[2,4],B = %.3f, p = %.3f, Rsq= %.3f',groupStr{gi},mdl_124.Coefficients.Estimate(3),mdl_124.Coefficients.pValue(3),mdl_124.Rsquared.Ordinary-mdl_124_0.Rsquared.Ordinary,mdl_24.Coefficients.Estimate(3),mdl_24.Coefficients.pValue(3),mdl_24.Rsquared.Ordinary-mdl_24_0.Rsquared.Ordinary));
+
         g(gi,cond).set_text_options('base_size' ,10,'title_scaling' ,1.1);%Set the font size, the base font size base_size is set16, the title font size of the axis is set to the base font size1.2Times
-        
+
         if idx == 2
-            g(gi,cond).axe_property('XLim',[-1 3],'YLim',[0.6 1],'YTick',[0.6:0.1:1],'XTick',[-1:1:4]);
+            g(gi,cond).axe_property('YLim',[0.6 1],'YTick',[0.6:0.1:1]);
         else
-            g(gi,cond).axe_property('XLim',[-1 3],'YLim',[0.4 1.4],'YTick',[0.4:0.2:2],'XTick',[-1:1:4]);
+            g(gi,cond).axe_property('YLim',[0.4 1.4],'YTick',[0.4:0.2:2]);
+        end
+        if gi ==1
+            g(gi,cond).axe_property('XLim',[-1 2],'XTick',[-1:1:4]);
+        else
+            g(gi,cond).axe_property('XLim',[-1 3],'XTick',[-1:1:4]);
         end
         g(gi,cond).set_color_options('map',myColors(1:3,:),'n_lightness',1);
         g(gi,cond).set_point_options('base_size',2);
@@ -836,6 +875,7 @@ for idx = 2%1:2
     fig.PaperOrientation = 'landscape';
     print(fig,fullfile(Dir.figs,['RespVarGLM_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']),'-dpdf','-r300','-bestfit')
 end
+
 %% beta rebound relative to pre-response, average cross set sizes
 figure('Name','Ftest chans','Position',[100 200 1300 300]);
 threshP = 0.001;
@@ -860,11 +900,11 @@ for gi = 1:2
 
     topoplot(Ftest.F(gi,:),chanloc,'emarker2',{find(Ftest.p(gi,:)<threshP),'o','k',mkSize},'plotrad',0.53,'electrodes','off','colormap',myColors,'style','contour');
     caxis(groupLimit{gi})
-h = colorbar;
+    h = colorbar;
     h.Label.String = sprintf('Ftest(p<%.3f)',threshP);
     h.Label.Rotation = -90;
     h.Label.Position = h.Label.Position + [1 0 0];
-%     title(sprintf('%s:%.1f~%.1fs', groupStr{gi},timeROI.Post(1),timeROI.Post(2)),['N=' num2str(sum(subs.group==gi))]);
+    %     title(sprintf('%s:%.1f~%.1fs', groupStr{gi},timeROI.Post(1),timeROI.Post(2)),['N=' num2str(sum(subs.group==gi))]);
 end
 orient landscape
 print(gcf,fullfile(Dir.figs,['RespVarTopoMixedANOVA22_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']),'-dtiff')

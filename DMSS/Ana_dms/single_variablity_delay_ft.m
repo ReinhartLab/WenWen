@@ -4,7 +4,9 @@ load('subs.mat');
 subname = subs.name{sn};
 
 txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
-outputFile = fullfile(Dir.results,[subname,'_var_delay_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
+% with padding = 20; line 85
+outputFile = fullfile(Dir.results,[subname,'_var_delay_ft_pad20',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
+% outputFile = fullfile(Dir.results,[subname,'_var_delay_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
 
 if IsOverwrite==0 && isfile(outputFile)
     return
@@ -80,6 +82,7 @@ if isfile(set_name)
         cfg.out = 'pow';
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
         cfg.keeptrials  = 'yes';
+        cfg.pad = 20;
 
         eeg = ft_freqanalysis(cfg,eeg);
 

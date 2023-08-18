@@ -18,7 +18,8 @@ groupStr = {'Young','Old','Young-Old'};
 condStr = {'Load 1','Load 2','Load 4'};
 
 freq.betaFreq = [15 25];% Hz
-timeROI.bins = [0 0.5];
+% timeROI.bins = [0 0.5];
+timeROI.bins = [0.1 0.6];
 
 %%
 subsAll = cell(subN,1);

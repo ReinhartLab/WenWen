@@ -137,6 +137,7 @@ for Nsamps = [16:4:40 80]
 
             tbl = table(accArray,betaArray, subArray, loadArray,'VariableNames',{'beha','eeg','subj','ss'});
             tbl.subj = categorical(tbl.subj);
+            tbl.subj = categorical(tbl.ss);
             glme = fitglme(tbl,'beha ~ 1+eeg*ss+(1|subj)');
             t = dataset2table(glme.anova);
             myReg.group{gi}.glme.pBeta(c) = t.pValue(2);
@@ -190,18 +191,41 @@ for Nsamps = [16:4:40 80]
     title('Collapse groups: eeg*ss',['N+1 corr ACC TrlCluster=',num2str(Nsamps)]);
     saveas(gcf,fullfile(Dir.figs,['RespBetaVarianceTopoGLME_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
 
-    %% 
+    %% use ft to plot, so that pdf can be editable
+    ft_temp=load(fullfile(Dir.results,['ERP',txtCell{1,1},txtCell{1,2},'.mat']));
+
+    cfg= [];
+    cfg.latency = 0;
+    cfg.channel = tfDat{1}{1}.label;
+    ft_temp = ft_timelockgrandaverage(cfg,ft_temp.subsAll{1:2,1});
+
+    ft_temp.avg = myReg.groupBoth.glme.FBeta;
+    %%
     figure('position',[100 100 350 350])
-    topoplot(myReg.groupBoth.glme.FBeta,chanloc,'emarker2',{find(myReg.groupBoth.glme.pBeta<threshP),'*','k',mkSize},'plotrad',0.53,'electrodes','off','colormap',flipud(hot),'style','map');
-    caxis([0, .03])
+    cfg = [];
+    cfg.colormap = hot;
+    cfg.highlight          =  'on';
+    cfg.highlightsymbol = '.';
+    cfg.highlightsize   = 20;
+    cfg.highlightchannel = tfDat{1}{1}.label(myReg.groupBoth.glme.pBeta<threshP & myReg.groupBoth.glme.FBeta>0);
+    cfg.style = 'straight';
+    cfg.marker = 'off';
+    cfg.layout = 'easycapM11.mat';
+    cfg.comment = 'no';
+    cfg.figure = 'gca';
+    ft_topoplotER(cfg,ft_temp);
+    %
+    %     topoplot(myReg.groupBoth.glme.FBeta,chanloc,'emarker2',{find(myReg.groupBoth.glme.pBeta<threshP),'*','k',mkSize},'plotrad',0.53,'electrodes','off','colormap',flipud(hot),'style','map');
+    caxis([-0.03, 0.03])
     h = colorbar;
-    h.Label.String = sprintf('GLME Coef (p<%.3f)',threshP);
+    h.Label.String = sprintf('GLME Coefficient (p<%.3f)',threshP);
     h.Label.Rotation = -90;
-    h.Label.Position = h.Label.Position + [1 0 0];
-    h.Ticks = [0:0.01:0.03];
-    h.FontSize = 10;
-    title('N+1 correlation',['ClusterSize=',num2str(Nsamps)],'FontSize',13);
-    
+    h.Label.Position = h.Label.Position + [1.2 0 0];
+    h.Ticks = [-0.03:0.03:0.03];
+    h.TickLength = 0;
+    h.FontSize = 13;
+    title('N+1 correlation (Var)',['ClusterSize=',num2str(Nsamps)],'FontSize',13);
+
     saveas(gcf,fullfile(Dir.figs,['RespBetaVarianceTopoGLMEn+1Coef_SampledAT',num2str(Nsamps),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']))
 
     %% separate groups and set size

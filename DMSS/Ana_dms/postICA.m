@@ -21,7 +21,7 @@ for sn = 44 %[20:21]%:height(subs)
         end
 
         if isfile(fullfile(Dir.prepro,[subname,'_clean.set']))
-            %   checkData(sn)
+              checkData(sn)
         end
 
         pause

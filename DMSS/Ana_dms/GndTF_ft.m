@@ -20,12 +20,13 @@ groupStr = {'Young','Old','Young-Old'};
 condStr = {'ss1','ss2','ss4'};
 condDiffStr = {'S2-S1','S4-S1','S4-S2'};
 
-frontalROI = {'Fz','F1','F2','AFz','FCz'};
-% frontalROI = {'Fz','F1','F2','FCz','FC1','FC2'};
-% frontalROI = {'Cz','C1','C2','CPz','Pz'};
-occipROI = {'POz','Oz'};
+% frontalROI = {'Fz','F1','F2','AFz','FCz'};
+frontalROI = {'Cz','C1','C2','CPz','Pz'};
+
+% occipROI = {'POz','Oz'};
 freq.betaFreq = [15 25];% Hz
-freq.alphaFreq = [8 12];% Hz
+% freq.alphaFreq = [8 12];% Hz
+
 timeROI.all = [-5.25 4.5];% in s
 SStime = {[-1.6 timeROI.all(2)],[-2.8 timeROI.all(2)],[-5.2 timeROI.all(2)]};% epoch length for different SS
 timeROI.delay = [0 3];% in s
@@ -104,7 +105,6 @@ for gi = 1:2
         cfg.channel = frontalROI;
         cfg.figure = 'gca';
 
-
         ft_singleplotTFR(cfg, gndTF{gi,cond_i});
 
         title(condStr{cond_i},groupStr{gi},'FontSize',14);
@@ -156,7 +156,7 @@ cfg.figure = 'gca';
 
 figure('Position',[100 100 800 290]);
 for gi = 1:3
-    subplot(1,3,gi);    axis square;hold all
+    subplot(1,3,gi);axis square;hold all
 
     ft_singleplotTFR(cfg, GroupAvg{gi});
 
@@ -215,8 +215,8 @@ saveas(gcf,fullfile(Dir.figs,['PowerGroupDiff_',[frontalROI{:}],txtCell{IsLap+1,
 freqID.beta = dsearchn(gndTF{1}.freq',freq.betaFreq');
 freqID.beta = freqID.beta(1):freqID.beta(2);
 
-freqID.alpha = dsearchn(gndTF{1}.freq',freq.alphaFreq');
-freqID.alpha = freqID.alpha(1):freqID.alpha(2);
+% freqID.alpha = dsearchn(gndTF{1}.freq',freq.alphaFreq');
+% freqID.alpha = freqID.alpha(1):freqID.alpha(2);
 
 timeID.all = dsearchn(gndTF{1}.time',timeROI.all');
 timeID.all = timeID.all(1):timeID.all(2);
@@ -232,7 +232,7 @@ timeID.preDelay = timeID.preDelay(1):timeID.preDelay(2);
 
 clear chanID
 [log1,chanID.frontal] = ismember(frontalROI,gndTF{1}.label);
-[log2,chanID.occip] = ismember(occipROI,gndTF{1}.label);
+% [log2,chanID.occip] = ismember(occipROI,gndTF{1}.label);
 
 clear dat SStimeID
 
@@ -242,18 +242,18 @@ for gi = 1:2
         SStimeID{cond_i} = SStimeID{cond_i}(1):SStimeID{cond_i}(2);
 
         dat.betaAvgFrontal{gi}(:,cond_i) = squeeze(mean(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.frontal(log1),freqID.beta,timeID.delay),2),3),4));
-        dat.betaAvgOccip{gi}(:,cond_i) = squeeze(mean(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.occip(log2),freqID.beta,timeID.delay),2),3),4));
+%         dat.betaAvgOccip{gi}(:,cond_i) = squeeze(mean(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.occip(log2),freqID.beta,timeID.delay),2),3),4));
         dat.betaAvgFrontalProbe{gi}(:,cond_i) = squeeze(mean(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.frontal(log1),freqID.beta,timeID.probe),2),3),4));
         dat.betaAvgFrontalPreDelay{gi}(:,cond_i) = squeeze(mean(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.frontal(log1),freqID.beta,timeID.preDelay),2),3),4));
 
-        dat.alphaAvgOccip{gi}(:,cond_i) = squeeze(mean(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.occip(log2),freqID.alpha,timeID.delay),2),3),4));
-        dat.alphaAvgFrontal{gi}(:,cond_i) = squeeze(mean(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.frontal(log1),freqID.alpha,timeID.delay),2),3),4));
+%         dat.alphaAvgOccip{gi}(:,cond_i) = squeeze(mean(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.occip(log2),freqID.alpha,timeID.delay),2),3),4));
+%         dat.alphaAvgFrontal{gi}(:,cond_i) = squeeze(mean(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.frontal(log1),freqID.alpha,timeID.delay),2),3),4));
 
-        dat.betaCurveOccip{gi}{cond_i} = squeeze(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.occip(log2),freqID.beta,SStimeID{cond_i}),2),3));
+%         dat.betaCurveOccip{gi}{cond_i} = squeeze(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.occip(log2),freqID.beta,SStimeID{cond_i}),2),3));
         dat.betaCurveFrontal{gi}{cond_i} = squeeze(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.frontal(log1),freqID.beta,SStimeID{cond_i}),2),3));
 
-        dat.alphaCurveOccip{gi}{cond_i} = squeeze(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.occip(log2),freqID.alpha,SStimeID{cond_i}),2),3));
-        dat.alphaCurveFrontal{gi}{cond_i} = squeeze(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.frontal(log1),freqID.alpha,SStimeID{cond_i}),2),3));
+%         dat.alphaCurveOccip{gi}{cond_i} = squeeze(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.occip(log2),freqID.alpha,SStimeID{cond_i}),2),3));
+%         dat.alphaCurveFrontal{gi}{cond_i} = squeeze(mean(mean(gndTF{gi,cond_i}.indv(:,chanID.frontal(log1),freqID.alpha,SStimeID{cond_i}),2),3));
     end
 end
 
@@ -279,20 +279,9 @@ Xa(:,1) = [reshape(dat.betaAvgFrontalProbe{1},size(dat.betaAvgFrontalProbe{1},1)
 Xa(:,2) = [ones(sum(subs.group==1)*3,1);ones(sum(subs.group==2)*3,1)*2];
 [SSQs.betaFrontalProbe, DFs.betaFrontalProbe, MSQs.betaFrontalProbe, Fs.betaFrontalProbe, Ps.betaFrontalProbe]=mixed_between_within_anova(Xa);
 
-Xa(:,1) = [reshape(dat.betaAvgOccip{1},size(dat.betaAvgOccip{1},1)*size(dat.betaAvgOccip{1},2),1);...
-    reshape(dat.betaAvgOccip{2},size(dat.betaAvgOccip{2},1)*size(dat.betaAvgOccip{2},2),1)];
-Xa(:,2) = [ones(sum(subs.group==1)*3,1);ones(sum(subs.group==2)*3,1)*2];
-[SSQs.betaOccip, DFs.betaOccip, MSQs.betaOccip, Fs.betaOccip, Ps.betaOccip]=mixed_between_within_anova(Xa);
-
-Xa(:,1) = [reshape(dat.alphaAvgOccip{1},size(dat.alphaAvgOccip{1},1)*size(dat.alphaAvgOccip{1},2),1);...
-    reshape(dat.alphaAvgOccip{2},size(dat.alphaAvgOccip{2},1)*size(dat.alphaAvgOccip{2},2),1)];
-Xa(:,2) = [ones(sum(subs.group==1)*3,1);ones(sum(subs.group==2)*3,1)*2];
-[SSQs.alphaOccip, DFs.alphaOccip, MSQs.alphaOccip, Fs.alphaOccip, Ps.alphaOccip]=mixed_between_within_anova(Xa);
-
-Xa(:,1) = [reshape(dat.alphaAvgFrontal{1},size(dat.alphaAvgFrontal{1},1)*size(dat.alphaAvgFrontal{1},2),1);...
-    reshape(dat.alphaAvgFrontal{2},size(dat.alphaAvgFrontal{2},1)*size(dat.alphaAvgFrontal{2},2),1)];
-Xa(:,2) = [ones(sum(subs.group==1)*3,1);ones(sum(subs.group==2)*3,1)*2];
-[SSQs.alphaFrontal, DFs.alphaFrontal, MSQs.alphaFrontal, Fs.alphaFrontal, Ps.alphaFrontal]=mixed_between_within_anova(Xa);
+Xa(:,1) = [reshape(dat.betaAvgFrontalPreDelay{1},size(dat.betaAvgFrontalPreDelay{1},1)*size(dat.betaAvgFrontalPreDelay{1},2),1);...
+    reshape(dat.betaAvgFrontalPreDelay{2},size(dat.betaAvgFrontalPreDelay{2},1)*size(dat.betaAvgFrontalPreDelay{2},2),1)];
+[SSQs.betaFrontalPreDelay, DFs.betaFrontalPreDelay, MSQs.betaFrontalPreDelay, Fs.betaFrontalPreDelay, Ps.betaFrontalPreDelay]=mixed_between_within_anova(Xa);
 
 %% linear fit of SS
 clear line_fit line_fitProbe
@@ -309,16 +298,14 @@ T = subs(:,{'name','group','groupStr'});
 T.slope_delay = [line_fit{2}.params(:,1);line_fit{1}.params(:,1)];
 T.slope_probe = [line_fitProbe{2}.params(:,1);line_fitProbe{1}.params(:,1)];
 writetable(T,fullfile(Dir.ana,'TableOutput',['DelayBetaPower_Slope_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
-%% to show the stats
-% for gi = 1:2
-%     datastats(T.slope_delay(T.group==gi))
-%     line_fit{gi}.Tstat
-%     line_fit{gi}.p
-% end
+for gi = 1:2
+    fprintf('%s: mean slope = %.3f, T(%d) = %.3f, p =%.3f, d = %.3f\n',...
+        groupStr{gi}, mean(line_fit{gi}.params(:,1)),line_fit{gi}.Tstat.df,line_fit{gi}.Tstat.tstat,line_fit{gi}.p,computeCohen_d(line_fit{gi}.params(:,1),line_fit{gi}.params(:,1)-line_fit{gi}.params(:,1),'paired'))
+end
 
 %% bar & time series
 addpath(genpath('D:\Toolbox\crameri_v1.08'))
-fig = figure('Position',[100 100 1100 600]);
+fig = figure('Position',[100 100 1000 550]);
 load beha.mat
 wanted = ismember(beha.name,subs.name);
 beha = beha(wanted,:);
@@ -326,7 +313,7 @@ beha = beha(wanted,:);
 myColors = crameri('batlowW',5);
 
 for gi = 1:2
-    subplot(3,4,(gi-1)*4+[1 2]);hold all;
+    subplot(3,2,gi);hold all;
     for cond_i = 1:3
         mn = squeeze(mean(dat.betaCurveFrontal{gi}{cond_i}));
         se = squeeze(std(dat.betaCurveFrontal{gi}{cond_i},0,1)./sqrt(sum(subs.group==gi)));
@@ -353,7 +340,7 @@ for gi = 1:2
 
 end
 
-subplot(3,4,9);%bar
+subplot(2,3,4);%bar
 hold all;axis square
 mn = cellfun(@mean,dat.betaAvgFrontal,'UniformOutput',false);
 mn = vertcat(mn{:});
@@ -389,7 +376,7 @@ if Ps.betaFrontal{3}<.05
     text(2,sigH*1.12,sprintf('%.3f',Ps.betaFrontal{3}),'FontSize',12,'HorizontalAlignment','center')
 end
 
-subplot(3,4,10);hold all;axis square
+subplot(2,3,5);hold all;axis square
 mn = cellfun(@mean,dat.betaAvgFrontalProbe,'UniformOutput',false);
 mn = vertcat(mn{:});
 tmp_std = cellfun(@std,dat.betaAvgFrontalProbe,'UniformOutput',false);
@@ -434,7 +421,7 @@ if Ps.betaFrontalProbe{3}<.05
     end
 end
 
-subplot(3,4,11);hold all;axis square
+subplot(2,3,6);hold all;axis square
 mn = cellfun(@mean,dat.betaAvgFrontalPreDelay,'UniformOutput',false);
 mn = vertcat(mn{:});
 tmp_std = cellfun(@std,dat.betaAvgFrontalPreDelay,'UniformOutput',false);
@@ -474,55 +461,13 @@ if Ps.betaFrontal{3}<.05
     end
 end
 
-% --------------------occipital
-for gi = 1:2
-    subplot(3,2,gi*2);hold all;
-    for cond_i = 1:3
-        mn = squeeze(mean(dat.betaCurveOccip{gi}{cond_i}));
-        se = squeeze(std(dat.betaCurveOccip{gi}{cond_i},0,1)./sqrt(sum(subs.group==gi)));
-        shadedErrorBar(gndTF{1}.time(SStimeID{cond_i}),mn,se,{'color',myColors(cond_i,:)})
-    end
-
-    plot(get(gca,'XLim'),[0 0],'k','HandleVisibility','off')
-    plot([0 0],get(gca,'YLim'),'k','HandleVisibility','off')
-    plot([3 3],get(gca,'YLim'),'k--','HandleVisibility','off')
-    legend(condStr,'Location','southwest')
-    ytickformat('%.1f')
-    ylabel('Power(dB)');
-    xlabel('Time (0s=maintenance)')
-    title(groupStr{gi},sprintf('Occip %d~%dHz',freq.betaFreq(1),freq.betaFreq(2)))
-    set(gca,'XLim',timeROI.all,'XTick',[-4.8 -2.4 -1.2 0 3 timeROI.all(2)])
-end
-
-
-subplot(3,4,12);hold all;axis square
-mn = cellfun(@mean,dat.betaAvgOccip,'UniformOutput',false);
-mn = vertcat(mn{:});
-tmp_std = cellfun(@std,dat.betaAvgOccip,'UniformOutput',false);
-se = vertcat(tmp_std{:})./[sqrt(sum(subs.group==1)) sqrt(sum(subs.group==2))]';
-
-plot(xcord(1,:),dat.betaAvgOccip{1},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-plot(xcord(2,:),dat.betaAvgOccip{2},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-hb = bar(mn,'FaceAlpha',0.8);
-hb(1).FaceColor = myColors(1,:);
-hb(2).FaceColor = myColors(2,:);
-hb(3).FaceColor = myColors(3,:);
-xcord = vertcat(hb(:).XEndPoints)';
-errorbar(xcord,mn,se,'k.')
-legend(condStr,'Location','bestoutside')
-set(gca,'xtick',[1 2],'XTickLabel',groupStr)
-ytickformat('%.1f')
-ylabel('Power(dB)')
-title(sprintf('%s beta\n delay (%.1f~%.1fs)',[occipROI{:}],timeROI.delay(1),timeROI.delay(2)))
 saveas(gca,fullfile(Dir.figs,['DelayBetaPower_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
 
 fig.PaperOrientation = 'landscape';
 print(fig,fullfile(Dir.figs,['DelayBetaPower_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']),'-dpdf','-r300','-bestfit')
 %% plot slope index
 
-fig=figure('Position',[200 200 650 300]);
-
-subplot(1,2,1);%bar
+fig=figure('Position',[200 200 350 400]);
 hold all;axis square
 mn = cellfun(@mean,dat.betaAvgFrontal,'UniformOutput',false);
 mn = vertcat(mn{:});
@@ -531,9 +476,9 @@ se = vertcat(tmp_std{:})./[sqrt(sum(subs.group==1)) sqrt(sum(subs.group==2))]';
 
 groupColor = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
 
-plot(xcord(1,:),dat.betaAvgOccip{1},'Color',[0.8 0.8 0.8],'LineWidth',0.5,'HandleVisibility','off');
-plot(xcord(2,:),dat.betaAvgOccip{2},'Color',[0.8 0.8 0.8],'LineWidth',0.5,'HandleVisibility','off');
-hb = bar(mn,'FaceAlpha',0.8);
+% plot(xcord(1,:),dat.betaAvgOccip{1},'Color',[0.8 0.8 0.8],'LineWidth',0.5,'HandleVisibility','off');
+% plot(xcord(2,:),dat.betaAvgOccip{2},'Color',[0.8 0.8 0.8],'LineWidth',0.5,'HandleVisibility','off');
+hb = bar(mn,'FaceAlpha',1);
 hb(1).FaceColor = myColors(1,:);
 hb(2).FaceColor = myColors(2,:);
 hb(3).FaceColor = myColors(3,:);
@@ -545,7 +490,9 @@ set(gca,'xtick',[1 2],'XTickLabel',groupStr,'XLim',[0.5 2.5],'YLim',[-2.4 0],'YT
 ylabel('Power(dB)')
 title(sprintf('%s\nbeta delay (%.1f~%.1fs)',[frontalROI{:}],timeROI.delay(1),timeROI.delay(2)))
 
-subplot(3,4,11);hold all;box on;
+axes('Position',[.3 .55 .2 .15])
+% axes('Position',[.75 .3 .2 .18]) % under legend
+hold all;box on;
 % subs.slope = [line_fit{2}.params(:,1);line_fit{1}.params(:,1)];
 % boxplot(subs.slope,subs.groupStr)
 % plot(get(gca,'xlim'),[0 0],'k--')
@@ -554,109 +501,18 @@ subplot(3,4,11);hold all;box on;
 
 bar([1 2],[mean(line_fit{1}.params(:,1)) mean(line_fit{2}.params(:,1))],'w','BarWidth',0.5)
 errorbar([1 2],[mean(line_fit{1}.params(:,1)) mean(line_fit{2}.params(:,1))],[std(line_fit{1}.params(:,1))/sqrt(sum(subs.group==1)) std(line_fit{2}.params(:,1))/sqrt(sum(subs.group==2))],'k','LineStyle','none')
-set(gca,'YLim', [-0.15 0.05],'ytick',-0.15:0.15:0.6,'YDir','reverse','XTick',[1 2],'XTickLabel',groupStr,'XLim',get(gca,'xlim')+[0.15 -0.15]);
-ylabel({'\bfSlope'});
+% set(gca,'YLim', [-0.1 0.05],'ytick',[-0.1 0 0.05],'YDir','reverse','XTick',[1 2],'XTickLabel',groupStr,'XLim',get(gca,'xlim')+[0.15 -0.15]);
+set(gca,'YLim', [-0.1 0],'ytick',[-0.1 0 0.05],'YDir','reverse','XTick',[1 2],'XTickLabel',groupStr,'XLim',get(gca,'xlim')+[0.15 -0.15]);
+set(gca, 'color', 'none');
+title('Slope');
 for gi = 1:2
     if  line_fit{gi}.p<.05
         text(gi,-0.08,'*','HorizontalAlignment','center','FontSize',20)
     end
 end
+
 saveas(gcf,fullfile(Dir.figs,['DelayBetaPowerSlope_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
-print(fig,fullfile(Dir.figs,['DelayBetaPowerSlope_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']),'-dpdf','-r300','-bestfit')
-
-%%
-
-myColors = crameri('grayC',3);% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
-
-figure('Position',[100 100 800 1000]);
-
-subplot(3,2,5);hold all;axis square
-mn = cellfun(@mean,dat.alphaAvgOccip,'UniformOutput',false);
-mn = vertcat(mn{:});
-tmp_std = cellfun(@std,dat.alphaAvgOccip,'UniformOutput',false);
-se = vertcat(tmp_std{:})./[sqrt(sum(subs.group==1)) sqrt(sum(subs.group==2))]';
-
-hb = bar(mn,'FaceAlpha',0.8);
-hb(1).FaceColor = myColors(1,:);
-hb(2).FaceColor = myColors(2,:);
-hb(3).FaceColor = myColors(3,:);
-xcord = vertcat(hb(:).XEndPoints)';
-errorbar(xcord,mn,se,'k.')
-plot(xcord(1,:),dat.alphaAvgOccip{1},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-plot(xcord(2,:),dat.alphaAvgOccip{2},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-
-legend(condStr,'Location','bestoutside')
-set(gca,'xtick',[1 2],'XTickLabel',groupStr)
-ytickformat('%.1f')
-ylabel('Power(dB)')
-title(sprintf('%s alpha(%.1f~%.1fs)',[occipROI{:}],timeROI.delay(1),timeROI.delay(2)))
-
-subplot(3,2,6);hold all;axis square
-mn = cellfun(@mean,dat.alphaAvgFrontal,'UniformOutput',false);
-mn = vertcat(mn{:});
-tmp_std = cellfun(@std,dat.alphaAvgFrontal,'UniformOutput',false);
-se = vertcat(tmp_std{:})./[sqrt(sum(subs.group==1)) sqrt(sum(subs.group==2))]';
-
-plot(xcord(1,:),dat.alphaAvgFrontal{1},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-plot(xcord(2,:),dat.alphaAvgFrontal{2},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-
-hb = bar(mn,'FaceAlpha',0.8);
-hb(1).FaceColor = myColors(1,:);
-hb(2).FaceColor = myColors(2,:);
-hb(3).FaceColor = myColors(3,:);
-xcord = vertcat(hb(:).XEndPoints)';
-errorbar(xcord,mn,se,'k.')
-legend(condStr,'Location','bestoutside')
-set(gca,'xtick',[1 2],'XTickLabel',groupStr)
-ytickformat('%.1f')
-ylabel('Power(dB)')
-
-title(sprintf('%s alpha(%.1f~%.1fs)',[frontalROI{:}],timeROI.delay(1),timeROI.delay(2)))
-
-myColors = crameri('batlowW',5);
-
-times = gndTF{1}.time(timeID.all);
-for gi = 1:2
-    subplot(3,2,gi);hold all;
-    for cond_i = 1:3
-        mn = squeeze(mean(dat.alphaCurveOccip{gi}{cond_i}));
-        se = squeeze(std(dat.alphaCurveOccip{gi}{cond_i},0,1)./sqrt(sum(subs.group==gi)));
-        shadedErrorBar(gndTF{1}.time(SStimeID{cond_i}),mn,se,{'color',myColors(cond_i,:)})
-    end
-
-    plot(get(gca,'XLim'),[0 0],'k--','HandleVisibility','off')
-    plot([-4.8 -4.8],get(gca,'YLim'),'k--','HandleVisibility','off')
-    plot([-3.6 -3.6],get(gca,'YLim'),'k--','HandleVisibility','off')
-    plot([-2.4 -2.4],get(gca,'YLim'),'k--','HandleVisibility','off')
-    plot([-1.2 -1.2],get(gca,'YLim'),'k--','HandleVisibility','off')
-    plot([0 0],get(gca,'YLim'),'k','HandleVisibility','off')
-    legend(condStr,'Location','bestoutside')
-    ytickformat('%.1f')
-    ylabel('Power(dB)');
-    xlabel('Time (0s=maintenance)')
-    title(groupStr{gi},sprintf('Occip %d~%dHz',freq.alphaFreq(1),freq.alphaFreq(2)))
-
-    subplot(3,2,gi+2);hold all;
-    for cond_i = 1:3
-        mn = squeeze(mean(dat.alphaCurveFrontal{gi}{cond_i}));
-        se = squeeze(std(dat.alphaCurveFrontal{gi}{cond_i},0,1)./sqrt(sum(subs.group==gi)));
-        shadedErrorBar(gndTF{1}.time(SStimeID{cond_i}),mn,se,{'color',myColors(cond_i,:)})
-    end
-
-    plot(get(gca,'XLim'),[0 0],'k--','HandleVisibility','off')
-    plot([-4.8 -4.8],get(gca,'YLim'),'k--','HandleVisibility','off')
-    plot([-3.6 -3.6],get(gca,'YLim'),'k--','HandleVisibility','off')
-    plot([-2.4 -2.4],get(gca,'YLim'),'k--','HandleVisibility','off')
-    plot([-1.2 -1.2],get(gca,'YLim'),'k--','HandleVisibility','off')
-    plot([0 0],get(gca,'YLim'),'k','HandleVisibility','off')
-    legend(condStr,'Location','bestoutside')
-    ytickformat('%.1f')
-    ylabel('Power(dB)');
-    xlabel('Time (0s=maintenance)')
-    title(groupStr{gi},sprintf('%s %d~%dHz',[frontalROI{:}],freq.alphaFreq(1),freq.alphaFreq(2)))
-end
-
-saveas(gca,fullfile(Dir.figs,['DelayAlphaPower_',num2str(freq.alphaFreq(1)),'~',num2str(freq.alphaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
+saveas(fig,fullfile(Dir.figs,['DelayBetaPowerSlope_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']))
 
 %% correlation
 load beha.mat
@@ -692,7 +548,6 @@ for idx = 1:2
             g(gi,cond).set_names('x','Beta power','y',behaStr{idx}); %Set the title of the axis
             g(gi,cond).set_color_options('map',myColors(cond,:)); %Set the color of the point
             g(gi,cond).set_title(sprintf('%s: Rho = %.3f, p = %.3f',groupStr{gi},r(cond,cond),pval(cond,cond)));
-            g(gi,cond).set_text_options('base_size' ,10,'title_scaling' ,1.1);%Set the font size, the base font size base_size is set16, the title font size of the axis is set to the base font size1.2Times
         end
         %%
 
@@ -700,13 +555,15 @@ for idx = 1:2
         Y = reshape(dat.beha{gi},size(dat.beha{gi},1)*size(dat.beha{gi},2),1);
         X(:,1) = sort(repmat([1 2 4]',size(dat.betaAvgFrontal{gi},1),1));
         X(:,2) = reshape(dat.betaAvgFrontal{gi},size(dat.betaAvgFrontal{gi},1)*size(dat.betaAvgFrontal{gi},2),1);
-        mdl_124 =  stepwiseglm(X,Y,'linear','Distribution','normal','Criterion','aic','Lower','linear');
+%         mdl_124 =  stepwiseglm(X,Y,'linear','Distribution','normal','Criterion','aic','Lower','linear');
+        mdl_124 =  fitglm(X,Y);
 
         clear X Y
         Y = reshape(dat.beha{gi}(:,[2 3]),size(dat.beha{gi},1)*2,1);
         X(:,1) = sort(repmat([2 4]',size(dat.betaAvgFrontal{gi},1),1));
         X(:,2) = reshape(dat.betaAvgFrontal{gi}(:,[2 3]),size(dat.betaAvgFrontal{gi},1)*2,1);
-        mdl_24 =  stepwiseglm(X,Y,'linear','Distribution','normal','Criterion','aic','Lower','linear');
+%         mdl_24 =  stepwiseglm(X,Y,'linear','Distribution','normal','Criterion','aic','Lower','linear');
+        mdl_24 =  fitglm(X,Y);
 
         %%
         cond = 4;
@@ -716,20 +573,23 @@ for idx = 1:2
         g(gi,cond) = gramm('x',X,'y',Y,'color',condStr(condArray)); %Specify the values of the horizontal axis x and the vertical axis y, and create a gramm drawing object
         g(gi,cond).geom_point(); %Draw a scatter plot
         g(gi,cond).stat_glm(); %Draw lines and confidence intervals based on scatter plots
-        g(gi,cond).set_names('x','Beta power','y',behaStr{idx}); %Set the title of the axis
+        g(gi,cond).set_names('x','Beta power(dB)','y',behaStr{idx}); %Set the title of the axis
         %         g(gi,cond).set_color_options('chroma',3); %Set the color of the point
         g(gi,cond).set_color_options('map',myColors(1:3,:)/60,'n_color',3,'n_lightness',1,'lightness',60,'legend','merge'); %Set the color of the point
-        g(gi,cond).set_title(sprintf('%s StepwiseRegress\n[1,2,4],B= %.3f, p = %.3f\n[2,4],B = %.3f, p = %.3f',groupStr{gi},mdl_124.Coefficients.Estimate(3),mdl_124.Coefficients.pValue(3),mdl_24.Coefficients.Estimate(3),mdl_24.Coefficients.pValue(3)));
-        g(gi,cond).set_text_options('base_size' ,10,'title_scaling' ,1.1);%Set the font size, the base font size base_size is set16, the title font size of the axis is set to the base font size1.2Times
+        g(gi,cond).set_title(sprintf('%s\n[1,2,4],B= %.3f, p = %.3f,Rsq= %.3f\n[2,4],B = %.3f, p = %.3f,Rsq= %.3f',...
+            groupStr{gi},mdl_124.Coefficients.Estimate(3),mdl_124.Coefficients.pValue(3),mdl_124.Rsquared.Ordinary,mdl_24.Coefficients.Estimate(3),mdl_24.Coefficients.pValue(3),mdl_24.Rsquared.Ordinary));
         if idx == 2
-            g(gi,cond).axe_property('XLim',[-2 1],'YLim',[0.6 1],'YTick',[0.6:0.1:1],'XTick',[-2:2]);
+            g(gi,cond).axe_property('XLim',[-2 1],'YLim',[0.6 1.1],'YTick',[0.6:0.1:1],'XTick',[-2:2]);
         else
             g(gi,cond).axe_property('XLim',[-2 1],'YLim',[0.4 1.4],'YTick',[0.4:0.2:2],'XTick',[-2:2]);
         end
         %         g(gi,cond).set_color_options('map','brewer1');
         g(gi,cond).set_color_options('map',myColors(1:3,:),'n_lightness',1);
+        g(gi,cond).set_point_options('base_size',2);
+        g(gi,cond).set_line_options('base_size',0.5);
     end
     fig = figure('Position',[100 100 1000 500]);
+    g.set_text_options('base_size' ,10,'title_scaling' ,1.1);%Set the font size, the base font size base_size is set16, the title font size of the axis is set to the base font size1.2Times
     g.draw();
     saveas(gcf,fullfile(Dir.figs,['DelayPowerCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
     fig.PaperOrientation = 'landscape';

@@ -30,6 +30,7 @@ if isfile(set_name)
     if sum(isnan(M.button_resp_rt)) >0
         M(isnan(M.button_resp_rt),["button_resp_rt","button_resp_corr"]) = array2table([0 0]);% no response = wrong response
     end
+    M.trl = [1:height(M)]';
 
     tmp = find(contains({EEG.event.type},'T'));
     if length(tmp) ==EEG.trials
@@ -55,7 +56,7 @@ if isfile(set_name)
         if IsCorretTrials ==1
             tmpID = M.ss_num == ss(cond_i) & M.button_resp_corr ==1;
         end
-        condTrials = find(tmpID);
+        condTrials = find(tmpID);% row in M
         sEEG =  pop_select(EEG,'trial',condTrials);
 
         bEEG = pop_select(sEEG,'time',[-inf 2.5]);% re-epoch into shorter segments
@@ -133,8 +134,17 @@ if isfile(set_name)
             condTrials(end) = [];
         end
 
+        %         PostTrlBeha{cond_i} = M(condTrials+1,:);
+
+        % whether n+1 trial exists
+        tmp_in = ismember(M.trl(condTrials)+1,M.trl);
+        PostTrlBeha{cond_i} = M(condTrials(tmp_in)+1,:);
+
+        cfg = [];
+        cfg.trials = find(tmp_in);
+        eeg = ft_selectdata(cfg,eeg);
+
         tfDat{cond_i} = eeg;
-        PostTrlBeha{cond_i} = M(condTrials+1,:);
     end
     save(outputFile,'tfDat','PostTrlBeha','-v7.3')
 end

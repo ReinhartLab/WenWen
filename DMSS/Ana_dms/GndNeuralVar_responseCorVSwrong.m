@@ -18,7 +18,7 @@ IsdePhase=1;
 txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
 
 groupStr = {'Young','Old','Young-Old'};
-condStr = {'Correct','Wrong','Correct-Wrong'};
+condStr = {'Correct','Incorrect','Correct-Incorrect'};
 
 chanROI = {'Fz','F1','F2','FCz','AFz'};% frontal cluster
 % from pre-post of older group
@@ -27,9 +27,10 @@ chanROI = {'Fz','F1','F2','FCz','AFz'};% frontal cluster
 freq.betaFreq = [15 25];% Hz
 freq.alphaFreq = [8 12];
 
-timeROI.all = [-0.4 0.5];% in s, for curve plotting
-timeROI.Post = [0 0.5];% in s
-timeROI.Pre = [-0.4 0];% in s
+timeROI.Post = [0.1 0.6];% in s
+% timeROI.Post = [0 0.5];% in s
+timeROI.Pre = [-0.4 -0.1];% in s
+timeROI.all = [timeROI.Pre(1) timeROI.Post(2)];% in s, for curve plotting
 
 iterN = 200;
 %%
@@ -221,6 +222,8 @@ Xa(:,3) = [ones(sum(subs.group==1),1);ones(sum(subs.group==1),1)*2;...
     ones(sum(subs.group==2),1);ones(sum(subs.group==2),1)*2;];
 Xa(:,4) = [[1:sum(subs.group==1) 1:sum(subs.group==1) ],...
     [1:sum(subs.group==2) 1:sum(subs.group==2)]+sum(subs.group==1)]';
+Xa(Xa(:,4)==35,:)=[]; %exclude the outlier
+Xa(Xa(:,4)>35,4)=Xa(Xa(:,4)>35,4)-1;
 [SSQs.betaFrontal, DFs.betaFrontal, MSQs.betaFrontal, Fs.betaFrontal, Ps.betaFrontal]=mixed_between_within_anova(Xa);
 
 T = subs(:,{'name','group','groupStr'});
@@ -228,64 +231,46 @@ T.corr = [dat.betaAvgFrontal{2}(:,1);dat.betaAvgFrontal{1}(:,1)];
 T.wrong = [dat.betaAvgFrontal{2}(:,2);dat.betaAvgFrontal{1}(:,2)];
 writetable(T,fullfile(Dir.ana,'TableOutput',['RespBetaVar_CorrVSwrong',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
 
-Xa(:,1) = [reshape(dat.betaAvgFrontalPre{1},size(dat.betaAvgFrontalPre{1},1)*size(dat.betaAvgFrontalPre{1},2),1);...
-    reshape(dat.betaAvgFrontalPre{2},size(dat.betaAvgFrontalPre{2},1)*size(dat.betaAvgFrontalPre{2},2),1)];
-[SSQs.betaFrontalPre, DFs.betaFrontalPre, MSQs.betaFrontalPre, Fs.betaFrontalPre, Ps.betaFrontalPre]=mixed_between_within_anova(Xa);
-
-Xa(:,1) = [reshape(dat.alphaAvgFrontal{1},size(dat.alphaAvgFrontal{1},1)*size(dat.alphaAvgFrontal{1},2),1);...
-    reshape(dat.alphaAvgFrontal{2},size(dat.alphaAvgFrontal{2},1)*size(dat.alphaAvgFrontal{2},2),1)];
-[SSQs.alphaFrontal, DFs.alphaFrontal, MSQs.alphaFrontal, Fs.alphaFrontal, Ps.alphaFrontal]=mixed_between_within_anova(Xa);
-
-Xa(:,1) = [reshape(dat.alphaAvgFrontalPre{1},size(dat.alphaAvgFrontalPre{1},1)*size(dat.alphaAvgFrontalPre{1},2),1);...
-    reshape(dat.alphaAvgFrontalPre{2},size(dat.alphaAvgFrontalPre{2},1)*size(dat.alphaAvgFrontalPre{2},2),1)];
-[SSQs.alphaFrontalPre, DFs.alphaFrontalPre, MSQs.alphaFrontalPre, Fs.alphaFrontalPre, Ps.alphaFrontalPre]=mixed_between_within_anova(Xa);
+% Xa(:,1) = [reshape(dat.betaAvgFrontalPre{1},size(dat.betaAvgFrontalPre{1},1)*size(dat.betaAvgFrontalPre{1},2),1);...
+%     reshape(dat.betaAvgFrontalPre{2},size(dat.betaAvgFrontalPre{2},1)*size(dat.betaAvgFrontalPre{2},2),1)];
+% [SSQs.betaFrontalPre, DFs.betaFrontalPre, MSQs.betaFrontalPre, Fs.betaFrontalPre, Ps.betaFrontalPre]=mixed_between_within_anova(Xa);
+% 
+% Xa(:,1) = [reshape(dat.alphaAvgFrontal{1},size(dat.alphaAvgFrontal{1},1)*size(dat.alphaAvgFrontal{1},2),1);...
+%     reshape(dat.alphaAvgFrontal{2},size(dat.alphaAvgFrontal{2},1)*size(dat.alphaAvgFrontal{2},2),1)];
+% [SSQs.alphaFrontal, DFs.alphaFrontal, MSQs.alphaFrontal, Fs.alphaFrontal, Ps.alphaFrontal]=mixed_between_within_anova(Xa);
+% 
+% Xa(:,1) = [reshape(dat.alphaAvgFrontalPre{1},size(dat.alphaAvgFrontalPre{1},1)*size(dat.alphaAvgFrontalPre{1},2),1);...
+%     reshape(dat.alphaAvgFrontalPre{2},size(dat.alphaAvgFrontalPre{2},1)*size(dat.alphaAvgFrontalPre{2},2),1)];
+% [SSQs.alphaFrontalPre, DFs.alphaFrontalPre, MSQs.alphaFrontalPre, Fs.alphaFrontalPre, Ps.alphaFrontalPre]=mixed_between_within_anova(Xa);
 
 %% bar & time series -beta
-addpath(genpath('D:\Toolbox\crameri_v1.08'))
-myColors = crameri('bamako',2);% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
-fig =figure('Position',[100 100 750 350]);
+
+myColors = [3 154 53;102 0 204]./255;% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
+fig =figure('Position',[100 100 700 300]);
 
 subplot(1,3,3);hold all;axis square
 mn = cellfun(@mean,dat.betaAvgFrontal,'UniformOutput',false);
 mn = vertcat(mn{:});
-tmp_std = cellfun(@std,dat.betaAvgFrontal,'UniformOutput',false);
+wDat = cellfun(@(x)(x-mean(x,2)+mean(x,"all")),dat.betaAvgFrontal,'UniformOutput',false);% remove subject difference 
+tmp_std = cellfun(@std,wDat,'UniformOutput',false);
 se = vertcat(tmp_std{:})./[sqrt(sum(subs.group==1)) sqrt(sum(subs.group==2))]';
 
-hb = bar(mn,'FaceAlpha',0.98);
-hb(1).FaceColor = myColors(1,:);
-hb(2).FaceColor = myColors(2,:);
-xcord = vertcat(hb(:).XEndPoints)';
-plot(xcord(1,:),dat.betaAvgFrontal{1},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-plot(xcord(2,:),dat.betaAvgFrontal{2},'Color',[0.8 0.8 0.8],'HandleVisibility','off');
-
 for gi = 1:2
-    errorbar(xcord(gi,:),mn(gi,:),se(gi,:),'k','LineStyle','none','HandleVisibility','off')
+    errorbar([2 1],mn(gi,:),se(gi,:),'Color',myColors(gi,:))
 end
-hb = bar(mn,'FaceAlpha',0.8,'HandleVisibility','off');
-hb(1).FaceColor = myColors(1,:);
-hb(2).FaceColor = myColors(2,:);
-legend(condStr,'Location','southoutside')
-set(gca,'xtick',[1 2],'XTickLabel',groupStr,'XLim',[0.5 2.5])
+legend(groupStr,'Location','southoutside');
+set(gca,'xtick',[1 2],'XTickLabel',fliplr(condStr(1:2)),'XLim',[0 3],'YLim',[0 0.8],'ytick',0:0.4:0.8)
 ytickformat('%.1f')
-ylabel('Variance (a.u.)')
+ylabel('Variability (a.u.)')
 title(sprintf('%s\nPost(%.1f~%.1fs)',[chanROI{:}],timeROI.Post(1),timeROI.Post(2)))
 
 % plot significance
 if Ps.betaFrontal{3}<.05
-    for gi = 1:2
-        tmpdata = dat.betaAvgFrontal{gi};
-        tmpdata = diff(tmpdata,1,2);
-        [~,tmp_pval]= ttest(tmpdata);
-        sigH = -0.8;
-        xposi = [1 2];
-
-        if tmp_pval<=.05
-            plot(xcord(gi,xposi),[1 1]*sigH,'k','HandleVisibility','off')
-            text(mean(xcord(gi,xposi)),sigH,'*','FontSize',18,'HorizontalAlignment','center')
-        end
-    end
+    sigH = 0.6;
+    xposi = [1 2];
+    plot([1 2],[1 1]*sigH,'k','HandleVisibility','off')
+    text(mean(xposi),sigH,'*','FontSize',18,'HorizontalAlignment','center')
 end
-
 
 times = gndTF{1}.time(timeID.all);
 for gi = 1:2
@@ -305,7 +290,6 @@ for gi = 1:2
     set(gca,'XLim',timeROI.all,'XTick',[timeROI.all(1) 0 timeROI.all(2)],'YLim',[-0.4 1.2])
     plot(get(gca,'XLim'),[0 0],'k','HandleVisibility','off')
     plot([0 0],get(gca,'YLim'),'k--','HandleVisibility','off')
-
 end
 
 saveas(gca,fullfile(Dir.figs,['RespBetaVariance_CorrVSwrong_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
