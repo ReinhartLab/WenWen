@@ -22,7 +22,7 @@ if isfile(set_name)
     %% load behavior
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
     M = readtable(csvFile);
-    M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
+    M = M(:,["block_num","ss_num","button_resp_rt","button_resp_corr"]);
     M(1:end-1,{'button_resp_corr','button_resp_rt'}) = M(2:end,{'button_resp_corr','button_resp_rt'});
 
     M(isnan(M.ss_num),:) = [];
@@ -41,36 +41,21 @@ if isfile(set_name)
     %%
     clear tfDat
     ss = [1 2 4];% set size
+    SStime = {[-1.6 -1.3],[-2.8 -2.5],[-5.2 -4.9]};% pretrials baseline for different SS
+
     for cond_i = 1:3
         tmpID = M.ss_num == ss(cond_i);
         if IsCorretTrials ==1
             tmpID = M.ss_num == ss(cond_i) & M.button_resp_corr ==1;
         end
         sEEG =  pop_select(EEG,'trial',find(tmpID));
+
         eeg = eeglab2fieldtrip(sEEG,'preprocessing','none');
-
-        if sum(strcmp({EEG.event.type},'S 50'))>=sum(strcmp({EEG.event.type},'50'))
-            stim1 = {'S 11','S 21', 'S 31'};
-        else
-            stim1 = {'11','21','31'};
-        end
-
-        bEEG = pop_select(sEEG,'time',[-inf 2.5]);% re-epoch into shorter segments
-        timelimits = [-0.88 3];% pre-stimuli baseline
-        bEEG = pop_epoch(bEEG,stim1,timelimits);
-
-        if sEEG.trials~=bEEG.trials
-            error('trials missing')
-        end
-
-        beeg = eeglab2fieldtrip(bEEG,'preprocessing','none');
 
         if IsdePhase
             avgTrl = ft_timelockanalysis([], eeg);
             eeg.trial = cellfun(@(x)x-avgTrl.avg,eeg.trial,'UniformOutput',false);
 
-            avgTrl = ft_timelockanalysis([], beeg);
-            beeg.trial = cellfun(@(x)x-avgTrl.avg,beeg.trial,'UniformOutput',false);
         end
 
         cfg = [];
@@ -79,7 +64,7 @@ if isfile(set_name)
         cfg.width = linspace(2,10,length(cfg.foi)); % larger value for more precise f
         cfg.out = 'pow';
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
-        cfg.keeptrials  = 'yes';
+        cfg.pad = 20;
         eeg = ft_freqanalysis(cfg,eeg);
 
         if IsBL2preDelay
@@ -90,24 +75,18 @@ if isfile(set_name)
 
         else %baseline to pre stim
 
-            cfg.toi = bEEG.xmin:0.05:bEEG.xmax; % every 50ms
-            beeg = ft_freqanalysis(cfg,beeg);
-
             cfg = [];
-            cfg.latency = [-0.4 -0.1];
-            bl = ft_selectdata(cfg,beeg);
-            timedim = find(size(beeg.powspctrm)==length(beeg.time));
+            cfg.latency = SStime{cond_i};
+            bl = ft_selectdata(cfg,eeg);
+
+            timedim = find(size(eeg.powspctrm)==length(eeg.time));
 
             eeg.powspctrm = bsxfun(@(x,y)10*log10(x./y),eeg.powspctrm,mean(bl.powspctrm,timedim,'omitnan'));% dB = 10*log10(signal/baseline)
         end
 
         tfDat{cond_i} = eeg;
 
-        %         cfg = [];
-        %         cfg.latency = [-1 inf];
-        %         tfDat{cond_i} = ft_selectdata(cfg,eeg);
     end
     %%
     save(outputFile,'tfDat','-v7.3')
-
 end

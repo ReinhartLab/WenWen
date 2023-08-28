@@ -4,7 +4,9 @@ load('subs.mat');
 subname = subs.name{sn};
 
 txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
-outputFile = fullfile(Dir.results,[subname,'_var_delay_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
+% with padding = 20; line 85
+outputFile = fullfile(Dir.results,[subname,'_var_delay_ft_pad20',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
+% outputFile = fullfile(Dir.results,[subname,'_var_delay_ft',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']);
 
 if IsOverwrite==0 && isfile(outputFile)
     return
@@ -12,7 +14,7 @@ end
 
 set_name = fullfile(Dir.prepro,[subname,'_clean.set']);
 if isfile(set_name)
-    EEG = pop_loadset('filename',set_name);% baseline corrected to pre-stim
+    EEG = pop_loadset('filename',set_name);% baseline corrected to pre-trial
     EEG = pop_select(EEG,'nochannel',{'LHEOG','RHEOG','BVEOG','TVEOG'});
     if IsLap
         X = [EEG.chanlocs.X];
@@ -23,7 +25,7 @@ if isfile(set_name)
     %% load behavior
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
     M = readtable(csvFile);
-    M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
+    M = M(:,["block_num","ss_num","button_resp_rt","button_resp_corr"]);
     M(1:end-1,{'button_resp_corr','button_resp_rt'}) = M(2:end,{'button_resp_corr','button_resp_rt'});
 
     M(isnan(M.ss_num),:) = [];
@@ -41,12 +43,13 @@ if isfile(set_name)
 
     %%
     clear tfDat
-   if sum(strcmp({EEG.event.type},'S 50'))>=sum(strcmp({EEG.event.type},'50'))
-            stim1 = {'S 11','S 21', 'S 31'};
-        else
-            stim1 = {'11','21','31'};
-   end
-   ss = [1 2 4];% set size
+    if sum(strcmp({EEG.event.type},'S 50'))>=sum(strcmp({EEG.event.type},'50'))
+        stim1 = {'S 11','S 21', 'S 31'};
+    else
+        stim1 = {'11','21','31'};
+    end
+
+    ss = [1 2 4];% set size
     for cond_i = 1:3
         tmpID = M.ss_num == ss(cond_i);
         if IsCorretTrials ==1
@@ -56,11 +59,10 @@ if isfile(set_name)
 
         bEEG = pop_select(sEEG,'time',[-inf 2]);% re-epoch into shorter segments
         timelimits = [-0.88 1.5];% pre-stimuli baseline
-        bEEG = pop_epoch(bEEG,stim1,timelimits);
+        [bEEG,indices] = pop_epoch(bEEG,stim1,timelimits);
 
-        if sEEG.trials~=bEEG.trials
-            error('trials missing')
-        end
+        rmv = setdiff(1:sEEG.trials,indices);
+        sEEG = pop_select(sEEG,'notrial',rmv);
 
         eeg = eeglab2fieldtrip(sEEG,'preprocessing','none');
         beeg = eeglab2fieldtrip(bEEG,'preprocessing','none');
@@ -80,6 +82,7 @@ if isfile(set_name)
         cfg.out = 'pow';
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
         cfg.keeptrials  = 'yes';
+        cfg.pad = 20;
 
         eeg = ft_freqanalysis(cfg,eeg);
 
@@ -88,25 +91,21 @@ if isfile(set_name)
             beeg = ft_freqanalysis(cfg,beeg);
         end
 
-%         cfg = [];
-%         cfg.latency = [-1 inf];
-%         eeg = ft_selectdata(cfg,eeg);% select time of interest
-
         if IsBL2preDelay
             cfg = [];
             cfg.latency = [-0.4 -0.1];% select baseline as preDelay
             bl = ft_selectdata(cfg,eeg);
-
-            nv = squeeze(log(var(eeg.powspctrm,0,1,'omitnan')./mean(var(bl.powspctrm,0,1,'omitnan'),4)));%chan*freq*time
 
         else %baseline to pre trial
 
             cfg = [];
             cfg.latency = [-0.4 -0.1];
             bl = ft_selectdata(cfg,beeg);% select baseline as pre trial
-
-            nv = squeeze(log(var(eeg.powspctrm,0,1,"omitnan")./mean(var(bl.powspctrm,0,1,"omitnan"),4)));%chan*freq*time
         end
+
+        timedim = find(size(eeg.powspctrm)==length(eeg.time));
+        nv = squeeze(log(var(eeg.powspctrm,0,1,"omitnan")./mean(var(bl.powspctrm,0,1,"omitnan"),timedim)));%chan*freq*time
+        % nv = log(var(pow_s)/var(pow_bl))
 
         eeg = ft_freqdescriptives([],eeg);% get ft structure;
         eeg.powspctrm = nv;

@@ -1,3 +1,4 @@
+% make sure EEG marker codes and behavior table match
 clear
 close all
 load('subs.mat');

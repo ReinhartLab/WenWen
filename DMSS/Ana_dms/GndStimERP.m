@@ -1,11 +1,13 @@
 clear;
+addpath(genpath('D:\intWM-E\toolbox\eeglab2021.1'))
 load('subs.mat');
 subs(subs.rawEEG==0 | subs.exclude==1,:) = [];
 
 ssN = [1 2 4];
+txtCell = {'','';'_corrTrials','_bl2preDelay'};
 
-for IsCorrect = 1%[1 0]
-    for IsBL2preDelay = 0%[0 1]
+for IsCorrect = [1 0]
+    for IsBL2preDelay = [0 1]
 
         for sn = 1:height(subs)
             subname = subs.name{sn};
@@ -17,7 +19,8 @@ for IsCorrect = 1%[1 0]
 
                 csvFile = fullfile(Dir.beha,subs.csvFile{sn});
                 M = readtable(csvFile);
-                M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
+                M = M(:,["block_num","ss_num","button_resp_rt","button_resp_corr"]);
+                %                                M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
                 M(1:end-1,{'button_resp_corr','button_resp_rt'}) = M(2:end,{'button_resp_corr','button_resp_rt'});
 
                 M(isnan(M.ss_num),:) = [];
@@ -47,7 +50,7 @@ for IsCorrect = 1%[1 0]
                     stim1 = {'11','21','31'};
                 end
 
-                toi = {[-1.4 3.5],[-2.6 3.5],[-5 3.5]};% time-locked2delay
+                toi = {[-1.4 4],[-2.6 4],[-5 4]};% time-locked2delay
                 bsWindow = {[-1.4 -1.2],[-2.6 -2.4],[-5 -4.8]};
                 tmptrlN = [];
                 for ss = 1:3
@@ -69,7 +72,6 @@ for IsCorrect = 1%[1 0]
                 end
             end
         end
-        txtCell = {'','';'_corrTrials','_bl2preDelay'};
 
         save(fullfile(Dir.results,['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.mat']),'subsAll','-v7.3')
         %%
@@ -111,27 +113,31 @@ for IsCorrect = 1%[1 0]
 
         condStr = {'ss1','ss2','ss4'};
         groupStr = {'Young','Old','Old-Young'};
-        chans = {'Pz','POz','Oz'};
-        [~,chanID] = ismember(chans,{EEG.chanlocs.labels});
-
+        %         chans = {'Pz','POz','Oz'};
+        chans = {'Fz','F1','F2','FCz','AFz'};
+%  chans = {'All'};
         figure('Position',[100 100 1300 900]);
         for gi = 1:2
             for ss = 1:3
                 subplot(3,5,(ss-1)*5+gi*2-1);hold all;
+        [~,chanID] = ismember(chans,grandAvg{gi,ss}.label);
 
-                dat = nan(1,length(grandAvg{1,3}.time));
-                dat(1-length(grandAvg{gi,ss}.time)+end:end) = mean(grandAvg{gi,ss}.avg(chanID,:));
-                plot(grandAvg{1,3}.time,dat)
-                ytickformat('%.1f')
+        dat = nan(1,length(grandAvg{1,3}.time));
+        %                 dat(1-length(grandAvg{gi,ss}.time)+end:end) = mean(grandAvg{gi,ss}.avg);
+        dat(1-length(grandAvg{gi,ss}.time)+end:end) = mean(grandAvg{gi,ss}.avg(chanID,:));
+        plot(grandAvg{1,3}.time,dat)
+        ytickformat('%.1f')
 
-                xlabel({'Time(0s=maintenance)'});
-                set(gca,'xtick',[-4.8 -2.4 -1 0 3],'xlim',toi{3},'ytick',-2:2:6,'ylim',[-3 6]);
-                plot(get(gca,'xlim'),[0 0],'k','HandleVisibility','off')
-                plot([-1 -1],get(gca,'ylim'),'k--','HandleVisibility','off')
-                plot([0 0],get(gca,'ylim'),'k','HandleVisibility','off')
-                plot([3 3],get(gca,'ylim'),'k','HandleVisibility','off')
-                %     plot([3.2 3.2],get(gca,'ylim'),'k:','HandleVisibility','off')
-                title([groupStr{gi} '-' condStr{ss}],[chans{:}]);
+        xlabel({'Time(0s=maintenance)'});
+        set(gca,'xtick',[-4.8 -2.4 -1 0 3],'xlim',toi{3},'ytick',-2:2:6,'ylim',[-3 6]);
+        plot(get(gca,'xlim'),[0 0],'k','HandleVisibility','off')
+        plot([-1 -1],get(gca,'ylim'),'k--','HandleVisibility','off')
+        plot([0 0],get(gca,'ylim'),'k','HandleVisibility','off')
+        plot([3 3],get(gca,'ylim'),'k','HandleVisibility','off')
+        [~,b] = max(mean(grandAvg{gi,ss}.avg));
+        pk_time(gi,ss) = grandAvg{gi,ss}.time(b);
+        plot([pk_time(gi,ss) pk_time(gi,ss)],get(gca,'ylim'),'k:','HandleVisibility','off')
+        title([groupStr{gi} '-' condStr{ss}],[chans{:}]);
             end
         end
 
@@ -184,7 +190,7 @@ for IsCorrect = 1%[1 0]
             h.Label.Rotation = -90;
             title(groupStr{3}, condStr{ss});
         end
-        saveas(gcf,fullfile(Dir.figs,['ERP',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.bmp']))
+        saveas(gcf,fullfile(Dir.figs,['ERP_',[chans{:}],txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.png']))
 
         %%
         figure('Position',[100 100 1000 300]);
@@ -237,7 +243,7 @@ for IsCorrect = 1%[1 0]
         % set(h,'ytick',-5:1:10);
         h.Label.String = 'Voltage\muV';
         title(groupStr{3},'Collapse SS');
-        saveas(gcf,fullfile(Dir.figs,['ERP_avg_topo',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.bmp']))
+        saveas(gcf,fullfile(Dir.figs,['ERP_avg_topo',txtCell{IsCorrect+1,1},txtCell{IsBL2preDelay+1,2},'.png']))
 
         %%
         cfg = [];

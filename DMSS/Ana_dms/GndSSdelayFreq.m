@@ -7,7 +7,7 @@ IsdePhase = 1;
 for IsBL2preDelay = [0 1]
 
     txtCell = {'','','','';'_occi','_dephase','_bl2preDelay','_corrTrials'};
-    % permFile = ['Perm_SSdelayFreq',txtCell{IsOcci+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL2preDelay+1,3},'.mat'];
+    % permFile = fullfile(Dir.results,['Perm_SSdelayFreq',txtCell{IsOcci+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL2preDelay+1,3},'.mat']);
     load('subs.mat');
 
     subs(subs.rawEEG==0 | subs.exclude==1,:) = [];

@@ -22,7 +22,7 @@ if isfile(set_name)
     %% load behavior
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
     M = readtable(csvFile);
-    M = M(:,["block_num","ss_num","type","button_resp_rt","button_resp_corr"]);
+    M = M(:,["block_num","ss_num","button_resp_rt","button_resp_corr"]);
     M(1:end-1,{'button_resp_corr','button_resp_rt'}) = M(2:end,{'button_resp_corr','button_resp_rt'});
 
     M(isnan(M.ss_num),:) = [];
@@ -53,17 +53,15 @@ if isfile(set_name)
             tmpID = M.ss_num == ss(cond_i) & M.button_resp_corr ==1;
         end
         sEEG =  pop_select(EEG,'trial',find(tmpID));
-        eeg = eeglab2fieldtrip(sEEG,'preprocessing','none');
 
         bEEG = pop_select(sEEG,'time',[-inf 2.5]);% re-epoch into shorter segments
-        timelimits = [-0.88 3];% pre-stimuli baseline
-        bEEG = pop_epoch(bEEG,stim1,timelimits);
-
-        if sEEG.trials~=bEEG.trials
-            error('trials missing')
-        end
+        timelimits = [-0.88 2];% pre-stimuli baseline
+        [bEEG,indices]= pop_epoch(bEEG,stim1,timelimits);
+        rmv = setdiff(1:sEEG.trials,indices);
+        sEEG = pop_select(sEEG,'notrial',rmv);
 
         beeg = eeglab2fieldtrip(bEEG,'preprocessing','none');
+        eeg = eeglab2fieldtrip(sEEG,'preprocessing','none');
 
         if IsdePhase
             avgTrl = ft_timelockanalysis([], eeg);
@@ -79,6 +77,7 @@ if isfile(set_name)
         cfg.width = linspace(2,10,length(cfg.foi)); % larger value for more precise f
         cfg.toi = sEEG.xmin:0.05:sEEG.xmax; % every 50ms
         cfg.output = 'fourier';
+        cfg.pad = 20;
         freq = ft_freqanalysis(cfg,eeg);
 
         % make a new FieldTrip-style data structure containing the ITC
@@ -99,12 +98,11 @@ if isfile(set_name)
         itc.itpc      = abs(itc.itpc)/N;   % take the absolute value and normalize
         itc.itpc      = squeeze(itc.itpc); % remove the first singleton dimension
 
-
         if IsBL2preDelay
-            %             cfg = [];
-            %             cfg.baseline       = [-0.4 -0.1];% pre-delay -0.4~-0.1s as baseline
-            %             cfg.baselinetype   = 'db';
-            %             eeg = ft_freqbaseline(cfg, eeg);
+            cfg = [];
+            cfg.latency = [-0.4 -0.1];
+            cfg.parameter = 'itpc';
+            bl = ft_selectdata(cfg,itc);
 
         else %baseline to pre stim
 
@@ -130,13 +128,12 @@ if isfile(set_name)
             cfg.latency = [-0.4 -0.1];
             cfg.parameter = 'itpc';
             bl = ft_selectdata(cfg,itcB);
-            timedim = find(size(itcB.itpc)==length(itcB.time));
-
-            itc.itpc = bsxfun(@(x,y)(x./y-1)*100,itc.itpc,mean(bl.itpc,timedim,'omitnan'));% (post/pre-1)*100, Arazi 2017 JN
         end
 
-        tfDat{cond_i} = itc;
+        timedim = find(size(itc.itpc)==length(itc.time));
+        itc.itpc = bsxfun(@(x,y)(x./y-1)*100,itc.itpc,mean(bl.itpc,timedim,'omitnan'));% (post/pre-1)*100, Arazi 2017 JN
 
+        tfDat{cond_i} = itc;
     end
     %%
     save(outputFile,'tfDat','-v7.3')

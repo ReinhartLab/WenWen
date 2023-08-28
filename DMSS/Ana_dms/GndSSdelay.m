@@ -15,7 +15,7 @@ for IsBL2preDelay = [0 1]
 
     txtCell = {'','','';'_occi','_bl2preDelay','_corrTrials'};
 
-    % permFile = ['Perm_SSdelay',txtCell{IsOcci+1,1},txtCell{IsBL2preDelay+1,2},'.mat'];
+    % permFile = fullfile(Dir.results,['Perm_SSdelay',txtCell{IsOcci+1,1},txtCell{IsBL2preDelay+1,2},'.mat']);
 
     %%
     clear tmp_data

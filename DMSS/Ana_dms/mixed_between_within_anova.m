@@ -1,4 +1,4 @@
-function [SSQs, DFs, MSQs, Fs, Ps]=mixed_between_within_anova(X,suppress_output)
+function [SSQs, DFs, MSQs, Fs, Ps, SStot]=mixed_between_within_anova(X,suppress_output)
 % simple function for mixed (between- and within-subjects) ANOVA
 % 
 % Based loosely on BWAOV2 (http://www.mathworks.com/matlabcentral/fileexchange/5579-bwaov2) by Antonio Trujillo-Ortiz

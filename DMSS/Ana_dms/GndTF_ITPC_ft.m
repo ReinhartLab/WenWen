@@ -30,6 +30,8 @@ timeROI = [-1 3];% in s
 SStime = {[-1.6 4.5],[-2.8 4.5],[-5.2 4.5]};% epoch length for different SS
 
 %%
+subsAll = cell(subN,3);
+
 for sub_i = 1:subN
     subname = subs.name{sub_i};
 
@@ -89,12 +91,12 @@ b = [0,0,1];
 k = [0,0,0];
 r = [1,0,0];
 bkr = createcolormap(w,b,k,r,w); % 256x3 array
+figure('Position',[100 100 1000 800]);
 
 for gi = 1:2
-    figure('Position',[100 100 1000 400]);
 
     for cond_i = 1:3
-        subplot(2,3,cond_i);
+        subplot(4,3,cond_i+(gi-1)*6);
 
         cfg = [];
         cfg.xlim  = SStime{cond_i};
@@ -104,10 +106,7 @@ for gi = 1:2
         cfg.colormap = jet;
         cfg.channel = frontalROI;
         cfg.figure = 'gca';
-        % cfg.maskparameter = 'mask';
-        % cfg.maskstyle = 'outline';
-        % cfg.maskstyle = 'opacity';
-        % cfg.maskalpha = 0.3;
+   
         cfg.parameter = 'itpc';
 
         ft_singleplotTFR(cfg, gndTF{gi,cond_i});
@@ -123,10 +122,10 @@ for gi = 1:2
             ylabel('\bfFrequency(Hz)');
         end
         xlabel('Time(0s=maintenance)')
- rectangle('Position',[0 0.5 3 40],'LineWidth',1,'LineStyle',':')
+        rectangle('Position',[0 0.5 3 40],'LineWidth',1,'LineStyle',':')
         rectangle('Position',[-1 0.5 4 40],'LineWidth',1,'LineStyle',':')
 
-        subplot(2,3,3+cond_i);
+        subplot(4,3,3+cond_i+(gi-1)*6);
 
         cfg = [];
         cfg.ylim = freq.betaFreq;%freq
@@ -148,8 +147,8 @@ for gi = 1:2
         colorbar
 
     end
-    saveas(gcf,fullfile(Dir.figs,['ITPCdelay_',groupStr{gi},[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.bmp']))
 end
+    saveas(gcf,fullfile(Dir.figs,['ITPCdelay_',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.bmp']))
 
 %%  time frequency of group average
 cfg = [];

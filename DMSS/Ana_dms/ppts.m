@@ -30,8 +30,11 @@ groupStr = {'Young','Old'};
 subs.group = double(contains(subs.name,'DMSS'))+1;
 subs.groupStr = groupStr([subs.group])';
 
-%%
-
+%% remove 
+% subject 04 is only behavioral data, no EEG
+% 23 and 28 have been excluded from my EEG analysis due to the shorter delay period.
+% dmss24 too many blinks
+% 09: 711 trials?
 rmvSubs = {'04','23','28'};
 tmp_idx = ismember(subs.name,rmvSubs);
 subs(tmp_idx,:) = [];
