@@ -1,8 +1,8 @@
 clear;
-close all
 
 load('subs.mat');
-for sn =29%:height(subs)
+for sn = 20 %[20:21]%:height(subs)
+    close all
     if subs.rawEEG(sn)
         subname = subs.name{sn};
 
@@ -11,16 +11,17 @@ for sn =29%:height(subs)
 
         EEG = pop_iclabel(EEG,'default');
         pop_selectcomps(EEG, [1:min([40 size(EEG.icaweights,1)])]);
+%         pop_selectcomps(EEG, [1:28]);
         pop_eegplot( EEG, 0, 1, 1);
 
-        rejICA = fullfile(Dir.prepro,'rmvICA',[subname,'_rmvID.mat']);
+        rejICA = fullfile(Dir.ana,'rmvICA',[subname,'_rmvID.mat']);
         if exist(rejICA)
             load(rejICA)
             disp(rmvd)
         end
 
         if isfile(fullfile(Dir.prepro,[subname,'_clean.set']))
-            checkData(sn)
+            %   checkData(sn)
         end
 
         pause
@@ -33,5 +34,4 @@ for sn =29%:height(subs)
 
         save(rejICA,'rmvd')
     end
-
 end

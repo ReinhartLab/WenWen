@@ -2,7 +2,7 @@ clear
 load('subs.mat');
 close all
 
-sn = 17;%change this 
+sn = 21;%change this 
 %%
 if subs.rawEEG(sn) 
     %% load the data
@@ -12,12 +12,28 @@ if subs.rawEEG(sn)
 
     set_name = fullfile(Dir.prepro,[subname,'_epo.set']);
     EEG = pop_loadset('filename',set_name);
-
+    origTrials = unique([EEG.event.epoch]);
+    
     %% reject trials by visual inspection, repeat until remove all bad trials
 
     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET); % Store dataset
     pop_eegplot(EEG,1,1,1);% plot the EEG time series.
+
+    matName = fullfile(Dir.ana,'VisualInspectionRemoval',[subname,'.mat']);
+    if isfile(matName)
+        load(matName)
+        disp(rmvd)
+    end
+ 
     pause
+
+    %save sequence number of removed trials
+    tmp = cellfun(@(x)contains(x,'T'),{EEG.event.type});
+    trialMarker = {EEG.event(tmp).type};
+    trialLeft = cellfun(@(x) str2num(x(2:end)),trialMarker,'UniformOutput',false);
+    trialLeft = [trialLeft{:}];
+    rmvd = setdiff(origTrials,trialLeft);
+    save(matName,'rmvd')
     %% modified pop_rejkurt to [EEG, locthresh, globthresh, rej,nrej,com]
 
     sEEG = pop_select(EEG,'nochannel',{'TVEOG','LHEOG','RHEOG','BVEOG'});% remove EOG channels
@@ -44,9 +60,9 @@ if subs.rawEEG(sn)
 
     EEG = pop_rejepoch(EEG, rmvID,0);
 
-    [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET); % Store dataset
-    pop_eegplot(EEG,1,1,1);
-    pause
+%     [ALLEEG EEG CURRENTSET] = eeg_store(ALLEEG, EEG, CURRENTSET); % Store dataset
+%     pop_eegplot(EEG,1,1,1);
+%     pause
     %%  save
 
     set_name = fullfile(Dir.prepro,[subname,'_del.set']);

@@ -1,22 +1,19 @@
-function singleSSdelayFreq_mal(sn,nIter,nfolds,IsOcci,IsdePhase,IsBL2preDelay,IsCorretTrials)
+function singleSSdelayFreq_mal(sn,nIter,nfolds,IsOcci,IsdePhase,IsBL2preDelay,IsCorretTrials,IsOverwrite)
 
 load('subs.mat');
+subname = subs.name{sn};
 
-if subs.cleanEEG(sn)==1
-   
-    subname = subs.name{sn};
-    set_name = fullfile(Dir.prepro,[subname,'_delay.set']);
+txtCell = {'','','','';'_occi','_dephase','_bl2preDelay','_corrTrials'};
+outputFile =fullfile(Dir.results,[subname,'_ssDelayFreq',txtCell{IsOcci+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL2preDelay+1,3},txtCell{IsCorretTrials+1,4},'_mal.mat']);
+
+if IsOverwrite==0 && isfile(outputFile)
+    return
+end
+
+
+set_name = fullfile(Dir.prepro,[subname,'_clean.set']);
+if isfile(set_name)
     EEG = pop_loadset('filename',set_name);% baseline corrected to pre-stim
-
-    EEG = pop_select(EEG,'nochannel', {'TVEOG','LHEOG','RHEOG','BVEOG'});
-    if IsBL2preDelay
-        EEG = pop_rmbase(EEG,[-400 0]);
-    end
-    if IsOcci
-        occiChans = {'P7','P5','P3','P1','Pz','P2','P4','P6','P8','PO7','PO3','POz','PO4','PO8','O1','Oz','O2'};
-        EEG = pop_select(EEG,'channel',occiChans);
-    end
-
     %% load behavior
 
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
@@ -36,12 +33,30 @@ if subs.cleanEEG(sn)==1
         goodTrials = cell2mat(goodTrials);
     end
     M = M(goodTrials,:);
+    %%
+    EEG = pop_select(EEG,'nochannel', {'TVEOG','LHEOG','RHEOG','BVEOG'});
+    if IsBL2preDelay
+        EEG = pop_rmbase(EEG,[-400 0]);% in ms
+    else
+        bsWindow = {[-1.6 -1.2],[-2.8 -2.4],[-5.2 -4.8]};
+        setsize = [1 2 4];
+        for ss = 1:3
+            tmpTrl = find(M.ss_num==setsize(ss));
+            tmpEEG = pop_select(EEG,'trial',tmpTrl);
 
+            tmpEEG = pop_rmbase(tmpEEG,bsWindow{ss}*1000);% pre trial baseline
+            EEG.data(:,:,tmpTrl) = tmpEEG.data;
+        end
+    end
+    if IsOcci
+        occiChans = {'P7','P5','P3','P1','Pz','P2','P4','P6','P8','PO7','PO3','POz','PO4','PO8','O1','Oz','O2'};
+        EEG = pop_select(EEG,'channel',occiChans);
+    end
 
     %% decode
     clear dcd
 
-    timeIdx = EEG.times<=4000 & EEG.times>=-200;
+    timeIdx = EEG.times<=4000 & EEG.times>=-1200;
 
     dcd.freqs = [[1:2:40];[1:2:40]+2];
     dcd.freqN = length(dcd.freqs);
@@ -81,7 +96,6 @@ if subs.cleanEEG(sn)==1
 
         dcd.ACC{fi} = mean(dec_acc,'omitnan');
         dcd.ACC{fi} = dcd.ACC{fi}(timeIdx);
-
     end
 
 
@@ -90,7 +104,6 @@ if subs.cleanEEG(sn)==1
 
     dcd.nSamps = length(dcd.times);
     %%
-    txtCell = {'','','','';'_occi','_dephase','_bl2preDelay','_corrTrials'};
-    save(fullfile(Dir.results,[subname,'_ssDelayFreq',txtCell{IsOcci+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL2preDelay+1,3},txtCell{IsCorretTrials+1,4},'_mal.mat']),'dcd','-v7.3')
+    save(outputFile,'dcd','-v7.3')
 
 end

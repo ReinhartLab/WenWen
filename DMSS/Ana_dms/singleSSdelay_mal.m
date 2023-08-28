@@ -1,23 +1,20 @@
-function singleSSdelay_mal(sn,nIter,nfolds,IsOcci,IsBL2preDelay,IsCorretTrials)
+function singleSSdelay_mal(sn,nIter,nfolds,IsOcci,IsBL2preDelay,IsCorretTrials,IsOverwrite)
 
 load('subs.mat');
+subname = subs.name{sn};
 
-if subs.rawEEG(sn)==1
+txtCell = {'','','';'_occi','_bl2preDelay','_corrTrials'};
+outputFile = fullfile(Dir.results,[subname,'_ssDelay',txtCell{IsOcci+1,1},txtCell{IsBL2preDelay+1,2},txtCell{IsCorretTrials+1,3},'_mal.mat']);
 
-    subname = subs.name{sn};
-    set_name = fullfile(Dir.prepro,[subname,'_delay.set']);
-    EEG = pop_loadset('filename',set_name);% baseline corrected to pre-stim
+if IsOverwrite==0 && isfile(outputFile)
+    return
+end
 
-    EEG = pop_select(EEG,'time',[-0.2 4],'nochannel', {'TVEOG','LHEOG','RHEOG','BVEOG'});% [-0.2 4] relative to delay
-    if IsBL2preDelay
-        EEG = pop_rmbase(EEG,[-200 0]);% in ms
-    end
-    if IsOcci
-        occiChans = {'P7','P5','P3','P1','Pz','P2','P4','P6','P8','PO7','PO3','POz','PO4','PO8','O1','Oz','O2'};
-        EEG = pop_select(EEG,'channel',occiChans);
-    end
+set_name = fullfile(Dir.prepro,[subname,'_clean.set']);
+if isfile(set_name)
+    EEG = pop_loadset('filename',set_name);
 
-    %% load behavior
+ %% load behavior
 
     csvFile = fullfile(Dir.beha,subs.csvFile{sn});
     M = readtable(csvFile);
@@ -38,6 +35,29 @@ if subs.rawEEG(sn)==1
     else
         error('trials mismatch')
     end
+    %%
+
+    if IsBL2preDelay
+        EEG = pop_rmbase(EEG,[-200 0]);% in ms
+    else
+        bsWindow = {[-1.4 -1.2],[-2.6 -2.4],[-5 -4.8]};
+        setsize = [1 2 4];
+        for ss = 1:3
+            tmpTrl = find(M.ss_num==setsize(ss));
+            tmpEEG = pop_select(EEG,'trial',tmpTrl);
+
+            tmpEEG = pop_rmbase(tmpEEG,bsWindow{ss}*1000);% pre trial baseline
+            EEG.data(:,:,tmpTrl) = tmpEEG.data;
+        end
+    end
+
+    EEG = pop_select(EEG,'time',[-1 4],'nochannel', {'TVEOG','LHEOG','RHEOG','BVEOG'});% [-0.2 4] relative to delay
+    
+    if IsOcci
+        occiChans = {'P7','P5','P3','P1','Pz','P2','P4','P6','P8','PO7','PO3','POz','PO4','PO8','O1','Oz','O2'};
+        EEG = pop_select(EEG,'channel',occiChans);
+    end
+   
 
     %% decode
     clear dcd
@@ -69,6 +89,5 @@ if subs.rawEEG(sn)==1
     dcd.times = EEG.times;
     dcd.nSamps = nSamp;
     %%
-    txtCell = {'','','';'_occi','_bl2preDelay','_corrTrials'};
-    save(fullfile(Dir.results,[subname,'_ssDelay',txtCell{IsOcci+1,1},txtCell{IsBL2preDelay+1,2},txtCell{IsCorretTrials+1,3},'_mal.mat']),'dcd','-v7.3')
+    save(outputFile,'dcd','-v7.3')
 end

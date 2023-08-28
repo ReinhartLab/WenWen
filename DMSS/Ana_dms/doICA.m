@@ -1,7 +1,6 @@
 function doICA(sn)
 
 load('subs.mat')
-load badChan.mat
 if subs.rawEEG(sn)
 
     subname = subs.name{sn};
@@ -12,7 +11,7 @@ if subs.rawEEG(sn)
 %     end
 
     EEG = pop_loadset('filename',set_name);
-
+    load(fullfile(Dir.ana,'preBadChans',[subname,'_preInterp.mat']))
     %% https://eeglab.org/tutorials/06_RejectArtifacts/RunICA.html
 
     % Start with an unfiltered (or minimally filtered) dataset (dataset 1)
@@ -20,9 +19,9 @@ if subs.rawEEG(sn)
     % Run ICA on dataset 2
     % Apply the resulting ICA weights to dataset 1
 
-    if ismember(subname,{'DMSS030','DMSS031','DMSS036','DMSS037','DMSS038','DMSS040','dmss01','dmss02','dmss03'}) || (strcmp(badChan.name{sn},subname) && length(badChan.union{sn})>5)
+    if ismember(subname,{'DMSS030','DMSS031','DMSS036','DMSS037','DMSS038','DMSS040','dmss01','dmss02','dmss03'}) || length(badChan.union)>5
         EEGica = pop_eegfiltnew(EEG,2);
-        EEGica = pop_runica(EEGica,'icatype','runica','extended',1,'stop', 1E-7,'pca',32);
+        EEGica = pop_runica(EEGica,'icatype','runica','extended',1,'stop', 1E-7,'pca',40);
 
         EEG.icaweights = EEGica.icaweights;
         EEG.icaact = EEGica.icaact;

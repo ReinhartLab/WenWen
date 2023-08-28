@@ -36,5 +36,8 @@ rmvSubs = {'04','23','28'};
 tmp_idx = ismember(subs.name,rmvSubs);
 subs(tmp_idx,:) = [];
 
+excludeSubj = {'dmss24','dmss09'};
+subs.exclude = ismember(subs.name,excludeSubj);
+
 %%
 save(fullfile(Dir.ana,'subs.mat'),'subs','Dir')
