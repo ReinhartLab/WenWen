@@ -34,11 +34,11 @@ load('subs.mat');
 IsOverWrite = 0;
 for IsdePhase = [1 0]
     parfor sn = 1:height(subs)
-%         singlePLVsource(sn,IsdePhase,IsOverWrite)
+        singlePLVsource(sn,IsdePhase,IsOverWrite)
 
         for IsLap = [0 1]
 %             singleTFpower(sn,IsLap,IsdePhase,IsOverWrite)
-            singleConn(sn,IsLap,IsdePhase,IsOverWrite)
+%             singleConn(sn,IsLap,IsdePhase,IsOverWrite)
         end
     end
 end
@@ -48,7 +48,7 @@ end
 Gplv_ft_sensor
 
 indvPLVpeak% based on singleConn 
-indvPLVpeak0.5Hz
+% indvPLVpeak05Hz % 0.5hz
 Gplv_ft_source %singlePLVsource
 
 

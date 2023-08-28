@@ -7,7 +7,8 @@ IsBL = 1;% whether to apply baseline
 
 condStr = {'Correct','Incorrect','Incor-Corr'};
 PeakPara.time = [0.1 0.5]; % in s
-PeakPara.freq = [3 10]; % in Hz
+PeakPara.freq = [3 12]; % in Hz
+% PeakPara.freq = [3 10]; % in Hz
 
 %%
 for sn = 1:height(subs)
@@ -35,7 +36,7 @@ for sn = 1:height(subs)
     cond_i = 3;%incor-corr
     tfDat{cond_i}.plvFT = tfDat{1}.plvFT;
     tfDat{cond_i}.plvFT.plvspctrm = tfDat{2}.plvFT.plvspctrm - tfDat{1}.plvFT.plvspctrm;
-
+    tfAll.subs(sn,cond_i,:,:,:) = tfDat{cond_i}.plvFT.plvspctrm;
     %% time freq map
     myFigBasic
     w = [1 1 1];
@@ -94,7 +95,7 @@ for sn = 1:height(subs)
     saveas(gcf,fullfile(Dir.figs,'IndvPLVpeak0.5Hz',[sprintf('sn%02d_%s%.1f~%.1fs',sn,subname,PeakPara.time(1),PeakPara.time(2)),sprintf('%s (ref at %s)',[cfg.channel{:}],[cfg.refchannel{:}]),txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3},'.png']))
 end
 save(fullfile(Dir.results,['indvPeakF0.5Hz.mat']),"Indv")
-%%
+%% peakF distribution
 load(fullfile(Dir.results,['indvPeakF0.5Hz.mat']))
 Indv = struct2table(Indv);
 Indv(subs.excluded==1,:) = [];

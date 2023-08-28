@@ -8,10 +8,11 @@ if subs.excluded(sn)==1
     return
 end
 txtCell = {'','';'_lap','_dephase'};
-source_conn_full.toi = [0.1 0.5];% in s, line 81&120, cfg.tapsmofrq = 2;
+source_conn_full.toi = [0.1 0.5];% in s, line 81&120, cfg.tapsmofrq = 2;cfg.tapsmofrq = 3
 % source_conn_full.toi = [0.15 0.45];% in s, line 81&120, cfg.tapsmofrq  = 3;
 
-outFile = fullfile(Dir.results,[subname,'_PLVsource',num2str(source_conn_full.toi(1)),'~',num2str(source_conn_full.toi(2)),txtCell{IsdePhase+1,2},'.mat']);
+% outFile = fullfile(Dir.results,[subname,'_PLVsource',num2str(source_conn_full.toi(1)),'~',num2str(source_conn_full.toi(2)),txtCell{IsdePhase+1,2},'.mat']);% cfg.tapsmofrq = 2
+outFile = fullfile(Dir.results,[subname,'_PLVsource_3_',num2str(source_conn_full.toi(1)),'~',num2str(source_conn_full.toi(2)),txtCell{IsdePhase+1,2},'.mat']);%cfg.tapsmofrq = 3
 
 if IsOverWrite==0 && isfile(outFile)
     return
@@ -117,7 +118,7 @@ eegInCor = ft_selectdata(cfg,eegInCor);
 cfg                 = [];
 cfg.output          = 'fourier';
 cfg.method          = 'mtmfft';
-cfg.tapsmofrq       = 2;
+cfg.tapsmofrq       = 3;
 cfg.foi             = 6;
 
 freqCor             = ft_freqanalysis(cfg, eegCor);

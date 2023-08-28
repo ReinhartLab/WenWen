@@ -4,7 +4,7 @@ load('subs.mat');
 txtCell = {'','','';'_lap','_dephase','_bl'};
 IsLap = 0;
 IsdePhase = 1;
-IsBL = 1;% whether to apply baseline
+IsBL = 0;% whether to apply baseline
 
 for sn = 1:height(subs)
     subname = subs.name{sn};
@@ -132,7 +132,7 @@ xlabel('Frequency(Hz)')
 ylabel('PLV');
 view(90, -90); % Rotating by 90 degrees around the x-axis and -90 degrees around the y-axis
 saveas(gcf,fullfile(Dir.figs,['PLV_ft_full_Spectrum',sprintf('%s (ref at %s)',[cfg.channel{:}],[cfg.refchannel{:}]),txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3},'.png']))
-find(perm.h)' % significant freq range
+find(perm.h)' % significant freq ra
 %% time-resolved topopplot based on ref channel
 
 cfg = [];
@@ -181,5 +181,6 @@ for ti = 1:length(cfg.timeBin)
     end
 end
 sgtitle([txtCell{IsLap+1,1}(2:end),txtCell{IsdePhase+1,2}(2:end),txtCell{IsBL+1,3}(2:end)],'FontSize',16,'Interpreter','none')
+
 saveas(gcf,fullfile(Dir.figs,['PLV_ft_topo_',num2str(cfg.ylim(1)),'-',num2str(cfg.ylim(2)),'Hz_ref',cfg.refchannel,txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3},'.png']))
 

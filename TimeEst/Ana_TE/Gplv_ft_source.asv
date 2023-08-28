@@ -9,9 +9,7 @@ atlasFile = 'D:\intWM-E\toolbox\fieldtrip-20211209\template\atlas\brainnetome\BN
 atlas = ft_read_atlas(atlasFile);
 atlas = ft_convert_units(atlas,'cm');
 % % ROI.roi = [1 2 9 10];%A8m, A6m,http://atlas.brainnetome.org/bnatlas.html
-% ROI.roi = [13 14];%A10m,http://atlas.brainnetome.org/bnatlas.html
-ROI.roi = [183 184];%A24cd_l,http://atlas.brainnetome.org/bnatlas.html
-% find(contains(atlas.tissuelabel,'A24cd'))
+ROI.roi = [13 14];%A10m,http://atlas.brainnetome.org/bnatlas.html
 % ROI.roi = [11 12 13 14];%A9m A10m,http://atlas.brainnetome.org/bnatlas.html
 
 % 
@@ -41,9 +39,8 @@ for sn = 1:height(subs)
     if subs.excluded(sn)==1
         continue
     end
-    outFile = fullfile(Dir.results,[subname,'_PLVsource_3_','0.1~0.5',txtCell{IsdePhase+1,2},'.mat']);% 3-9 Hz
 
-%     outFile =fullfile(Dir.results,[subname,'_PLVsource','0.1~0.5',txtCell{IsdePhase+1,2},'.mat']);%4-8Hz
+    outFile = fullfile(Dir.results,[subname,'_PLVsource','0.1~0.5',txtCell{IsdePhase+1,2},'.mat']);
 %         outFile = fullfile(Dir.results,[subname,'_PLVsource','0.15~0.45',txtCell{IsdePhase+1,2},'.mat']);
 
     if isfile(outFile)
@@ -149,6 +146,7 @@ ft_sourceplot(cfg,statint);
 
 print(fullfile(Dir.figs,['source_int_2D_',strrep(num2str(ROI.roi), ' ', ''),num2str(x.source_conn_full.toi(1)),'~',num2str(x.source_conn_full.toi(2)),txtCell{IsdePhase+1,2},'.png']),'-dpng','-r300');
 
+
 %%
 cfg = [];
 cfg.method        = 'slice';
@@ -159,7 +157,7 @@ cfg.funcolormap = 'hot';
 % cfg.funcolorlim = [0 4];
 ft_sourceplot(cfg, statint);
 title(condStr{3});
-print(fullfile(Dir.figs,['source_Slice',strrep(num2str(ROI.roi), ' ', ''),num2str(x.source_conn_full.toi(1)),'~',num2str(x.source_conn_full.toi(2)),txtCell{IsdePhase+1,2},'.png']),'-dpng','-r300');
+print(fullfile(Dir.figs,['source_Slice',num2str(x.source_conn_full.toi(1)),'~',num2str(x.source_conn_full.toi(2)),txtCell{IsdePhase+1,2},'.png']),'-dpng','-r300');
 
 %%
 
