@@ -28,7 +28,7 @@ freq.betaFreq = [15 25];% Hz
 % freq.alphaFreq = [8 13];% Hz
 
 timeROI.all = [-0.4 0.5];% in s, for curve plotting
-timeROI.Post = [0 0.5];% in s
+timeROI.Post = [0.1 0.5];% in s
 timeROI.Pre = [-0.4 0];% in s
 
 %%

@@ -48,7 +48,7 @@ end
 Gplv_ft_sensor
 
 indvPLVpeak% based on singleConn 
-% indvPLVpeak05Hz % 0.5hz
+% indvPLVpeak05Hz % 0.5hz, generate .csv for peakF,peakPLV, avg PLV
 Gplv_ft_source %singlePLVsource
 
 

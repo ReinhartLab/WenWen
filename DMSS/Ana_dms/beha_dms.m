@@ -59,11 +59,17 @@ subs.s3_rt = subsBeha(:,3,2);
 
 beha = subs;
 save('beha.mat','beha')
-%%
+%% output table
+subs.avg_acc = mean(subs{:,["s1_acc","s2_acc","s3_acc"]},2);
+subs.avg_rt = mean(subs{:,["s1_rt","s2_rt","s3_rt"]},2);
 
+writetable(subs,fullfile(Dir.ana,'TableOutput','Beha.csv'))
+
+%% 
 setStr = {'Load 1','Load 2','Load 4'};
 indStr = {'Accuracy','RT','dprime'};
-groupStr = {'Young','Old'};
+% groupStr = unique(subs.groupStr);
+groupStr = {'Younger','Older'};
 
 clear X
 X(:,1) = reshape(subsBeha(:,:,1),size(subsBeha,1)*size(subsBeha,2),1);
@@ -82,10 +88,10 @@ X(:,4) = repmat([1:subN]',3,1);%subject
 %%
 myFigBasic
 myColors = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
-mksize = 6;
+mksize = 5;
 figure('Name','Beha','Position',[200 200 800 800]);
 
-t = 1;
+t = 1;% accuracy
 
 subplot(2,2,t+2);hold all;axis square;
 for g = 1:2
@@ -101,7 +107,7 @@ b(2).FaceColor = myColors(2,:);
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
-%     scatter(b(g).XEndPoints,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
+    scatter(b(g).XEndPoints+randn(sum(tmpID),3)*0.03,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
 end
 errorbar(vertcat(b.XEndPoints)',mn',se','k.','LineWidth',1)
 set(gca,'YLim',[0.7 1],'YTick',[0.6:0.1:1],'XTickLabel',setStr,'XLim',[0.25 3.75],'XTick',1:3)
@@ -120,7 +126,7 @@ for i = 1:length(tmp_val)
     if tmp_val(i)<.05
         sigStr = '*';
         if tmp_val(i)<.01
-            sigStr = '**';
+            sigStr = '**';  
             if tmp_val(i)<.001
                 sigStr = '***';
             end
@@ -150,7 +156,7 @@ ytickformat('%,.1f')
 lines = findobj(h4, 'type', 'line');
 set(lines, 'Color', 'k','linewidth',1.2);
 
-t = 2;
+t = 2;% RT
 subplot(2,2,t+2);hold all;axis square;
 for g = 1:2
     tmpID = subs.group==g;
@@ -164,10 +170,10 @@ b(2).FaceColor = myColors(2,:);
 for g = 1:2
     tmpID = subs.group==g;
     dat= squeeze(subsBeha(tmpID,:,t));
-%     scatter(b(g).XEndPoints,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
+    scatter(b(g).XEndPoints+randn(sum(tmpID),3)*0.03,dat,mksize,'k','MarkerFaceColor',myColors(g,:))
 end
 errorbar(vertcat(b.XEndPoints)',mn',se','k.','LineWidth',1)
-set(gca,'YLim',[0.4 1.6],'YTick',[0.4:0.4:3],'XTickLabel',setStr,'XLim',[0.5 3.5],'XTick',1:3)
+set(gca,'YLim',[0 2],'YTick',[0:0.5:3],'XTickLabel',setStr,'XLim',[0.25 3.75],'XTick',1:3)
 legend(groupStr,'Location','southoutside')
 ytickformat('%.1f')
 ylabel(indStr{t})
@@ -208,7 +214,7 @@ ylabel(indStr{t})
 set(gca,'YLim',[0 2])
 ytickformat('%,.1f')
 lines = findobj(h4, 'type', 'line');
-set(lines, 'Color', 'k','linewidth',1.2);
+set(lines, 'Color', 'k','linewidth',1.2);   
 
 
 % t = 3;

@@ -8,10 +8,11 @@ IsdePhase = 1;
 atlasFile = 'D:\intWM-E\toolbox\fieldtrip-20211209\template\atlas\brainnetome\BNA_MPM_thr25_1.25mm.nii';
 atlas = ft_read_atlas(atlasFile);
 atlas = ft_convert_units(atlas,'cm');
+% find(contains(atlas.tissuelabel,'A10m'))
+% atlas.tissuelabel([13 14 27 28])
 % % ROI.roi = [1 2 9 10];%A8m, A6m,http://atlas.brainnetome.org/bnatlas.html
-% ROI.roi = [13 14];%A10m,http://atlas.brainnetome.org/bnatlas.html
-ROI.roi = [183 184];%A24cd_l,http://atlas.brainnetome.org/bnatlas.html
-% find(contains(atlas.tissuelabel,'A24cd'))
+ROI.roi = [13 14];%A10m,http://atlas.brainnetome.org/bnatlas.html
+% ROI.roi = [183 184];%A24cd_l,http://atlas.brainnetome.org/bnatlas.html
 % ROI.roi = [11 12 13 14];%A9m A10m,http://atlas.brainnetome.org/bnatlas.html
 
 % 
@@ -32,8 +33,8 @@ for i = 1:atlas.dim(1)
     end
 end
 
-ROI.r = 1.5;% radius in cm
-% ROI.r = 0.5;% radius in cm
+% ROI.r = 1.5;% radius in cm
+ROI.r = 1;% radius in cm
 
 %%
 for sn = 1:height(subs)
@@ -41,9 +42,9 @@ for sn = 1:height(subs)
     if subs.excluded(sn)==1
         continue
     end
-    outFile = fullfile(Dir.results,[subname,'_PLVsource_3_','0.1~0.5',txtCell{IsdePhase+1,2},'.mat']);% 3-9 Hz
+%     outFile = fullfile(Dir.results,[subname,'_PLVsource_3_','0.1~0.5',txtCell{IsdePhase+1,2},'.mat']);% 3-9 Hz
 
-%     outFile =fullfile(Dir.results,[subname,'_PLVsource','0.1~0.5',txtCell{IsdePhase+1,2},'.mat']);%4-8Hz
+    outFile =fullfile(Dir.results,[subname,'_PLVsource','0.1~0.5',txtCell{IsdePhase+1,2},'.mat']);%4-8Hz
 %         outFile = fullfile(Dir.results,[subname,'_PLVsource','0.15~0.45',txtCell{IsdePhase+1,2},'.mat']);
 
     if isfile(outFile)
@@ -55,12 +56,21 @@ for sn = 1:height(subs)
         for d = 1:length(x.source_conn_full.cor.inside)
 
             if x.source_conn_full.cor.inside(d)
-                dis = sum(power([x.source_conn_full.cor.pos(d,:)-ROI.coord(:,1:3)],2),2);
+                dis = sum(power([x.source_conn_full.cor.pos(d,:)-ROI.coord(:,1:3)],2),2);% calculate distance
+%                 wi = 0; % not within ROI
+%                 for c = 1:size(ROI.coord,1)
+%                     if  all(x.source_conn_full.cor.pos(d,:) == ROI.coord(c,1:3))
+%                         wi = 1;
+%                     end
+%                 end
+
+                
                 if any(dis<=ROI.r^2)
-                    ROI.in = [ROI.in;d];
+                    ROI.in = [ROI.in;d]; % indice
                 end
             end
         end
+
     end
 
     x.source_conn_full.cor.plvspctrm = mean(x.source_conn_full.cor.plvspctrm(ROI.in,:),'omitnan');
@@ -118,6 +128,8 @@ stat                    = ft_sourcestatistics(cfg,subsAll.subs{:,2},subsAll.subs
 
 stat.mask(ROI.in) = nan;% mask out seed region
 stat.stat(ROI.in) = nan;% mask out seed region
+stat.posclusterslabelmat(ROI.in) = nan;% mask out seed region
+stat.negclusterslabelmat(ROI.in) = nan;% mask out seed region
 
 %% Interpolate onto SPM T1 Brain
 
@@ -141,7 +153,8 @@ cfg.funparameter    = 'stat';
 cfg.maskparameter   = 'mask';
 cfg.location        = 'max';
 cfg.funcolormap = 'hot';
-cfg.queryrange = 3;
+% cfg.atlas = 'D:\intWM-E\toolbox\fieldtrip-20211209\template\atlas\aal\ROI_MNI_V4.nii';
+% cfg.queryrange = 3;
 ft_sourceplot(cfg,statint);
 
 % ft_hastoolbox('brewermap', 1);         % ensure this toolbox is on the path

@@ -8,7 +8,8 @@ ft_defaults;
 %%
 ppts %set project path, read subject folder
 
-beha_dms % behavior
+beha_dms % behavior, traditional anova
+beha_dms_glmm % behavior, using glmm for stats
 
 %% preprocessing
 clear
@@ -32,7 +33,7 @@ end
 
 % checkEEGMarkerBehaMatching
 % cleanTrialsCalculator % will add a column in subs
-
+% ICA_rm_N % how many ICA being removed
 %% run analysis at individual level
 
 clear
@@ -94,6 +95,25 @@ for IsCorretTrials = [1 0] % using correct or all trials for analysis
     end
 end
 
+%% SNR
+clear
+load('subs.mat');
+IsOverwrite = 1; % overwrite existing output?
+for IsCorretTrials = 1%[1 0] % using correct or all trials for analysis
+    for IsdePhase = 1%[1 0] % whether to subtract ERP from each trial for time freq decomposition
+        M = 10;
+                parfor (sn = 1:height(subs),M)
+%         for sn = 1:height(subs)
+            for IsBL2preDelay = 1%[0 1] % pre-trial baseline
+                for IsLap = 1%[1 0] % laplacian filter
+%                     single_SNR_delay(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+single_SNR_resp(sn,IsLap,IsdePhase,IsCorretTrials,IsBL2preDelay,IsOverwrite)
+                end
+            end
+        end
+    end
+end
+
 %% decoding
 
 clear
@@ -120,6 +140,9 @@ end
 %% plotting
 
 GndStimERP
+GndSNR_delay
+GndSNR_Resp
+GndSNR_delayResp
 
 GndSSdelay
 GndSSdelaySearchLight
@@ -161,8 +184,11 @@ GndTF_delay_nn_variability_guided
 GndTF_Resp_nplus1_variability_guided_seq_acc
 GndTF_Resp_nplus1_variability_guided_seq % sampling N trials in a row
 
-GndTF_DelayResp_trialwise % combine beta of n and n-1 to predict RT(n)
+GndTF_DelayResp_trialwise % combine beta of n and n-1 to predict RT(n), nn post-resp beta correlation
 GndTF_DelayResp_trialwise_Acc % combine beta of n and n-1 to predict ACC(n)
+
+GndTF_DelayResp_trialwise_Acc_cross_time_var % combine beta of n and n-1 to predict ACC(n)
+
 
 % compare regression model based on power and variance
 CompareRegressModelPower_Variance_delay
@@ -174,3 +200,4 @@ GndPlotSingleTrialBurst
 
 GndPlotSource
 GndPlotSource_Resp
+PlotSingleSource_resp_var

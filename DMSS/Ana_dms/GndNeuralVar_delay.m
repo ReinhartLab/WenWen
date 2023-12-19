@@ -163,6 +163,33 @@ fig.PaperOrientation = 'landscape';
 saveas(fig,fullfile(Dir.figs,['NeuVar_',[chanROI{:}],txtCell{IsLap+1,1},num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']))
 
 %%  time frequency of group average
+
+figure('Position',[100 100 800 500]);
+for gi = 1:3
+     subplot(2,3,3+gi);
+    cfg = [];
+    cfg.ylim = freq.betaFreq;%freq
+    cfg.xlim = timeROI.delay;%time
+        cfg.zlim = [-0.6 0.1];
+        if gi ==3
+              cfg.zlim = [-0.5 0.5];
+  end
+    cfg.highlightchannel = chanROI;
+    cfg.layout = 'easyCapM1';
+    cfg.colormap = jet;
+    cfg.markersymbol = '.';
+    cfg.highlight = 'on';
+    cfg.highlightsymbol = '.';
+    cfg.highlightsize = 18;
+    cfg.comment = 'no';
+    cfg.figure      = 'gca';
+    ft_topoplotTFR(cfg, GroupAvg{gi});
+   hc = colorbar;
+    hc.Label.String = 'Variability(a.u.)';
+    hc.Label.Rotation = -90;
+    hc.Ticks = cfg.zlim;
+    
+    subplot(2,3,gi);axis square;hold all
 cfg = [];
 cfg.xlim  = [-1 5];
 cfg.ylim = [1 40];
@@ -172,15 +199,11 @@ cfg.colormap = jet;
 cfg.channel = chanROI;
 cfg.figure = 'gca';
 
-figure('Position',[100 100 800 290]);
-for gi = 1:3
-    subplot(1,3,gi);axis square;hold all
-
     ft_singleplotTFR(cfg, GroupAvg{gi});
 
     title(groupStr{gi},'Average set sizes','FontSize',14);
     hc = colorbar;
-    hc.Label.String = 'Relative variance(AU)';
+    hc.Label.String = 'Variability(a.u.)';
     hc.Label.Rotation = -90;
     hc.Label.Position = [4.8 0 0];
 
@@ -189,7 +212,10 @@ for gi = 1:3
     rectangle('Position',[0 0.5 3 40],'LineWidth',1,'LineStyle','--')
     set(gca,'ytick',0:10:length(gndTF{1}.freq),'XTick',[-1 0 3],'YLim',[0.5 40])
 end
+
+
 saveas(gcf,fullfile(Dir.figs,['NeuVar_GroupAvg_',[cfg.channel{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+saveas(gcf,fullfile(Dir.figs,['NeuVar_GroupAvg_',[cfg.channel{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']))
 %% time frequency of group diff
 
 figure('Position',[100 100 1000 400])
@@ -300,7 +326,7 @@ saveas(gcf,fullfile(Dir.figs,['NeuVarGroupDiff_',num2str(freq.betaFreq(1)),'~',n
 %
 % [stat] = ft_freqstatistics(cfg, freqFIC_planar_cmb, freqFC_planar_cmb);
 
-%%
+%% mixed ANOVA
 freqID.beta = dsearchn(gndTF{1}.freq',freq.betaFreq');
 freqID.beta = freqID.beta(1):freqID.beta(2);
 
@@ -385,16 +411,16 @@ clear line_fit line_fitProbe
 for gi = 1:2
     for sub_i = 1:size(dat.betaAvgFrontal{gi},1)
         line_fit{gi}.params(sub_i,:) = polyfit([1 2 4]',dat.betaAvgFrontal{gi}(sub_i,:)',1);
-        line_fitProbe{gi}.params(sub_i,:) = polyfit([1 2 4]',dat.betaAvgFrontalProbe{gi}(sub_i,:)',1);
+%         line_fitProbe{gi}.params(sub_i,:) = polyfit([1 2 4]',dat.betaAvgFrontalProbe{gi}(sub_i,:)',1);
     end
     [~,line_fit{gi}.p,~,line_fit{gi}.Tstat] = ttest(line_fit{gi}.params(:,1));
-    [~,line_fitProbe{gi}.p,~,line_fitProbe{gi}.Tstat] = ttest(line_fitProbe{gi}.params(:,1));
+%     [~,line_fitProbe{gi}.p,~,line_fitProbe{gi}.Tstat] = ttest(line_fitProbe{gi}.params(:,1));
 end
 
 T = subs(:,{'name','group','groupStr'});
 T.slope_delay = [line_fit{2}.params(:,1);line_fit{1}.params(:,1)];
-T.slope_probe = [line_fitProbe{2}.params(:,1);line_fitProbe{1}.params(:,1)];
-writetable(T,fullfile(Dir.ana,'TableOutput',['DelayBetaVariance_Slope_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
+% T.slope_probe = [line_fitProbe{2}.params(:,1);line_fitProbe{1}.params(:,1)];
+% writetable(T,fullfile(Dir.ana,'TableOutput',['DelayBetaVariance_Slope_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
 
 for gi = 1:2
     fprintf('%s: mean slope = %.3f, T(%d) = %.3f, p =%.3f, d = %.3f\n',...
@@ -548,13 +574,13 @@ hb(1).FaceColor = myColors(1,:);
 hb(2).FaceColor = myColors(2,:);
 hb(3).FaceColor = myColors(3,:);
 
-for gi = 1:2
-    if line_fitProbe{gi}.p<.05
-        errorbar(xcord(gi,:),mn(gi,:),se(gi,:),'k','LineWidth',1.5,'HandleVisibility','off')
-    else
-        errorbar(xcord(gi,:),mn(gi,:),se(gi,:),'k','LineStyle','none','HandleVisibility','off')
-    end
-end
+% for gi = 1:2
+%     if line_fitProbe{gi}.p<.05
+%         errorbar(xcord(gi,:),mn(gi,:),se(gi,:),'k','LineWidth',1.5,'HandleVisibility','off')
+%     else
+%         errorbar(xcord(gi,:),mn(gi,:),se(gi,:),'k','LineStyle','none','HandleVisibility','off')
+%     end
+% end
 
 legend(condStr,'Location','bestoutside')
 set(gca,'xtick',[1 2],'XTickLabel',groupStr)
@@ -636,8 +662,8 @@ se = vertcat(tmp_std{:})./[sqrt(sum(subs.group==1)) sqrt(sum(subs.group==2))]';
 
 groupColor = flipud(crameri('bamako',2));% https://www.mathworks.com/matlabcentral/fileexchange/68546-crameri-perceptually-uniform-scientific-colormaps
 
-% plot(xcord(1,:),dat.betaAvgFrontal{1},'Color',[0.8 0.8 0.8],'LineWidth',0.5,'HandleVisibility','off');
-% plot(xcord(2,:),dat.betaAvgFrontal{2},'Color',[0.8 0.8 0.8],'LineWidth',0.5,'HandleVisibility','off');
+plot(xcord(1,:),dat.betaAvgFrontal{1},'Color',[0.8 0.8 0.8],'LineWidth',0.5,'HandleVisibility','off');
+plot(xcord(2,:),dat.betaAvgFrontal{2},'Color',[0.8 0.8 0.8],'LineWidth',0.5,'HandleVisibility','off');
 hb = bar(mn,'FaceAlpha',1);
 hb(1).FaceColor = myColors(1,:);
 hb(2).FaceColor = myColors(2,:);
@@ -645,7 +671,7 @@ hb(3).FaceColor = myColors(3,:);
 xcord = vertcat(hb(:).XEndPoints)';
 errorbar(xcord',mn',se','k')
 legend(condStr,'Location','bestoutside')
-set(gca,'xtick',[1 2],'XTickLabel',groupStr,'XLim',[0.5 2.5],'YLim',[-1.2 0],'YTick',[-1.2:0.6:1.6],'YDir','reverse')
+set(gca,'xtick',[1 2],'XTickLabel',groupStr,'XLim',[0.5 2.5],'YLim',[-2 0],'YTick',[-2:1:1.6],'YDir','reverse')
 
 ylabel('Variance(AU)')
 title(sprintf('%s\n%d-%dHz delay (%.1f~%.1fs)',[chanROI{:}],freq.betaFreq(1),freq.betaFreq(2),timeROI.delay(1),timeROI.delay(2)))
@@ -653,21 +679,19 @@ title(sprintf('%s\n%d-%dHz delay (%.1f~%.1fs)',[chanROI{:}],freq.betaFreq(1),fre
 axes('Position',[.3 .55 .2 .15])
 % axes('Position',[.75 .3 .2 .18]) % under legend
 hold all;box on;
-% subs.slope = [line_fit{2}.params(:,1);line_fit{1}.params(:,1)];
-% boxplot(subs.slope,subs.groupStr)
-% plot(get(gca,'xlim'),[0 0],'k--')
-% set(gca,'YLim', [-0.4 0.4],'ytick',-0.4:0.2:0.6);
-% ylabel({'\bfSlope'});
+% plot(1+randn(length(line_fit{1}.params),1)*0.1,line_fit{1}.params(:,1),'.','Color',ones(3,1)*0.5)
+% plot(2+randn(length(line_fit{2}.params),1)*0.1,line_fit{2}.params(:,1),'.','Color',ones(3,1)*0.5)
 
-bar([1 2],[mean(line_fit{1}.params(:,1)) mean(line_fit{2}.params(:,1))],'w','BarWidth',0.5)
+bar([1 2],[mean(line_fit{1}.params(:,1)) mean(line_fit{2}.params(:,1))],'w','BarWidth',0.5,'FaceAlpha',0.3)
 errorbar([1 2],[mean(line_fit{1}.params(:,1)) mean(line_fit{2}.params(:,1))],[std(line_fit{1}.params(:,1))/sqrt(sum(subs.group==1)) std(line_fit{2}.params(:,1))/sqrt(sum(subs.group==2))],'k','LineStyle','none')
-% set(gca,'YLim', [-0.1 0.05],'ytick',[-0.1 0 0.05],'YDir','reverse','XTick',[1 2],'XTickLabel',groupStr,'XLim',get(gca,'xlim')+[0.15 -0.15]);
+% set(gca,'YLim', [-0.35 0.1],'ytick',[-0.35 0],'YDir','reverse','XTick',[1 2],'XTickLabel',groupStr,'XLim',get(gca,'xlim')+[0.15 -0.15]);
 set(gca,'YLim', [-0.1 0],'ytick',[-0.1 0 0.05],'YDir','reverse','XTick',[1 2],'XTickLabel',groupStr,'XLim',get(gca,'xlim')+[0.15 -0.15]);
+% set(gca,'YLim', [-0.1 0.1],'ytick',[-0.1 0 0.05],'YDir','reverse','XTick',[1 2],'XTickLabel',groupStr,'XLim',get(gca,'xlim')+[0.15 -0.15]);
 set(gca, 'color', 'none');
 title('Slope');
 for gi = 1:2
     if  line_fit{gi}.p<.05
-        text(gi,-0.08,'*','HorizontalAlignment','center','FontSize',20)
+        text(gi,-0.1,'*','HorizontalAlignment','center','FontSize',20)
     end
 end
 saveas(gcf,fullfile(Dir.figs,['DelayVarianceSlope_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
@@ -694,8 +718,8 @@ for idx = 2%1:2
 
     clear g
     for gi = 1:2
-        [r,pval] = corr(dat.betaAvgFrontal{gi},dat.beha{gi},'type','Spearman');
-        %             [r,pval] = corr(dat.betaAvgFrontal{gi},dat.beha{gi},'type','Pearson');
+%         [r,pval] = corr(dat.betaAvgFrontal{gi},dat.beha{gi},'type','Spearman');
+                    [r,pval] = corr(dat.betaAvgFrontal{gi},dat.beha{gi},'type','Pearson');
 
         for cond = 1:3
             Y = dat.beha{gi}(:,cond);
@@ -716,7 +740,6 @@ for idx = 2%1:2
         X(:,1) = sort(repmat([1 2 4]',size(dat.betaAvgFrontal{gi},1),1));
         X(:,2) = reshape(dat.betaAvgFrontal{gi},size(dat.betaAvgFrontal{gi},1)*size(dat.betaAvgFrontal{gi},2),1);
 
-        %         mdl_124 =  stepwiseglm(X,Y,'linear','Distribution','normal','Criterion','bic','Lower','linear');
         mdl_124 =  fitglm(X,Y);
         mdl_124_0 = fitglm(X(:,1),Y);% without beta variability
 
@@ -761,17 +784,19 @@ for idx = 2%1:2
     fig = figure('Position',[100 100 1000 500]);
     g.draw();
     saveas(gcf,fullfile(Dir.figs,['NeuVarCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
-    fig.PaperOrientation = 'landscape';
-    print(fig,fullfile(Dir.figs,['NeuVarCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']),'-dpdf','-r300','-bestfit')
+%     fig.PaperOrientation = 'landscape';
+%     print(fig,fullfile(Dir.figs,['NeuVarCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']),'-dpdf','-r300','-bestfit')
 end
 
-%% fitglme to check age*variability interaction
+%% fitglme to examine age*variability interaction
 
 myTbl = [myTbl{1};myTbl{2}];
 myTbl.group = categorical(myTbl.group);
 myTbl.ss = categorical(myTbl.ss);
+writetable(myTbl,fullfile(Dir.ana,'TableOutput',['DelayVarGLMM_YoungOld_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']))
 
 glme = fitglme(myTbl,'beha ~ delayVar*group +(1|ss)');
+% glme = fitglme(myTbl,'beha ~ delayVar*group +(1|ss)','Distribution','Gamma');
 t = dataset2table(glme.anova);
 writetable(t,fullfile(Dir.ana,'TableOutput',['DelayBetaVarglme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
     'FileType','spreadsheet','Sheet',[chanROI{:},'_anova'])
@@ -784,6 +809,60 @@ full_model = fitglme(myTbl,'beha ~ delayVar*group +(1|ss)');
 reduced_model = fitglme(myTbl,'beha ~ delayVar+group +(1|ss)');
 bayes_factor = exp(full_model.LogLikelihood- reduced_model.LogLikelihood)
 
+full_model = fitglme(myTbl,'beha ~ delayVar*group +(1|ss)','Distribution','Gamma');
+reduced_model = fitglme(myTbl,'beha ~ delayVar+group +(1|ss)','Distribution','Gamma');
+bayes_factor = exp(full_model.LogLikelihood- reduced_model.LogLikelihood)
+
+%% normalize accuracy distribution: accuracy was a binary variable, averaging across trials make a continous variable ranging [0 1]
+% our sample's avg acc has a beta distribution; therefore, we fit a beta
+% distribution to estimate a & b, then use the predicted value to run glme
+
+myTbl.beha_Bnorm = myTbl.beha;
+params = betafit(myTbl.beha);
+myTbl.beha_Bnorm = betainv(myTbl.beha, params(1), params(2));
+writetable(myTbl,fullfile(Dir.ana,'TableOutput',['DelayVarGLMM_YoungOld_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
+
+% figure;histogram(myTbl.beha);hold on;histogram(myTbl.beha_Bnorm);
+% xlabel('Accuracy');ylabel('Density');
+% saveas(gca,fullfile(Dir.figs,'BetaNormalizationAvgACC.png'))
+
+glme = fitglme(myTbl,'beha_Bnorm ~ delayVar*group +(1|ss)');
+
+t = dataset2table(glme.anova)
+writetable(t,fullfile(Dir.ana,'TableOutput',['DelayBetaVarglme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+    'FileType','spreadsheet','Sheet',[chanROI{:},'_anova_Bnorm'])
+
+t = dataset2table(glme.Coefficients);
+writetable(t,fullfile(Dir.ana,'TableOutput',['DelayBetaVarglme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+    'FileType','spreadsheet','Sheet',[[chanROI{:}],'_Coef_Bnorm'])
+
+full_model = fitglme(myTbl,'beha_Bnorm ~ delayVar*group +(1|ss)');
+reduced_model = fitglme(myTbl,'beha_Bnorm ~ delayVar+group +(1|ss)');
+bayes_factor = exp(full_model.LogLikelihood- reduced_model.LogLikelihood)
+
+
+
+tmp = myTbl(myTbl.group=="1",:);
+full_model = fitglme(tmp,'beha_Bnorm ~ delayVar +(1|ss)');
+reduced_model = fitglme(tmp,'beha_Bnorm ~ 1+(1|ss)');
+bayes_factor = exp(full_model.LogLikelihood- reduced_model.LogLikelihood)
+
+
+%% use fitglme to examine age*ss interaction on variability, should be consistent with Mixed ANOVA section
+glme = fitglme(myTbl,'delayVar ~ ss*group +(1|name)');
+t = dataset2table(glme.anova);
+writetable(t,fullfile(Dir.ana,'TableOutput',['DelayBetaVariance_ANOVA_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+    'FileType','spreadsheet','Sheet',[chanROI{:},'_anova_glme'])
+
+t = dataset2table(glme.Coefficients);
+writetable(t,fullfile(Dir.ana,'TableOutput',['DelayBetaVariance_ANOVA_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+    'FileType','spreadsheet','Sheet',[chanROI{:},'_Coef_glme'])
+
+full_model = fitglme(myTbl,'delayVar ~ ss*group +(1|name)');
+reduced_model = fitglme(myTbl,'delayVar ~ ss+group +(1|name)');
+bayes_factor = exp(full_model.LogLikelihood- reduced_model.LogLikelihood)
+
+return
 %% transition time point: find group average, define range = [-0.1 0.1], search individual peak time within this range
 % detectRange = [3.1 3.5];
 % clear avgPeak
@@ -800,6 +879,7 @@ bayes_factor = exp(full_model.LogLikelihood- reduced_model.LogLikelihood)
 % end
 
 %% Delay Avg vs Probe Avg
+
 clear Xa
 Xa(:,1) = [reshape(dat.betaAvgFrontal{1},size(dat.betaAvgFrontal{1},1)*size(dat.betaAvgFrontal{1},2),1);...
     reshape(dat.betaAvgFrontalProbe{1},size(dat.betaAvgFrontalProbe{1},1)*size(dat.betaAvgFrontalProbe{1},2),1)];

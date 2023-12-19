@@ -10,6 +10,8 @@ ft_defaults;
 addpath(genpath('D:\intWM-E\toolbox\gramm-master'))
 addpath(genpath('D:\intWM-E\toolbox\crameri_v1.08'))
 
+addpath(genpath('D:\intWM-E\toolbox\bayesFactor-master'))
+
 IsCorretTrials = 0;% must be 0
 IsBL2preDelay = 1;% baselined to pre response
 IsLap = 1;
@@ -27,7 +29,7 @@ chanROI = {'Fz','F1','F2','FCz','AFz'};% frontal cluster
 freq.betaFreq = [15 25];% Hz
 freq.alphaFreq = [8 12];
 
-timeROI.Post = [0.1 0.6];% in s
+timeROI.Post = [0.1 0.5];% in s
 % timeROI.Post = [0 0.5];% in s
 timeROI.Pre = [-0.4 -0.1];% in s
 timeROI.all = [timeROI.Pre(1) timeROI.Post(2)];% in s, for curve plotting
@@ -222,6 +224,7 @@ Xa(:,3) = [ones(sum(subs.group==1),1);ones(sum(subs.group==1),1)*2;...
     ones(sum(subs.group==2),1);ones(sum(subs.group==2),1)*2;];
 Xa(:,4) = [[1:sum(subs.group==1) 1:sum(subs.group==1) ],...
     [1:sum(subs.group==2) 1:sum(subs.group==2)]+sum(subs.group==1)]';
+
 Xa(Xa(:,4)==35,:)=[]; %exclude the outlier
 Xa(Xa(:,4)>35,4)=Xa(Xa(:,4)>35,4)-1;
 [SSQs.betaFrontal, DFs.betaFrontal, MSQs.betaFrontal, Fs.betaFrontal, Ps.betaFrontal]=mixed_between_within_anova(Xa);
@@ -242,6 +245,18 @@ writetable(T,fullfile(Dir.ana,'TableOutput',['RespBetaVar_CorrVSwrong',num2str(f
 % Xa(:,1) = [reshape(dat.alphaAvgFrontalPre{1},size(dat.alphaAvgFrontalPre{1},1)*size(dat.alphaAvgFrontalPre{1},2),1);...
 %     reshape(dat.alphaAvgFrontalPre{2},size(dat.alphaAvgFrontalPre{2},1)*size(dat.alphaAvgFrontalPre{2},2),1)];
 % [SSQs.alphaFrontalPre, DFs.alphaFrontalPre, MSQs.alphaFrontalPre, Fs.alphaFrontalPre, Ps.alphaFrontalPre]=mixed_between_within_anova(Xa);
+%%
+
+tbl = T(:,["name","group","groupStr"]);
+tbl = [tbl;tbl];
+tbl.acc = [ones(subN,1);zeros(subN,1)];
+
+tbl.beta = [T.corr(:);T.wrong(:)];
+tbl(ismember(tbl.name,{'DMSS054'}),:) = [];
+
+writetable(tbl,'tmp.csv')
+
+
 
 %% bar & time series -beta
 
@@ -256,10 +271,11 @@ tmp_std = cellfun(@std,wDat,'UniformOutput',false);
 se = vertcat(tmp_std{:})./[sqrt(sum(subs.group==1)) sqrt(sum(subs.group==2))]';
 
 for gi = 1:2
+    plot([2 1] + randn(length(wDat{gi}),1)*0.1*(gi-1.5),wDat{gi},'o','MarkerSize',1,'Color',myColors(gi,:),'HandleVisibility','off')
     errorbar([2 1],mn(gi,:),se(gi,:),'Color',myColors(gi,:))
 end
 legend(groupStr,'Location','southoutside');
-set(gca,'xtick',[1 2],'XTickLabel',fliplr(condStr(1:2)),'XLim',[0 3],'YLim',[0 0.8],'ytick',0:0.4:0.8)
+set(gca,'xtick',[1 2],'XTickLabel',fliplr(condStr(1:2)),'XLim',[0 3],'YLim',[-0.1 0.7],'ytick',0:0.2:0.8)
 ytickformat('%.1f')
 ylabel('Variability (a.u.)')
 title(sprintf('%s\nPost(%.1f~%.1fs)',[chanROI{:}],timeROI.Post(1),timeROI.Post(2)))
@@ -292,5 +308,5 @@ for gi = 1:2
     plot([0 0],get(gca,'YLim'),'k--','HandleVisibility','off')
 end
 
-saveas(gca,fullfile(Dir.figs,['RespBetaVariance_CorrVSwrong_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
-saveas(gca,fullfile(Dir.figs,['RespBetaVariance_CorrVSwrong_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']))
+saveas(gca,fullfile(Dir.figs,['RespBetaVariance_CorrVSwrong_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
+saveas(gca,fullfile(Dir.figs,['RespBetaVariance_CorrVSwrong_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']))

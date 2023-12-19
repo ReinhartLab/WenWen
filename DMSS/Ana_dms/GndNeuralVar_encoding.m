@@ -129,17 +129,24 @@ writetable(T,fullfile(Dir.ana,'TableOutput',['EncodingBetaVariance_',num2str(fre
 
 %% linear fit of SS
 clear line_fit
-cond_i = 3;
-for gi = 1:2
-    for sub_i = 1:size(dat.betaAvgFrontal{gi}{cond_i},1)
-        line_fit{gi}.params(sub_i,:) = polyfit([1 2 3 4]',dat.betaAvgFrontal{gi}{cond_i}(sub_i,:)',1);
-    end
-    [~,line_fit{gi}.p,~,line_fit{gi}.Tstat] = ttest(line_fit{gi}.params(:,1));
-end
-
 T = subs(:,{'name','group','groupStr'});
-T.slope_delay = [line_fit{2}.params(:,1);line_fit{1}.params(:,1)];
-% writetable(T,fullfile(Dir.ana,'TableOutput',['EncodingBetaVariance_Slope_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
+
+for cond_i = [2 3]
+    for gi = 1:2
+        for sub_i = 1:size(dat.betaAvgFrontal{gi}{cond_i},1)
+            if cond_i == 2
+
+                line_fit{gi,cond_i}.params(sub_i,:) = polyfit([1 2]',dat.betaAvgFrontal{gi}{cond_i}(sub_i,:)',1);
+            else
+                line_fit{gi,cond_i}.params(sub_i,:) = polyfit([1 2 3 4]',dat.betaAvgFrontal{gi}{cond_i}(sub_i,:)',1);
+            end
+        end
+        [~,line_fit{gi,cond_i}.p,~,line_fit{gi,cond_i}.Tstat] = ttest(line_fit{gi,cond_i}.params(:,1));
+
+    end
+    T.(['slope_delay_ss', num2str(cond_i)]) = [line_fit{2,cond_i}.params(:,1);line_fit{1,cond_i}.params(:,1)];
+end
+writetable(T,fullfile(Dir.ana,'TableOutput',['EncodingBetaVariance_Slope_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.delay(1)),'~',num2str(timeROI.delay(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
 
 %% bar & time series
 addpath(genpath('D:\Toolbox\crameri_v1.08'))
@@ -165,10 +172,10 @@ for gi = 1:2
 
     legend(condStr,'Location','northeastoutside')
     ytickformat('%.1f')
-    ylabel('Variance(AU)');
+    ylabel('Variability(a.u.)');
     xlabel('Time (0s=maintenance)')
     title(groupStr{gi},sprintf('%s %d~%dHz',[frontalROI{:}],freq.betaFreq(1),freq.betaFreq(2)))
-    set(gca,'XTick',[-4.8 -3.6 -2.4 -1.2 0],'YLim',[-1.2 0.3],'XLim',[-5.23 timeROI.all(2)])
+    set(gca,'XTick',[-4.8 -3.6 -2.4 -1.2 0],'YLim',[-1 0.5],'XLim',[-5.23 timeROI.all(2)])
 
     plot(get(gca,'XLim'),[0 0],'k','HandleVisibility','off')
     plot([-4.8 -4.8],get(gca,'YLim'),'k--','HandleVisibility','off')
@@ -178,48 +185,51 @@ for gi = 1:2
     plot([0 0],get(gca,'YLim'),'k--','HandleVisibility','off')
 end
 
-subplot(2,2,3);%bar
-hold all;axis square
 lineS = {'--','-'};
 ms = 10;
-for gi = 1:2
-
-    mn = cellfun(@mean,dat.betaAvgFrontal{gi},'UniformOutput',false);
-    se = cellfun(@(x)std(x)/sqrt(sum(subs.group==gi)),dat.betaAvgFrontal{gi},'UniformOutput',false);
-
-    errorbar(1:length(mn{1}),mn{1},se{1},'k.','LineWidth',1.5,'LineStyle',lineS{gi},'MarkerSize',ms)
-
-    for c = 1:3
+for c = 1:3
         cond_i = 4-c;
-        errorbar(1:length(mn{cond_i}),mn{cond_i},se{cond_i},'.','Color',myColors(cond_i,:),'LineWidth',1.5,'LineStyle',lineS{gi},'MarkerSize',ms,'HandleVisibility','off')
-        % errorbar(1:length(mn{cond_i}),mn{cond_i},se{cond_i},'.','Color',groupColor(gi,:),'LineWidth',1.5,'LineStyle',lineS{gi},'MarkerSize',ms)
-    end
+        subplot(2,5,5+cond_i);
+        hold all;axis square
+
+        for gi = 1:2
+            mn = cellfun(@mean,dat.betaAvgFrontal{gi},'UniformOutput',false);
+            se = cellfun(@(x)std(x)/sqrt(sum(subs.group==gi)),dat.betaAvgFrontal{gi},'UniformOutput',false);
+            errorbar(1:length(mn{cond_i}),mn{cond_i},se{cond_i},'.','Color',myColors(gi,:),'LineStyle',lineS{gi},'MarkerSize',ms)
+        end
+        ylim([-0.4 0.2])
+        if cond_i == 1
+            ylim([-0.2 0.1])
+        end
+        legend(groupStr,'Location','southoutside')
+        xlabel('Set size')
+        ytickformat('%.1f')
+        set(gca,'XLim',[0 cond_i+1],'XTick',1:cond_i+1)
+        ylabel('Variability(a.u.)')
+        title('beta encoding')
 end
-legend(groupStr,'Location','bestoutside')
-xlabel('Set size')
-set(gca,'XLim',[0 5],'XTick',1:4)
-ylabel('Variance(AU)')
-title('beta encoding')
 
 % plot slope index
+for cond_i = [2 3];
+subplot(2,5,7+cond_i);hold all;box on;axis square
 
-subplot(2,2,4);hold all;box on;axis square
-subs.slope = [line_fit{2}.params(:,1);line_fit{1}.params(:,1)];
+subs.slope = [line_fit{2,cond_i}.params(:,1);line_fit{1,cond_i}.params(:,1)];
 boxplot(subs.slope,subs.groupStr)
 plot(get(gca,'xlim'),[0 0],'k--')
-set(gca,'YLim', [-0.4 0.2],'ytick',-0.4:0.2:0.6,'XLim',[0 3]);
+set(gca,'YLim', [-0.6 0.4],'ytick',[-0.6 0 0.4],'XLim',[0 3]);
 ylabel({'\bfSlope'});
 
 for gi = 1:2
-    if  line_fit{gi}.p<.05
-        text(gi,0.1,'*','HorizontalAlignment','center','FontSize',20)
+    if  line_fit{gi,cond_i}.p<.05
+        text(gi,0.1,'*','HorizontalAlignment','center','FontSize',16)
     end
 end
-[~,p] = ttest2(line_fit{1}.params(:,1),line_fit{2}.params(:,1));
-text(1.5,-0.35,['p=',num2str(p)],'HorizontalAlignment','center','FontSize',12);
-plot([1 2],[-0.3 -0.3],'k')
-
+[~,p,~,stat] = ttest2(line_fit{1,cond_i}.params(:,1),line_fit{2,cond_i}.params(:,1));
+text(1.5,0.5,sprintf('p=%.3f',p),'HorizontalAlignment','center','FontSize',10);
+plot([1 2],[0.3 0.3],'k')
+end
 saveas(gca,fullfile(Dir.figs,['EncodingBetaVariance_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']))
+saveas(gca,fullfile(Dir.figs,['EncodingBetaVariance_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']))
 
 %% correlation
 load beha.mat

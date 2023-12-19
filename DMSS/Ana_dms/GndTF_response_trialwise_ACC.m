@@ -20,12 +20,13 @@ txtCell = {'','','','';'_lap','_dephase','_corrTrials','_bl2preDelay'};
 groupStr = {'Young','Old','Both'};
 condStr = {'ss1','ss2','ss4'};
 
-frontalROI = {'CPz','CP1','CP2','Pz','Cz'};
-% frontalROI = {'FCz','Fz','F1','F2','AFz'};
+% frontalROI = {'CPz','CP1','CP2','Pz','Cz'};
+frontalROI = {'FCz','Fz','F1','F2','AFz'};
 
 freq.betaFreq = [15 25];% Hz
 timeROI.all = [-0.4 0.5];% in s, for curve plotting
-timeROI.Post = [0 0.5];% in s
+% timeROI.Post = [0 0.5];% in s
+timeROI.Post = [0.1 0.5];% in s
 
 %%
 clear subsAll
@@ -80,10 +81,10 @@ for sub_i = 1:subN
     end
 end
 
-save(fullfile(Dir.results,['RespBetaPow_trialwiseACC',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']),'subsAll','dat','tbl','tblChans','-v7.3')
+save(fullfile(Dir.results,['RespBetaPow_trialwiseACC',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']),'subsAll','dat','tbl','tblChans','-v7.3')
 
 %% glme for frontal beta power and each channel
-load(fullfile(Dir.results,['RespBetaPow_trialwiseACC',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']))
+load(fullfile(Dir.results,['RespBetaPow_trialwiseACC',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']))
 
 %--------selected channels
 tbl.subj = categorical(tbl.subj);

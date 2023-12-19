@@ -10,7 +10,7 @@ ft_defaults;
 addpath(genpath('D:\intWM-E\toolbox\gramm-master'))
 addpath(genpath('D:\intWM-E\toolbox\crameri_v1.08'))
 
-IsCorretTrials = 1;
+IsCorretTrials = 0;
 IsLap = 1;
 IsdePhase=1;
 IsBL2preDelay = 1;% enforced
@@ -27,7 +27,7 @@ freq.betaFreq = [15 25];% Hz
 % freq.alphaFreq = [8 12];% Hz
 
 timeROI.Delay = [0 3];% in s
-timeROI.Post = [0 0.5];% in s
+timeROI.Post = [0.1 0.5];% in s
 
 %%
 tbl  = table; % for maintenance analysis,table contains RT(n), delay power(n)
@@ -86,7 +86,37 @@ for sub_i = 1:subN
 end
 
 save(fullfile(Dir.results,['DelayRespBetaPow_trialwise',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']),'tbl','tblN_1','-v7.3')
+%% whether post resp beta is a signal of confidence, if yes, then stronger beta predict faster response
 
+load(fullfile(Dir.results,['DelayRespBetaPow_trialwise',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']))
+
+%--------selected channels
+tblN_1.subj = categorical(tblN_1.subj);
+tblN_1.ss_num = categorical(tblN_1.ss_num);
+tblN_1.group = categorical(tblN_1.group);
+tblN_1.ss_1 = categorical(tblN_1.ss_1);
+
+%-------------- rt, correct trials
+if IsCorretTrials ==1
+glme = fitglme(tblN_1,'button_resp_rt ~ betaAvgD+(1|group)+(1|ss_num)+(1|subj)','Distribution','Gamma');
+% glme = fitglme(tblN_1,'button_resp_rt ~ betaAvgD+(1|subj)','Distribution','Gamma');
+dataset2table(glme.anova)
+
+glme = fitglme(tblN_1,'betaAvgD ~ button_resp_rt+(1|group)+(1|ss_num)+(1|subj)','Distribution','Normal');
+ dataset2table(glme.anova)
+else
+% tmp = tblN_1(tblN_1.ss_num == "4",:);
+% glme = fitglme(tmp,'betaAvgD ~ button_resp_rt*group+(1|subj)');
+% dataset2table(glme.Coefficients)
+
+%-------------- acc, all trials
+glme = fitglme(tblN_1,'button_resp_corr ~ betaAvgD+(1|group)+(1|ss_num)+(1|subj)','Distribution','Binomial');
+% glme = fitglme(tblN_1,'button_resp_corr ~ betaAvgD+(1|subj)','Distribution','Binomial');
+dataset2table(glme.anova)
+
+glme = fitglme(tblN_1,'betaAvgD ~ button_resp_corr+(1|group)+(1|ss_num)+(1|subj)','Distribution','Normal');
+dataset2table(glme.anova)
+end
 %% glme for frontal beta power and each channel
 load(fullfile(Dir.results,['DelayRespBetaPow_trialwise',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']))
 
@@ -97,6 +127,7 @@ tblN_1.group = categorical(tblN_1.group);
 tblN_1.ss_1 = categorical(tblN_1.ss_1);
 
 % first put everything as fixed effect
+
 
 % glme = fitglme(tblN_1,'button_resp_rt ~ betaAvgM*betaAvgD_1*group*ss_num+(1|subj)');
 glme = fitglme(tblN_1,'button_resp_rt ~ betaAvgM*betaAvgD_1*group+(1|subj)');

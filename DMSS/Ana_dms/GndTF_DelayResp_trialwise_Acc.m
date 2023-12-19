@@ -9,6 +9,7 @@ addpath('D:\intWM-E\toolbox\fieldtrip-20211209')
 ft_defaults;
 addpath(genpath('D:\intWM-E\toolbox\gramm-master'))
 addpath(genpath('D:\intWM-E\toolbox\crameri_v1.08'))
+addpath(genpath('D:\intWM-E\toolbox\distributionPlot'))
 
 IsCorretTrials = 0;% enforced for accuracy
 IsLap = 1;
@@ -24,16 +25,15 @@ ssN = [1 2 4];
 % chanROI = {'CPz','CP1','CP2','Pz','Cz'};
 chanROI = {'FCz','Fz','F1','F2','AFz'};
 
-freq.betaFreq = [15 25];% Hz
-% freq.betaFreq = [8 12];% Hz
-% freq.betaFreq = [1 3];% Hz
+% freq.betaFreq = [15 25];% Hz
+freq.betaFreq = [8 12];% Hz
+% % freq.betaFreq = [1 3];% Hz
 % freq.betaFreq = [4 7];% Hz
-
 % freq.betaFreq = [28 40];% Hz
 
 timeROI.Delay = [0 3];% in s
 % timeROI.Post = [0 0.6];% in s
-timeROI.Post = [0.1 0.6];% in s
+timeROI.Post = [0.1 0.5];% in s
 
 %%
 tbl  = table; % for maintenance analysis,table contains RT(n), delay power(n)
@@ -84,7 +84,7 @@ save(fullfile(Dir.results,['DelayRespBetaPow_trialwise_acc',num2str(freq.betaFre
 
 %% glme for frontal beta power 
 load(fullfile(Dir.results,['DelayRespBetaPow_trialwise_acc',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']))
-
+writetable(tblN_1,fullfile(Dir.ana,'TableOutput',['DelayRespBetaPow_trialwise_acc_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.csv']))
 %--------selected channels
 tblN_1.subj = categorical(tblN_1.subj);
 tblN_1.ss_num = categorical(tblN_1.ss_num); %n ss
@@ -94,18 +94,23 @@ tblN_1.ss_1 = categorical(tblN_1.ss_1);% n-1 ss
 % glme = fitglme(tblN_1,'button_resp_corr ~ betaAvgM*betaAvgD_1*group+(1|subj)+(1|ss_num)','Distribution','Binomial','Link','logit');
 % glme = fitglme(tblN_1,'button_resp_corr ~ betaAvgM*betaAvgD_1*group*ss_num+(1+ss_num|subj)','Distribution','Binomial','Link','logit');
 glme = fitglme(tblN_1,'button_resp_corr ~ betaAvgM*betaAvgD_1*group*ss_num+(1+betaAvgM+betaAvgD_1+ss_num|subj)','Distribution','Binomial','Link','logit');
+glme_wo = fitglme(tblN_1,'button_resp_corr ~ betaAvgM*betaAvgD_1*group*ss_num - group:betaAvgD_1 +(1+betaAvgM+betaAvgD_1+ss_num|subj)','Distribution','Binomial','Link','logit');
+% glme_wo = fitglme(tblN_1,'button_resp_corr ~ betaAvgM*group*ss_num +(1+betaAvgM+ss_num|subj)','Distribution','Binomial','Link','logit');
+
+bayes_factor = exp(glme.LogLikelihood - glme_wo.LogLikelihood)
+
 
 % Compare the two models using a likelihood ratio test. Specify 'CheckNesting' as true, so compare returns a warning if the nesting requirements are not satisfied.
 % results = compare(glme0,glme,'CheckNesting',true)
 
-t = dataset2table(glme.anova)
-t.formula{1} = char(glme.Formula);
-writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
-    'FileType','spreadsheet','Sheet',[chanROI{:},'_anova1'])
-t = dataset2table(glme.Coefficients);
-t.formula{1} = char(glme.Formula);
-writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
-    'FileType','spreadsheet','Sheet',[chanROI{:},'_Coefficients1'])
+% t = dataset2table(glme.anova)
+% t.formula{1} = char(glme.Formula);
+% writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+%     'FileType','spreadsheet','Sheet',[chanROI{:},'_anova1'])
+% t = dataset2table(glme.Coefficients);
+% t.formula{1} = char(glme.Formula);
+% writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+%     'FileType','spreadsheet','Sheet',[chanROI{:},'_Coefficients1'])
 
 %% note: the mean of db normalized single trial data might be different from db normalization on trial-average data 
 
@@ -117,7 +122,7 @@ writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str
 %%
 myFigBasic
 myColor = [0 0 0;3 154 53;102 0 204]./255;
-lineW = 1.5;
+lineW = 1.2;
 fig = figure('Position',[200 200 1600 300]);
 
 tblstats = grpstats(tblN_1,['button_resp_corr'],["mean","sem"],"DataVars",["betaAvgM","betaAvgD"]);
@@ -136,11 +141,29 @@ ylabel('Deletion beta power of trials N')
 title([chanROI{:}],'n-n')
 
 subplot(1,4,3);hold all;axis square
+halfStr = {'left','right'};
 tblstats = grpstats(tblN_1,["group",'button_resp_corr'],["mean","sem"],"DataVars","betaAvgD_1");
 for gi = 1:2
-    errorbar([0 1],tblstats.mean_betaAvgD_1(double(tblstats.group)==gi),tblstats.sem_betaAvgD_1(double(tblstats.group)==gi),'Color',myColor(gi+1,:),'LineWidth',lineW)
+    distributionPlot(tblN_1.betaAvgD_1(double(tblN_1.group)==gi & tblN_1.button_resp_corr ==0),'xValues',0+(gi-1.5)*0.5,'histOri',halfStr{gi},'color',myColor(gi+1,:),'widthDiv',[2 2],'showMM',2)
+    distributionPlot(tblN_1.betaAvgD_1(double(tblN_1.group)==gi & tblN_1.button_resp_corr ==1),'xValues',1+(gi-1.5)*0.5,'histOri',halfStr{gi},'color',myColor(gi+1,:),'widthDiv',[2 2],'showMM',2)
+
     tmp_tbl = tblN_1(double(tblN_1.group)==gi,:);
 
+%     corArray = tmp_tbl.betaAvgD_1(double(tmp_tbl.group)==gi & tmp_tbl.button_resp_corr==1);
+%     incorArray = tmp_tbl.betaAvgD_1(double(tmp_tbl.group)==gi & tmp_tbl.button_resp_corr==0);
+end
+set(gca,'XLim',[-1 2],'XTick',[0 1],'XTickLabel',{'Incorrect','Correct'})
+set(gca,'YLim',[-11 20],'YTick',-10:10:20)
+xlabel('Memory accuracy of trial N')
+ylabel('Deletion beta power of trials N-1')
+legend(groupStr,'Location','bestoutside')
+title([chanROI{:}],'n+1')
+
+axes('Position',[.57 .7 .05 .15]);hold all
+for gi = 1:2
+    errorbar([0 1],tblstats.mean_betaAvgD_1(double(tblstats.group)==gi),tblstats.sem_betaAvgD_1(double(tblstats.group)==gi),'Color',myColor(gi+1,:),'LineWidth',lineW)
+
+    tmp_tbl = tblN_1(double(tblN_1.group)==gi,:);
     corArray = tmp_tbl.betaAvgD_1(double(tmp_tbl.group)==gi & tmp_tbl.button_resp_corr==1);
     incorArray = tmp_tbl.betaAvgD_1(double(tmp_tbl.group)==gi & tmp_tbl.button_resp_corr==0);
 
@@ -152,14 +175,10 @@ for gi = 1:2
     end
 end
 
-set(gca,'XLim',[-1 2],'XTick',[0 1],'XTickLabel',{'Incorrect','Correct'})
-set(gca,'YLim',[-1 -0.19],'YTick',-1:0.4:1)
+set(gca,'XLim',[-0.5 1.5],'XTick',[0 1],'XTickLabel',{'Incorrect','Correct'})
+set(gca,'YLim',[-1.2 -0.4],'YTick',[-1.2 -0.4])
 ytickformat('%.1f')
-xlabel('Memory accuracy of trial N')
-ylabel('Deletion beta power of trials N-1')
-legend(groupStr,'Location','bestoutside')
-title([chanROI{:}],'n+1')
-
+%%
 subplot(1,4,4);hold all;
 tblstats = grpstats(tblN_1,["group",'button_resp_corr','ss_num'],["mean","sem"],"DataVars","betaAvgD_1");
 
@@ -172,12 +191,12 @@ for gi = 1:2
         corArray = tmp_tbl.betaAvgD_1(double(tmp_tbl.group)==gi & tmp_tbl.button_resp_corr==1);
         incorArray = tmp_tbl.betaAvgD_1(double(tmp_tbl.group)==gi & tmp_tbl.button_resp_corr==0);
 
-        [tstats.pval(gi,s), tstats.t(gi,s),tstats.df(gi,s)] = mult_comp_perm_t2(corArray,incorArray,10000);
-        tstats.d(gi,s) = computeCohen_d(corArray,incorArray);
-        if tstats.pval(gi,s)<.05
-            plot([0 1]+gi*2,[1 1]*mean(incorArray)*1.3,'Color',myColor(s,:))
-            text(0.5+gi*2,mean(incorArray)*1.3,sprintf('*\np = %.3f',tstats.pval(gi,s)),'Color',myColor(s,:),'HorizontalAlignment','center')
-        end
+%         [tstats.pval(gi,s), tstats.t(gi,s),tstats.df(gi,s)] = mult_comp_perm_t2(corArray,incorArray,10000);
+%         tstats.d(gi,s) = computeCohen_d(corArray,incorArray);
+%         if tstats.pval(gi,s)<.05
+%             plot([0 1]+gi*2,[1 1]*mean(incorArray)*1.3,'Color',myColor(s,:))
+%             text(0.5+gi*2,mean(incorArray)*1.3,sprintf('*\np = %.3f',tstats.pval(gi,s)),'Color',myColor(s,:),'HorizontalAlignment','center')
+%         end
     end
     text(0.5+gi*2,-2,groupStr{gi},'HorizontalAlignment','center')
 end
@@ -326,40 +345,6 @@ t.formula{1} = char(glme.Formula);
 writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
     'FileType','spreadsheet','Sheet',[chanROI{:},'_delay_Coef1'])
 
-%%
-for gi = 1:2
-    tmp_tbl = tbl(double(tbl.group)==gi,:);
-
-    glme = fitglme(tmp_tbl,'button_resp_corr ~ betaAvgM+(1|subj)+(1|ss_num)');
-    t = dataset2table(glme.anova);
-    t.formula{1} = char(glme.Formula);
-    writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
-        'FileType','spreadsheet','Sheet',[groupStr{gi},'_delay_a1'])
-    t = dataset2table(glme.Coefficients)
-    t.formula{1} = char(glme.Formula);
-    writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
-        'FileType','spreadsheet','Sheet',[groupStr{gi},'_delay_Coef1'])
-end
-
-%% deletion
-load(fullfile(Dir.results,['DelayRespBetaPow_trialwise',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']))
-
-%--------selected channels
-tblP_1.subj = categorical(tblP_1.subj);
-tblP_1.group = categorical(tblP_1.group);
-tblP_1.ss_1 = categorical(tblP_1.ss_1);
-
-% first put everything as fixed effect
-
-glme = fitglme(tblP_1,'rt_1 ~ betaAvgD*group+(1|subj)+(1|ss_1)');
-t = dataset2table(glme.anova)
-t.formula{1} = char(glme.Formula);
-writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
-    'FileType','spreadsheet','Sheet',[chanROI{:},'_resp_a1'])
-t = dataset2table(glme.Coefficients);
-t.formula{1} = char(glme.Formula);
-writetable(t,fullfile(Dir.ana,'TableOutput',['DelayRespPowerTrial_glme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[chanROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
-    'FileType','spreadsheet','Sheet',[chanROI{:},'_resp_Coef1'])
 %%
 for gi = 1:2
     tmp_tbl = tbl(double(tbl.group)==gi,:);

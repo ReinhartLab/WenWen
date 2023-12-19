@@ -32,7 +32,7 @@ freq.alphaFreq = [8 12];% Hz
 % freq.betaFreq = [8 12];% Hz
 
 % timeROI.Post = [0 0.5];% in s
-timeROI.Post = [0.1 0.6];% in s
+timeROI.Post = [0.1 0.5];% in s
 timeROI.Pre = [-0.4 0];% in s
 timeROI.all = [timeROI.Pre(1) timeROI.Post(2)];% in s, for curve plotting
 %%
@@ -495,8 +495,8 @@ for idx = 1:2
     g(2).axe_property('XLim',[-1 3]);
     figure('Position',[100 100 500 260]);
     g.draw();
-    saveas(gcf,fullfile(Dir.figs,['RespBetaPowerBehavCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
-    saveas(gcf,fullfile(Dir.figs,['RespBetaPowerBehavCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']))
+    saveas(gcf,fullfile(Dir.figs,['RespBetaPowerBehavCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+    saveas(gcf,fullfile(Dir.figs,['RespBetaPowerBehavCorr_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']))
 end
 %% glme regression model: acc = age-group*beta variability
 tmp = vertcat(dat.betaAvgFrontal{:});
@@ -520,11 +520,11 @@ y = accArray;
 glme = fitglme(tbl,'beha ~ var*group+(1|ss)');
 t = dataset2table(glme.anova);
 t.formula{1} = char(glme.Formula); 
-writetable(t,fullfile(Dir.ana,'TableOutput',['RespBetaPowerglme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+writetable(t,fullfile(Dir.ana,'TableOutput',['RespBetaPowerglme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
     'FileType','spreadsheet','Sheet',[frontalROI{:},'_anova'])
 
 t = dataset2table(glme.Coefficients);
-writetable(t,fullfile(Dir.ana,'TableOutput',['RespBetaPowerglme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
+writetable(t,fullfile(Dir.ana,'TableOutput',['RespBetaPowerglme_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.xls']),...
     'FileType','spreadsheet','Sheet',[frontalROI{:},'_Coefficients'])
 
 %% 
@@ -622,9 +622,9 @@ for idx = 2%1:2
     end
     fig = figure('Position',[100 100 1000 500]);
     g.draw();
-    saveas(gcf,fullfile(Dir.figs,['RespPowerGLM_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+    saveas(gcf,fullfile(Dir.figs,['RespPowerGLM_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
     fig.PaperOrientation = 'landscape';
-    print(fig,fullfile(Dir.figs,['RespPowerGLM_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']),'-dpdf','-r300','-bestfit')
+    print(fig,fullfile(Dir.figs,['RespPowerGLM_',behaStr{idx},num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']),'-dpdf','-r300','-bestfit')
 end
 %% resp topography
 
@@ -704,7 +704,7 @@ for t = 1:length(timeROI.bins) % loop time roi
     h.Label.Position = h.Label.Position + [1 0 0];
     title(sprintf('Load-dependent clear-out\nAll:%.1f~%.1fs', timeROI.bins{t}(1),timeROI.bins{t}(2)));
 end
-saveas(gcf,fullfile(Dir.figs,['RespPowTopoLoadDependent_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+saveas(gcf,fullfile(Dir.figs,['RespPowTopoLoadDependent_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
 %% to check why there's no correlation overall for young
 % Nplus1 = load(fullfile(Dir.results,['RespBetaPow',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',[frontalROI{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.mat']),'subsAll');
 % 
@@ -799,7 +799,7 @@ h.Label.Rotation = -90;
 h.Label.Position = h.Label.Position + [1 0 0];
 title(sprintf('All:%.1f~%.1fs', timeROI.bins{t}(1),timeROI.bins{t}(2)));
 
-saveas(gcf,fullfile(Dir.figs,['RespPowTopoTtest_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+saveas(gcf,fullfile(Dir.figs,['RespPowTopoTtest_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
 
 %% split young and old based on their acc
 
@@ -841,7 +841,7 @@ for gi = 1:2
         title(sprintf('%s:%.1f~%.1fs', groupStr{gi},timeROI.bins{t}(1),timeROI.bins{t}(2)),[splitStr{b},' N=' num2str(sum(tmp_upper))]);
     end
 end
-saveas(gcf,fullfile(Dir.figs,['RespPowTopoTtestSplitACC_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+saveas(gcf,fullfile(Dir.figs,['RespPowTopoTtestSplitACC_',num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
 %%
 threshP = 0.001;
 for gi = 1:2
@@ -939,7 +939,7 @@ for gi = 1:2
         h.Label.Position = h.Label.Position + [1 0 0];
 
         title(sprintf('%s:%.1f~%.1fs', groupStr{gi},timeROI.Post(1),timeROI.Post(2)),splitStr{b});
-        saveas(gcf,fullfile(Dir.figs,['RespPowerTopoTtestSplitACC_clusterPerm',groupStr{gi},num2str(b),num2str(threshP),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
-        print(gcf,fullfile(Dir.figs,['RespPowerTopoTtestSplitACC_clusterPerm',groupStr{gi},num2str(b),num2str(threshP),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.all(1)),'~',num2str(timeROI.all(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']),'-dpdf','-r300')
+        saveas(gcf,fullfile(Dir.figs,['RespPowerTopoTtestSplitACC_clusterPerm',groupStr{gi},num2str(b),num2str(threshP),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.png']))
+        print(gcf,fullfile(Dir.figs,['RespPowerTopoTtestSplitACC_clusterPerm',groupStr{gi},num2str(b),num2str(threshP),num2str(freq.betaFreq(1)),'~',num2str(freq.betaFreq(2)),'Hz',num2str(timeROI.Post(1)),'~',num2str(timeROI.Post(2)),'s',txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4} '.pdf']),'-dpdf','-r300')
     end
 end

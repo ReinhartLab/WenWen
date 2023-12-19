@@ -19,7 +19,7 @@ condStr = {'Load 1','Load 2','Load 4'};
 
 freq.betaFreq = [15 25];% Hz
 % timeROI.bins = [0 0.5];
-timeROI.bins = [0.1 0.6];
+timeROI.bins = [0.1 0.5];
 
 %%
 subsAll = cell(subN,1);
@@ -151,7 +151,7 @@ for gi = 1:2 % separate two groups
         c.FontSize = 16;
 
         %         c.Label.String = sprintf('Cluster permuated p<%.3f&%.3f',threshP.ttest,threshP.cluster);
-        title([groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2))]);
+%         title([groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2))]);
         saveas(gcf,fullfile(Dir.figs,['Resp_source_int_3D_',groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2)),'_',num2str(a),txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.png']));
         print(gcf,fullfile(Dir.figs,['Resp_source_int_3D_',groupStr{gi},num2str(timeROI.bins(1)),'~',num2str(timeROI.bins(2)),'_',num2str(a),txtCell{IsdePhase+1,2},txtCell{IsCorretTrials+1,3},txtCell{IsBL2preDelay+1,4},'.pdf']),'-dpdf','-r600');
     end

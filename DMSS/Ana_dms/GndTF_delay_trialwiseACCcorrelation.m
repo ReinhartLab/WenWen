@@ -132,10 +132,6 @@ for s = 1:3
 end
 
 %%
-
-
-
-%%
 tblChans.subj = categorical(tblChans.subj);
 tblChans.ss = categorical(tblChans.ss);
 tblChans.group = categorical(tblChans.group);

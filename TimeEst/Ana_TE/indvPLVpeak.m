@@ -3,7 +3,7 @@ load('subs.mat');
 txtCell = {'','','';'_lap','_dephase','_bl'};
 IsLap = 0;
 IsdePhase = 1;
-IsBL = 1;% whether to apply baseline
+IsBL = 0;% whether to apply baseline
 
 condStr = {'Correct','Incorrect','Incor-Corr'};
 PeakPara.time = [0.1 0.5]; % in s
@@ -96,9 +96,10 @@ for sn = 1:height(subs)
 
     saveas(gcf,fullfile(Dir.figs,'IndvPLVpeak',[sprintf('sn%02d_%s%.1f~%.1fs',sn,subname,PeakPara.time(1),PeakPara.time(2)),sprintf('%s (ref at %s)',[cfg.channel{:}],[cfg.refchannel{:}]),txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3},'.png']))
 end
-save(fullfile(Dir.results,['indvPeakF.mat']),"Indv")
+save(fullfile(Dir.results,['indvPeakF_1Hz_' ,[cfg.refchannel{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3} '.mat']),"Indv")
 %%
-load(fullfile(Dir.results,['indvPeakF.mat']))
+
+load(fullfile(Dir.results,['indvPeakF_1Hz_' ,[cfg.refchannel{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3} '.mat']))
 Indv = struct2table(Indv);
 Indv(subs.excluded==1,:) = [];
 Indv.peakF2plot = Indv.peakF;

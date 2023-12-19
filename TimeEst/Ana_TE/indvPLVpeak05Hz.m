@@ -9,7 +9,7 @@ condStr = {'Correct','Incorrect','Incor-Corr'};
 PeakPara.time = [0.1 0.5]; % in s
 PeakPara.freq = [3 12]; % in Hz
 % PeakPara.freq = [3 10]; % in Hz
-
+groupAvg.freq = [5 12]; %n in hz, from Gplv_ft_sensor, permutation
 %%
 for sn = 1:height(subs)
     subname = subs.name{sn};
@@ -80,6 +80,10 @@ for sn = 1:height(subs)
 
     tmp = tfDat{1}.plvFT.freq(locs)<=PeakPara.freq(2) & tfDat{1}.plvFT.freq(locs)>=PeakPara.freq(1);
     Indv.peakF{sn,1} = round(tfDat{1}.plvFT.freq(locs(tmp)),1);
+    Indv.peakPLV{sn,1} = tmpdat(locs(tmp));
+
+    tmp = tfDat{1}.plvFT.freq<=PeakPara.freq(2) & tfDat{1}.plvFT.freq>=PeakPara.freq(1);
+    Indv.avgPLV{sn,1} = mean(tmpdat(tmp));
 
     subplot(2,1,2);hold all;box on
     plot(tfDat{1}.plvFT.freq,freqCurve)
@@ -94,9 +98,9 @@ for sn = 1:height(subs)
 
     saveas(gcf,fullfile(Dir.figs,'IndvPLVpeak0.5Hz',[sprintf('sn%02d_%s%.1f~%.1fs',sn,subname,PeakPara.time(1),PeakPara.time(2)),sprintf('%s (ref at %s)',[cfg.channel{:}],[cfg.refchannel{:}]),txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3},'.png']))
 end
-save(fullfile(Dir.results,['indvPeakF0.5Hz.mat']),"Indv")
+save(fullfile(Dir.results,['indvPeakF_0.5Hz_' ,[cfg.refchannel{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3} '.mat']),"Indv")
 %% peakF distribution
-load(fullfile(Dir.results,['indvPeakF0.5Hz.mat']))
+load(fullfile(Dir.results,['indvPeakF_0.5Hz_' ,[cfg.refchannel{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3} '.mat']))
 Indv = struct2table(Indv);
 Indv(subs.excluded==1,:) = [];
 Indv.peakF2plot = Indv.peakF;
@@ -107,6 +111,7 @@ for i = 1:height(Indv)
     end
 end
 
+writetable(Indv,['IndvPeak05Hz' [cfg.refchannel{:}],txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3} '.csv'])
 myFigBasic;
 addpath(genpath('D:\intWM-E\toolbox\RainCloudPlots-master'))
 figure('Position',[200 200 160 300]);
@@ -123,3 +128,4 @@ view(90, -90)
 set(gca,'TickLength', [0 0]);
 text(0.1,0.9,sprintf('Mean = %.1f\nMedian =%.1f',mean(peakF),median(peakF)),'Units','normalized')
 saveas(gcf,fullfile(Dir.figs,'IndvPLVpeak0.5Hz',[sprintf('Boxplot%.1f~%.1fs%d~%dHz',PeakPara.time(1),PeakPara.time(2),PeakPara.freq(1),PeakPara.freq(2)),sprintf('%s (ref at %s)',[cfg.channel{:}],[cfg.refchannel{:}]),txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3},'.png']))
+saveas(gcf,fullfile(Dir.figs,'IndvPLVpeak0.5Hz',[sprintf('Boxplot%.1f~%.1fs%d~%dHz',PeakPara.time(1),PeakPara.time(2),PeakPara.freq(1),PeakPara.freq(2)),sprintf('%s (ref at %s)',[cfg.channel{:}],[cfg.refchannel{:}]),txtCell{IsLap+1,1},txtCell{IsdePhase+1,2},txtCell{IsBL+1,3},'.pdf']))
