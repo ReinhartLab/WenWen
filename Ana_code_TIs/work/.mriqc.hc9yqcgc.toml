@@ -1,0 +1,68 @@
+[environment]
+cpu_count = 28
+exec_env = "singularity"
+free_mem = 221.5
+overcommit_policy = "heuristic"
+overcommit_limit = "50%"
+nipype_version = "1.8.1"
+templateflow_version = "0.7.2"
+total_memory = 251.29475021362305
+version = "22.0.6"
+
+[execution]
+ants_float = false
+bids_dir = "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS"
+bids_database_dir = "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/20231123-085744_26ad7db9-c123-4a75-b0e6-2c9d63d8c496/bids_db"
+cwd = "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code"
+debug = false
+dry_run = false
+dsname = "<unset>"
+float32 = true
+layout = "BIDS Layout: .../viscog01/Wen/IBL_TI_fMRI/BIDS | Subjects: 3 | Sessions: 3 | Runs: 18"
+log_dir = "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/derivatives/mriqc/logs"
+log_level = 25
+no_sub = false
+output_dir = "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/derivatives/mriqc"
+participant_label = [ "231117IBLS04",]
+pdb = false
+reports_only = false
+resource_monitor = false
+run_uuid = "20231123-085744_26ad7db9-c123-4a75-b0e6-2c9d63d8c496"
+templateflow_home = "/usr2/postdoc/wenwen/.cache/templateflow"
+upload_strict = false
+verbose_reports = false
+webapi_url = "https://mriqc.nimh.nih.gov/api/v1"
+work_dir = "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work"
+write_graph = false
+
+[workflow]
+analysis_level = [ "participant",]
+biggest_file_gb = 0.2503097718581557
+deoblique = false
+despike = false
+fd_thres = 0.2
+fd_radius = 50
+fft_spikes_detector = false
+headmask = "BET"
+ica = false
+species = "human"
+template_id = "MNI152NLin2009cAsym"
+
+[nipype]
+crashfile_format = "txt"
+get_linked_libs = false
+local_hash_check = true
+nprocs = 28
+omp_nthreads = 1
+plugin = "MultiProc"
+remove_node_directories = false
+resource_monitor = false
+stop_on_first_crash = true
+
+[workflow.inputs]
+bold = [ "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/func/sub-231117IBLS04_ses-231117IBLS04_task-FFA_bold.nii.gz", "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/func/sub-231117IBLS04_ses-231117IBLS04_task-IBL_run-1_bold.nii.gz", "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/func/sub-231117IBLS04_ses-231117IBLS04_task-IBL_run-2_bold.nii.gz", "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/func/sub-231117IBLS04_ses-231117IBLS04_task-IBL_run-3_bold.nii.gz", "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/func/sub-231117IBLS04_ses-231117IBLS04_task-IBL_run-4_bold.nii.gz", "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/func/sub-231117IBLS04_ses-231117IBLS04_task-IBL_run-5_bold.nii.gz", "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/func/sub-231117IBLS04_ses-231117IBLS04_task-IBL_run-6_bold.nii.gz", "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/func/sub-231117IBLS04_ses-231117IBLS04_task-MT_bold.nii.gz", "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/func/sub-231117IBLS04_ses-231117IBLS04_task-OBA_bold.nii.gz",]
+T1w = [ "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/anat/sub-231117IBLS04_ses-231117IBLS04_T1w.nii.gz",]
+
+[nipype.plugin_args]
+maxtasksperchild = 1
+raise_insufficient = false

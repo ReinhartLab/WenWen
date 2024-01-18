@@ -1,0 +1,20 @@
+[
+    [
+        "bias_image",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/synthstrip_wf/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231101IBLS02..ses-231101IBLS02..anat..sub-231101IBLS02_ses-231101IBLS02_T1w.nii.gz/post_n4/clipped_bias.nii.gz",
+            "a3848242cf4e906d0d4aebe447d84d86"
+        ]
+    ],
+    [
+        "function_str",
+        "def _apply_bias_correction(in_file, bias_image, out_file=None):\n    import os.path as op\n\n    import numpy as np\n    import nibabel as nb\n\n    img = nb.load(in_file)\n    data = np.clip(\n        img.get_fdata() * nb.load(bias_image).get_fdata(),\n        a_min=0,\n        a_max=None,\n    )\n    out_img = img.__class__(\n        data.astype(img.get_data_dtype()),\n        img.affine,\n        img.header,\n    )\n\n    if out_file is None:\n        fname, ext = op.splitext(op.basename(in_file))\n        if ext == \".gz\":\n            fname, ext2 = op.splitext(fname)\n            ext = ext2 + ext\n        out_file = op.abspath(\"{}_inu{}\".format(fname, ext))\n\n    out_img.to_filename(out_file)\n    return out_file\n"
+    ],
+    [
+        "in_file",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231101IBLS02..ses-231101IBLS02..anat..sub-231101IBLS02_ses-231101IBLS02_T1w.nii.gz/conform/sub-231101IBLS02_ses-231101IBLS02_T1w_conformed.nii.gz",
+            "a664fa00478e48ba2946409eb0f5f0e9"
+        ]
+    ]
+]

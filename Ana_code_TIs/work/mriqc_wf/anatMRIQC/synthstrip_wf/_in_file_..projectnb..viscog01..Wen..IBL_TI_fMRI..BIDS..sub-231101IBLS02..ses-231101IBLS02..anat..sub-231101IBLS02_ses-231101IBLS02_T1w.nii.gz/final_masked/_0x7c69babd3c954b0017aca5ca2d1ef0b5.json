@@ -1,0 +1,26 @@
+[
+    [
+        "in_file",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/synthstrip_wf/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231101IBLS02..ses-231101IBLS02..anat..sub-231101IBLS02_ses-231101IBLS02_T1w.nii.gz/post_n4/clipped_corrected.nii.gz",
+            "9d0561ef67a3f341433223c08f675834"
+        ]
+    ],
+    [
+        "in_mask",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/synthstrip_wf/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231101IBLS02..ses-231101IBLS02..anat..sub-231101IBLS02_ses-231101IBLS02_T1w.nii.gz/synthstrip/clipped_corrected_desc-brain_mask.nii.gz",
+            "cce56a63d78a3abd6d0a4391724f1e7b"
+        ]
+    ],
+    [
+        "threshold",
+        "0.5000000000"
+    ],
+    [
+        "needed_outputs",
+        [
+            "out_file"
+        ]
+    ]
+]

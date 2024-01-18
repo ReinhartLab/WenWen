@@ -1,0 +1,23 @@
+[
+    [
+        "in_iqms",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/derivatives/mriqc/sub-231117IBLS04/ses-231117IBLS04/anat/sub-231117IBLS04_ses-231117IBLS04_T1w.json",
+            "5d20c96d53acffea2babb0aee2998353"
+        ]
+    ],
+    [
+        "strict",
+        false
+    ],
+    [
+        "url",
+        "https://mriqc.nimh.nih.gov/api/v1"
+    ],
+    [
+        "needed_outputs",
+        [
+            "api_id"
+        ]
+    ]
+]

@@ -1,0 +1,19 @@
+[
+    [
+        "dataset_path",
+        "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS"
+    ],
+    [
+        "in_file",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231101IBLS02/ses-231101IBLS02/anat/sub-231101IBLS02_ses-231101IBLS02_T1w.nii.gz",
+            "555aa2a1116843842173d2a93481dc96"
+        ]
+    ],
+    [
+        "needed_outputs",
+        [
+            "in_file"
+        ]
+    ]
+]

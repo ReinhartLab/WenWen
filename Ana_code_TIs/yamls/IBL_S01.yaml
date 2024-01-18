@@ -1,0 +1,76 @@
+anat:
+  T1w:
+   - scan: 7
+
+func:
+  bold:
+   - scan: 11
+     task: MT
+     id: mt
+   - scan: 13
+     task: FFA
+     id: ffa
+   - scan: 15
+     task: OBA
+     id: oba
+   - scan: 19
+     task: IBL
+     run: 1
+     id: ibl1
+   - scan: 21
+     task: IBL
+     run: 2
+     id: ibl2
+   - scan: 23
+     task: IBL
+     run: 3
+     id: ibl3
+   - scan: 25
+     task: IBL
+     run: 4
+     id: ibl4
+   - scan: 27
+     task: IBL
+     run: 5
+     id: ibl5
+   - scan: 29
+     task: IBL
+     run: 6
+     id: ibl6
+
+fmap:
+  fmap:
+   - scan: 8
+     run: 1
+     direction: ap
+     intended for:
+      - ffa
+      - oba
+      - mt
+      - ibl1
+      - ibl2
+   - scan: 9
+     run: 1
+     direction: pa
+     intended for:
+      - ffa
+      - oba
+      - mt
+      - ibl1
+      - ibl2
+   - scan: 30
+     run: 2
+     direction: ap
+     intended for:
+      - ibl3
+      - ibl4
+      - ibl5
+      - ibl6
+   - scan: 31
+     run: 2
+     direction: pa
+     intended for:
+      - ibl3
+      - ibl4
+      - ibl5
+      - ibl6

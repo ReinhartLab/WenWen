@@ -1,0 +1,28 @@
+[
+    [
+        "in_iqms",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/derivatives/mriqc/sub-231101IBLS02/ses-231101IBLS02/anat/sub-231101IBLS02_ses-231101IBLS02_T1w.json",
+            "1e9774eb7d0b0269b9bc9e72fe48002b"
+        ]
+    ],
+    [
+        "in_plots",
+        [
+            [
+                "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/ReportsWorkflow/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231101IBLS02..ses-231101IBLS02..anat..sub-231101IBLS02_ses-231101IBLS02_T1w.nii.gz/PlotMosaicZoomed/plot_anat_mosaic1_zoomed.svg",
+                "0b9830eb3fd84b40372d55de2beb6f6d"
+            ],
+            [
+                "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/ReportsWorkflow/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231101IBLS02..ses-231101IBLS02..anat..sub-231101IBLS02_ses-231101IBLS02_T1w.nii.gz/PlotMosaicNoise/plot_anat_mosaic2_noise.svg",
+                "fdad61b7a851f084922aa184d9a70d65"
+            ]
+        ]
+    ],
+    [
+        "needed_outputs",
+        [
+            "out_file"
+        ]
+    ]
+]

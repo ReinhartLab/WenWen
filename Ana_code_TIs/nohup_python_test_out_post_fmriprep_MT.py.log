@@ -1,0 +1,11 @@
+nohup: ignoring input
+/projectnb/viscog01/venvs/wen_env/bin/python/lib/python3.10/site-packages/nilearn/glm/first_level/experimental_paradigm.py:166: UserWarning: The following unexpected columns in events data will be ignored: weight
+  warnings.warn(
+BIDS Layout: .../viscog01/Wen/IBL_TI_fMRI/BIDS | Subjects: 3 | Sessions: 3 | Runs: 18
+QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/scratch/3755277.1.virtualgl/runtime-wenwen'
+/projectnb/viscog01/venvs/wen_env/bin/python/lib/python3.10/site-packages/nilearn/reporting/utils.py:10: UserWarning: Tight layout not applied. The bottom and top margins cannot be made large enough to accommodate all axes decorations.
+  fig.savefig(
+/projectnb/viscog01/venvs/wen_env/bin/python/lib/python3.10/site-packages/joblib/externals/loky/backend/resource_tracker.py:314: UserWarning: resource_tracker: There appear to be 6 leaked semlock objects to clean up at shutdown
+  warnings.warn(
+/projectnb/viscog01/venvs/wen_env/bin/python/lib/python3.10/site-packages/joblib/externals/loky/backend/resource_tracker.py:314: UserWarning: resource_tracker: There appear to be 1 leaked folder objects to clean up at shutdown
+  warnings.warn(

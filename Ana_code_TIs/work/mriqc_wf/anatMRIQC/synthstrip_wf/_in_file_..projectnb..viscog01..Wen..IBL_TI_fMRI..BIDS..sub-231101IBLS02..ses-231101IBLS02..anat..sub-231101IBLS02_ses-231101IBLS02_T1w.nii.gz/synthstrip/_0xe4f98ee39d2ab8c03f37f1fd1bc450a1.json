@@ -1,0 +1,26 @@
+[
+    [
+        "border_mm",
+        1
+    ],
+    [
+        "in_file",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/synthstrip_wf/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231101IBLS02..ses-231101IBLS02..anat..sub-231101IBLS02_ses-231101IBLS02_T1w.nii.gz/pre_n4/clipped_corrected.nii.gz",
+            "9eb025e8fb787978bfb02ffe66e9d0b2"
+        ]
+    ],
+    [
+        "model",
+        [
+            "/opt/freesurfer/models/synthstrip.1.pt",
+            "70e06a1ec8a12da212780f597eba2031"
+        ]
+    ],
+    [
+        "needed_outputs",
+        [
+            "out_mask"
+        ]
+    ]
+]

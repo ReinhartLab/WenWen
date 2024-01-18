@@ -1,0 +1,30 @@
+#!/bin/bash -l
+
+# Set Your SCC Project
+#$ -P viscog01
+
+# Give job a name
+#$ -N fmriprep_single_IBL_ww
+
+# give a hard time limit (12 hours) to run per core/node
+#$ -l h_rt=30:00:00 
+
+# Request cores(4 8 16 32)
+#$ -pe omp 8
+
+#output directory for qsub output
+#$ -o /projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/qsub_output/fmriprep_$JOB_ID.out
+
+#send emails when the job ends or is aborted
+#$ -m ea
+
+# Combine output and error files into a single file
+#$ -j y
+
+###############################################################################################
+
+source fmriprep_fun.sh
+source mriqc_fun.sh
+
+
+

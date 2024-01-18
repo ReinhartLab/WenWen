@@ -1,0 +1,23 @@
+[
+    [
+        "in_file",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/synthstrip_wf/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231117IBLS04..ses-231117IBLS04..anat..sub-231117IBLS04_ses-231117IBLS04_T1w.nii.gz/post_n4/clipped_corrected.nii.gz",
+            "2863302b5f49aef420f3d8e275895171"
+        ]
+    ],
+    [
+        "output_type",
+        "NIFTI_GZ"
+    ],
+    [
+        "surfaces",
+        true
+    ],
+    [
+        "needed_outputs",
+        [
+            "outskin_mask_file"
+        ]
+    ]
+]

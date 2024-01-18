@@ -1,0 +1,33 @@
+[
+    [
+        "air_msk",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/AirMaskWorkflow/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231117IBLS04..ses-231117IBLS04..anat..sub-231117IBLS04_ses-231117IBLS04_T1w.nii.gz/ArtifactMask/sub-231117IBLS04_ses-231117IBLS04_T1w_conformed_air.nii.gz",
+            "a2aecf6d104361ad2a84e992602d4b7c"
+        ]
+    ],
+    [
+        "in_file",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/anat/sub-231117IBLS04_ses-231117IBLS04_T1w.nii.gz",
+            "2e651ce85a4305678ae352423d8ad2c7"
+        ]
+    ],
+    [
+        "modality",
+        "T1w"
+    ],
+    [
+        "rot_msk",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/AirMaskWorkflow/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231117IBLS04..ses-231117IBLS04..anat..sub-231117IBLS04_ses-231117IBLS04_T1w.nii.gz/RotationMask/sub-231117IBLS04_ses-231117IBLS04_T1w_conformed_rotmask.nii.gz",
+            "604f68d275017cd84e6381ddb71ea344"
+        ]
+    ],
+    [
+        "needed_outputs",
+        [
+            "out_prov"
+        ]
+    ]
+]

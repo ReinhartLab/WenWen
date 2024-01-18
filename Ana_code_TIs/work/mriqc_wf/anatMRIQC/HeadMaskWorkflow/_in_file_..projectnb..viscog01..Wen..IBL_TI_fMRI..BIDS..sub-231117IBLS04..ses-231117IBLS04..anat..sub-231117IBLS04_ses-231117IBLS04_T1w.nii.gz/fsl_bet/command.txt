@@ -1,0 +1,1 @@
+bet clipped_corrected.nii.gz clipped_corrected_brain.nii.gz -A

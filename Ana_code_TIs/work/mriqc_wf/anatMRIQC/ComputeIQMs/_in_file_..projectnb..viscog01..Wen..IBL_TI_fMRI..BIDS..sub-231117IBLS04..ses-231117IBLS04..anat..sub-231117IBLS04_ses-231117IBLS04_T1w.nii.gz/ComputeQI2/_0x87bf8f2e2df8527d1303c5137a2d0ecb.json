@@ -1,0 +1,23 @@
+[
+    [
+        "air_msk",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/AirMaskWorkflow/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231117IBLS04..ses-231117IBLS04..anat..sub-231117IBLS04_ses-231117IBLS04_T1w.nii.gz/ArtifactMask/sub-231117IBLS04_ses-231117IBLS04_T1w_conformed_hat.nii.gz",
+            "d40cea7bb78ee36753f4491d140539e2"
+        ]
+    ],
+    [
+        "in_file",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231117IBLS04..ses-231117IBLS04..anat..sub-231117IBLS04_ses-231117IBLS04_T1w.nii.gz/conform/sub-231117IBLS04_ses-231117IBLS04_T1w_conformed.nii.gz",
+            "06da2011233bd0729f1597b68273bc83"
+        ]
+    ],
+    [
+        "needed_outputs",
+        [
+            "out_file",
+            "qi2"
+        ]
+    ]
+]

@@ -1,0 +1,41 @@
+sub-231101IBLS02
+You are using MRIQC v22.0.6, and a newer version is available: 23.1.0.
+231109-14:38:54,559 cli IMPORTANT:
+	 
+    Running MRIQC version 22.0.6:
+      * BIDS dataset path: /projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS.
+      * Output folder: /projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/derivatives/mriqc.
+      * Analysis levels: ['participant'].
+
+231109-14:39:09,826 cli WARNING:
+	 IMPORTANT: Anonymized quality metrics (IQMs) will be submitted to MRIQC's metrics repository. Submission of IQMs can be disabled using the ``--no-sub`` argument. Please visit https://mriqc.readthedocs.io/en/latest/dsa.html to revise MRIQC's Data Sharing Agreement.
+exception calling callback for <Future at 0x1481416a51c0 state=finished raised BrokenProcessPool>
+Traceback (most recent call last):
+  File "/opt/conda/lib/python3.9/concurrent/futures/_base.py", line 330, in _invoke_callbacks
+    callback(self)
+  File "/opt/conda/lib/python3.9/site-packages/mriqc/engine/plugin.py", line 451, in _async_callback
+    result = args.result()
+  File "/opt/conda/lib/python3.9/concurrent/futures/_base.py", line 439, in result
+    return self.__get_result()
+  File "/opt/conda/lib/python3.9/concurrent/futures/_base.py", line 391, in __get_result
+    raise self._exception
+concurrent.futures.process.BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.
+exception calling callback for <Future at 0x14814258ee50 state=finished raised BrokenProcessPool>
+Traceback (most recent call last):
+  File "/opt/conda/lib/python3.9/concurrent/futures/_base.py", line 330, in _invoke_callbacks
+    callback(self)
+  File "/opt/conda/lib/python3.9/site-packages/mriqc/engine/plugin.py", line 451, in _async_callback
+    result = args.result()
+  File "/opt/conda/lib/python3.9/concurrent/futures/_base.py", line 439, in result
+    return self.__get_result()
+  File "/opt/conda/lib/python3.9/concurrent/futures/_base.py", line 391, in __get_result
+    raise self._exception
+  File "/opt/conda/lib/python3.9/concurrent/futures/_base.py", line 330, in _invoke_callbacks
+    callback(self)
+  File "/opt/conda/lib/python3.9/site-packages/mriqc/engine/plugin.py", line 451, in _async_callback
+    result = args.result()
+  File "/opt/conda/lib/python3.9/concurrent/futures/_base.py", line 439, in result
+    return self.__get_result()
+  File "/opt/conda/lib/python3.9/concurrent/futures/_base.py", line 391, in __get_result
+    raise self._exception
+concurrent.futures.process.BrokenProcessPool: A process in the process pool was terminated abruptly while the future was running or pending.

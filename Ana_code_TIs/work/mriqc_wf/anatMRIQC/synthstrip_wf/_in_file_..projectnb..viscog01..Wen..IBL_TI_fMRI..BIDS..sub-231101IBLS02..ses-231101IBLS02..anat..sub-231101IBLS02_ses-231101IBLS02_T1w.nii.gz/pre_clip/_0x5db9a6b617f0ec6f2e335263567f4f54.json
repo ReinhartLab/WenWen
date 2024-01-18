@@ -1,0 +1,35 @@
+[
+    [
+        "dtype",
+        "int16"
+    ],
+    [
+        "in_file",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231101IBLS02..ses-231101IBLS02..anat..sub-231101IBLS02_ses-231101IBLS02_T1w.nii.gz/conform/sub-231101IBLS02_ses-231101IBLS02_T1w_conformed.nii.gz",
+            "a664fa00478e48ba2946409eb0f5f0e9"
+        ]
+    ],
+    [
+        "invert",
+        false
+    ],
+    [
+        "nonnegative",
+        true
+    ],
+    [
+        "p_max",
+        "99.9000000000"
+    ],
+    [
+        "p_min",
+        "10.0000000000"
+    ],
+    [
+        "needed_outputs",
+        [
+            "out_file"
+        ]
+    ]
+]

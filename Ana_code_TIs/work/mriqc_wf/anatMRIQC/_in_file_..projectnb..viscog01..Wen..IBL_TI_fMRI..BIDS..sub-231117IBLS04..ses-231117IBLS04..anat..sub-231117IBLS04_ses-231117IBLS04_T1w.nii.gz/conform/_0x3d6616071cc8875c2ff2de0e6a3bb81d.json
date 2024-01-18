@@ -1,0 +1,23 @@
+[
+    [
+        "check_dtype",
+        false
+    ],
+    [
+        "check_ras",
+        true
+    ],
+    [
+        "in_file",
+        [
+            "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/sub-231117IBLS04/ses-231117IBLS04/anat/sub-231117IBLS04_ses-231117IBLS04_T1w.nii.gz",
+            "2e651ce85a4305678ae352423d8ad2c7"
+        ]
+    ],
+    [
+        "needed_outputs",
+        [
+            "out_file"
+        ]
+    ]
+]

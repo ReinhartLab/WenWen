@@ -1,0 +1,26 @@
+[
+    [
+        "_outputs",
+        [
+            [
+                "@html_report",
+                [
+                    "/projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/work/mriqc_wf/anatMRIQC/ReportsWorkflow/_in_file_..projectnb..viscog01..Wen..IBL_TI_fMRI..BIDS..sub-231117IBLS04..ses-231117IBLS04..anat..sub-231117IBLS04_ses-231117IBLS04_T1w.nii.gz/GenerateReport/sub-231117IBLS04_ses-231117IBLS04_T1w.html",
+                    "f5ec37d9e9f02c5a88b1986a54ead8fc"
+                ]
+            ]
+        ]
+    ],
+    [
+        "base_directory",
+        "/projectnb/viscog01/Wen/IBL_TI_fMRI/BIDS/derivatives/mriqc"
+    ],
+    [
+        "parameterization",
+        false
+    ],
+    [
+        "remove_dest_dir",
+        false
+    ]
+]

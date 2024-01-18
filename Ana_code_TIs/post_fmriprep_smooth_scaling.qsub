@@ -1,0 +1,28 @@
+#!/bin/bash -l
+
+# Set Your SCC Project
+#$ -P viscog01
+
+# Give job a name
+#$ -N post_fmriprep_scaling_single
+
+# give a hard time limit (12 hours) to run per core/node
+#$ -l h_rt=1:00:00 
+
+# Request cores(4 8 16 32)
+#$ -pe omp 16
+
+#output directory for qsub output
+#$ -o /projectnb/viscog01/Wen/IBL_TI_fMRI/Ana_code/qsub_output/smooth_scaling_$JOB_ID.out
+
+##send emails when the job ends or is aborted
+##$ -m ea
+
+# Combine output and error files into a single file
+#$ -j y
+
+###############################################################################################
+
+source post_fmriprep_smooth_scaling.sh
+
+
